@@ -90,10 +90,9 @@ export async function POST(request: NextRequest) {
         }),
       });
       console.log(data);
-      return Response.json(data);
     } catch (error) {
       console.log('Email failed to sent! ERROR: ', error);
-      return Response.json({ error });
+      return Response.json({ error: 'Email failed to sent!' }, { status: 500 });
     }
   }
 
