@@ -25,7 +25,8 @@ const Page = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<TAuthCredentialsValidator>({
     resolver: zodResolver(AuthCredentialsValidator),
   });
@@ -73,6 +74,7 @@ const Page = () => {
         // router.push("/verify-email");
       } else {
         const u = await user.json();
+        setError('root', u.msg);
         toast.error(u.error);
       }
     } catch (error) {
@@ -168,7 +170,12 @@ const Page = () => {
                   )}
                 </div>
 
-                <Button>Sign up</Button>
+                <Button disabled={isSubmitting}>
+                  {!isSubmitting ? 'Sign up' : 'Loading...'}
+                </Button>
+                {errors.root && (
+                  <p className='text-sm text-red-500'>{errors.root.message}</p>
+                )}
               </div>
             </form>
 
