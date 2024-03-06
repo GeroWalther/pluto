@@ -154,9 +154,7 @@ const Page = () => {
                 <div className='grid gap-2 py-2'>
                   <Label htmlFor='confirm_password'>Repeat Password</Label>
                   <Input
-                    {...register('confirm_password', {
-                      required: true,
-                    })}
+                    {...register('confirm_password')}
                     type='password'
                     className={cn({
                       'focus-visible:ring-red-500': errors.confirm_password,

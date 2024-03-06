@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const AuthCredentialsValidator = z
   .object({
-    name: z.string().max(20),
+    name: z.string().max(20).min(3),
     email: z.string().email(),
     password: z.string().min(8, {
       message: 'Password must be at least 8 characters long.',
