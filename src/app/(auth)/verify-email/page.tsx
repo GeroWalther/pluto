@@ -1,6 +1,6 @@
-import VerifyEmail from '@/app/components/comp/VerifyEmail';
-import Image from 'next/image';
-import React from 'react';
+import VerifyEmail from "@/components/comp/VerifyEmail";
+import Image from "next/image";
+import React from "react";
 
 interface PageProps {
   searchParams: {
@@ -13,31 +13,31 @@ export default function Page({ searchParams }: PageProps) {
   const toEmail = searchParams.to;
 
   return (
-    <div className='container relative flex pt-20 flex-col items-center justify-center lg:px-0 '>
-      <div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]'>
-        {token && typeof token === 'string' ? (
-          <div className='grid gap-6'>
+    <div className="container relative flex pt-20 flex-col items-center justify-center lg:px-0 ">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+        {token && typeof token === "string" ? (
+          <div className="grid gap-6">
             <VerifyEmail token={token} />
           </div>
         ) : (
-          <div className='flex h-full items-center flex-col justify-center space-y-1 '>
-            <div className='relative mb-4 h-60 w-60 text-muted-foreground'>
+          <div className="flex h-full items-center flex-col justify-center space-y-1 ">
+            <div className="relative mb-4 h-60 w-60 text-muted-foreground">
               <Image
-                src={'/email.jpg'}
+                src={"/email.jpg"}
                 fill
-                alt='pluto market email sent image'
+                alt="pluto market email sent image"
               />
             </div>
 
-            <h3 className=' font-semibold text-2xl '>Check your Email</h3>
+            <h3 className=" font-semibold text-2xl ">Check your Email</h3>
 
             {toEmail ? (
-              <p className=' text-muted-foreground text-center'>
-                We&apos;ve sent a verification link to{' '}
-                <span className=' font-semibold'>{toEmail}</span>.
+              <p className=" text-muted-foreground text-center">
+                We&apos;ve sent a verification link to{" "}
+                <span className=" font-semibold">{toEmail}</span>.
               </p>
             ) : (
-              <p className=' text-muted-foreground text-center'>
+              <p className=" text-muted-foreground text-center">
                 We&apos;ve sent a verification link to your email.
               </p>
             )}
