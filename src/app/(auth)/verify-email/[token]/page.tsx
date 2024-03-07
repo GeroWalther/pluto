@@ -7,6 +7,7 @@ export default async function Page({ params }: { params: { token: string } }) {
       token: token,
     },
   });
+
   if (!user) {
     return <div>Invalid token</div>;
   }

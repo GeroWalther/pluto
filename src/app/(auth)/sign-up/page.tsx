@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { ZodError } from "zod";
 
+// TODO: next route, push route to localhost/verify-email
+
 import {
   AuthCredentialsValidator,
   TAuthCredentialsValidator,
