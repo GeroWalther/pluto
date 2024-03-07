@@ -140,6 +140,11 @@ model User {
   listedproductfiles ProductFile[]
   isAdmin            Boolean          @default(false)
 
+  token String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([email])
 }
 

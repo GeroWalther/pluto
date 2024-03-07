@@ -1,6 +1,6 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
-import { Resend } from 'resend';
+import { Resend } from "resend";
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface ResendOptions {
@@ -11,11 +11,11 @@ interface ResendOptions {
 
 export async function sendEmail({ userEmail, subject, html }: ResendOptions) {
   const transporter = nodemailer.createTransport({
-    host: 'smtp.resend.com',
+    host: "smtp.resend.com",
     secure: true,
     port: 465,
     auth: {
-      user: 'resend',
+      user: "resend",
       pass: process.env.RESEND_API_KEY,
     },
   });
@@ -27,6 +27,6 @@ export async function sendEmail({ userEmail, subject, html }: ResendOptions) {
     html,
   });
 
-  console.log('Message sent: %s', info.messageId);
+  console.log("Message sent: %s", info.messageId);
   return info;
 }

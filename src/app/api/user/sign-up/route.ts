@@ -54,24 +54,48 @@ export async function POST(request: NextRequest) {
       email: user.email as string,
     },
   });
+  if (storedUser) {
+    return Response.json(
+      { error: "User already registered. Please sign in instead." },
+      { status: 500 }
+    );
+  }
 
-  console.log("storedUser", storedUser);
+  //  TODO const hashedPassword = hash(user.password);
+
+  // send verification Email
+  const token = generateRandomToken();
 
   const newUser = await prisma.user.create({
     data: {
       name: user.name,
       email: user.email,
       password: user.password,
+      token: token,
     },
   });
 
-  console.log("newUser", newUser);
-
-  if (storedUser) {
+  if (!newUser) {
     return Response.json(
-      { error: "User already registered. Please sign in instead." },
+      { error: "Error creating user. Please try again." },
       { status: 500 }
     );
+  }
+
+  try {
+    const info = await sendEmail({
+      userEmail: user.email,
+      subject: "Thanks for your order! This is your receipt.",
+      html: PrimaryActionEmailHtml({
+        actionLabel: "verify your account",
+        buttonText: "Verify Account",
+        href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email?token=${token}`,
+      }),
+    });
+    console.log(info);
+  } catch (error) {
+    console.log("Email failed to sent! ERROR: ", error);
+    return Response.json({ error: "Email failed to sent!" }, { status: 500 });
   }
 
   return Response.json(
@@ -95,7 +119,7 @@ export async function POST(request: NextRequest) {
 //     );
 //   }
 
-//   // TODO const hashedPassword = hash(user.password);
+//
 //   const newUser = await prisma.user.create({
 //     data: {
 //       name: user.name,
