@@ -1,8 +1,8 @@
-import { PrimaryActionEmailHtml } from '@/components/emails/PrimaryActionEmail';
-import { prisma } from '@/db/db';
-import { sendEmail } from '@/lib/sendEmail';
-import { generateRandomToken, validateEmail } from '@/lib/utils';
-import { NextRequest } from 'next/server';
+import { PrimaryActionEmailHtml } from "@/components/emails/PrimaryActionEmail";
+import prisma from "@/db/db";
+import { sendEmail } from "@/lib/sendEmail";
+import { generateRandomToken, validateEmail } from "@/lib/utils";
+import { NextRequest } from "next/server";
 
 type userSignUp = {
   name: string;
@@ -12,6 +12,7 @@ type userSignUp = {
 };
 
 export async function POST(request: NextRequest) {
+  // input fetch from the request and validation
   const body = await request.json();
 
   const user: userSignUp = {
@@ -31,34 +32,31 @@ export async function POST(request: NextRequest) {
     !user.confirm_password
   ) {
     return Response.json(
-      { error: 'Error creating user. Input must not be empty.' },
-      { status: 500 }
-    );
-  }
-  if (user.password !== user.confirm_password) {
-    return Response.json({ error: 'Passwords do not match.' }, { status: 500 });
-  }
-  if (!validateEmail(user.email.trim())) {
-    return Response.json(
-      { error: 'Must provide a valid Email.' },
+      { error: "Error creating user. Input must not be empty." },
       { status: 500 }
     );
   }
 
+  if (user.password !== user.confirm_password) {
+    return Response.json({ error: "Passwords do not match." }, { status: 500 });
+  }
+
+  if (!validateEmail(user.email.trim())) {
+    return Response.json(
+      { error: "Must provide a valid Email." },
+      { status: 500 }
+    );
+  }
+
+  // check if user already exists
   const storedUser = await prisma.user.findUnique({
     where: {
       email: user.email as string,
     },
   });
 
-  if (storedUser) {
-    return Response.json(
-      { error: 'User already registered. Please sign in instead.' },
-      { status: 500 }
-    );
-  }
+  console.log("storedUser", storedUser);
 
-  // TODO const hashedPassword = hash(user.password);
   const newUser = await prisma.user.create({
     data: {
       name: user.name,
@@ -67,31 +65,69 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  if (newUser) {
-    const token = generateRandomToken();
+  console.log("newUser", newUser);
 
-    // send verification Email
-    try {
-      const info = await sendEmail({
-        userEmail: user.email,
-        subject: 'Thanks for your order! This is your receipt.',
-        html: PrimaryActionEmailHtml({
-          actionLabel: 'verify your account',
-          buttonText: 'Verify Account',
-          href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email?token=${token}`,
-        }),
-      });
-      console.log(info);
-    } catch (error) {
-      console.log('Email failed to sent! ERROR: ', error);
-      return Response.json({ error: 'Email failed to sent!' }, { status: 500 });
-    }
+  if (storedUser) {
+    return Response.json(
+      { error: "User already registered. Please sign in instead." },
+      { status: 500 }
+    );
   }
 
   return Response.json(
-    { msg: 'Successfully signed up!' },
+    { msg: "Successfully signed up!" },
     {
       status: 200,
     }
   );
 }
+// // check if user already exists
+//   const storedUser = await prisma.user.findUnique({
+//     where: {
+//       email: user.email as string,
+//     },
+//   });
+
+//   if (storedUser) {
+//     return Response.json(
+//       { error: 'User already registered. Please sign in instead.' },
+//       { status: 500 }
+//     );
+//   }
+
+//   // TODO const hashedPassword = hash(user.password);
+//   const newUser = await prisma.user.create({
+//     data: {
+//       name: user.name,
+//       email: user.email,
+//       password: user.password,
+//     },
+//   });
+
+//   if (newUser) {
+//     const token = generateRandomToken();
+
+//     // send verification Email
+//     try {
+//       const info = await sendEmail({
+//         userEmail: user.email,
+//         subject: 'Thanks for your order! This is your receipt.',
+//         html: PrimaryActionEmailHtml({
+//           actionLabel: 'verify your account',
+//           buttonText: 'Verify Account',
+//           href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email?token=${token}`,
+//         }),
+//       });
+//       console.log(info);
+//     } catch (error) {
+//       console.log('Email failed to sent! ERROR: ', error);
+//       return Response.json({ error: 'Email failed to sent!' }, { status: 500 });
+//     }
+//   }
+
+//   return Response.json(
+//     { msg: 'Successfully signed up!' },
+//     {
+//       status: 200,
+//     }
+//   );

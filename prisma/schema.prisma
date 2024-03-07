@@ -6,8 +6,7 @@
 
 // schema.prisma
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -16,30 +15,29 @@ datasource db {
   relationMode = "prisma"
 }
 
-
 model Product {
-    id              Int       @id @default(autoincrement())
-    name            String
-    description     String
-    image           String
-    price           Int
-    category        Category
-    approvedForSale ApprovalStatus?
-    priceId         String?
-    stripeId        String?
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
-    order           Order?    @relation(fields: [orderId], references: [id])
-    orderId         String?
-    createdBy       User      @relation("listedproducts" ,fields: [createdById], references: [id])
-    createdById     String
-    orderedBy       User?     @relation("orderedProducts" ,fields: [orderedById], references: [id])
-    orderedById     String
+  id              Int             @id @default(autoincrement())
+  name            String
+  description     String
+  image           String
+  price           Int
+  category        Category
+  approvedForSale ApprovalStatus?
+  priceId         String?
+  stripeId        String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  order           Order?          @relation(fields: [orderId], references: [id])
+  orderId         String?
+  createdBy       User            @relation("listedproducts", fields: [createdById], references: [id])
+  createdById     String
+  orderedBy       User?           @relation("orderedProducts", fields: [orderedById], references: [id])
+  orderedById     String
 
-    @@index([name])
-    @@index([createdById])
-    @@index([orderId])
-    @@index([orderedById])
+  @@index([name])
+  @@index([createdById])
+  @@index([orderId])
+  @@index([orderedById])
 }
 
 enum Category {
@@ -56,13 +54,13 @@ enum ApprovalStatus {
 }
 
 model ProductFile {
-  id        String      @id @default(uuid())
-  user      User        @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
   userId    String
-  order     Order?      @relation(fields: [orderId], references: [id])
+  order     Order?   @relation(fields: [orderId], references: [id])
   orderId   String?
-  updatedAt DateTime    @updatedAt
-  createdAt DateTime    @default(now())
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
   url       String?
   filename  String?
   mimeType  String?
@@ -76,14 +74,14 @@ model ProductFile {
 }
 
 model Order {
-  id        String      @id @default(uuid())
-  isPaid    Boolean
-  user      User        @relation(fields: [userId], references: [id])
-  userId    String
-  products  Product[]
+  id           String        @id @default(uuid())
+  isPaid       Boolean
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String
+  products     Product[]
   productfiles ProductFile[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   // Index
   @@index([userId])
@@ -91,63 +89,64 @@ model Order {
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? @db.Text
-    access_token      String? @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
-    @@index([userId])
+  @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
+  @@index([userId])
 }
 
 model UserBankDetails {
-  id                  String  @id @default(cuid())
-  user                User    @relation(fields: [email], references: [email])
-  email               String  @unique
+  id                  String @id @default(cuid())
+  user                User   @relation(fields: [email], references: [email])
+  email               String @unique
   stripeAccountNumber Int
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String   @unique
-    password      String
-    isEmailVerified Boolean @default(false)
-    image         String?
-    accounts      Account[]
-    bankDetails   UserBankDetails?
-    sessions      Session[]
-    orders          Order[]
-    listedproducts  Product[]    @relation("listedproducts")
-    orderedProducts Product[]    @relation("orderedProducts")
-    listedproductfiles ProductFile[] 
-    isAdmin Boolean @default(false)
-    @@index([email])
+  id                 String           @id @default(cuid())
+  name               String?
+  email              String           @unique
+  password           String
+  isEmailVerified    Boolean          @default(false)
+  image              String?
+  accounts           Account[]
+  bankDetails        UserBankDetails?
+  sessions           Session[]
+  orders             Order[]
+  listedproducts     Product[]        @relation("listedproducts")
+  orderedProducts    Product[]        @relation("orderedProducts")
+  listedproductfiles ProductFile[]
+  isAdmin            Boolean          @default(false)
+
+  @@index([email])
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }

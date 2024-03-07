@@ -1,12 +1,15 @@
-import { Client } from '@planetscale/database';
-import { PrismaPlanetScale } from '@prisma/adapter-planetscale';
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
-import { fetch as undiciFetch } from 'undici';
+import { PrismaClient } from "@prisma/client";
 
-dotenv.config();
-const connectionString = `${process.env.DATABASE_URL}`;
+const prismaClientSingleton = () => {
+  return new PrismaClient();
+};
 
-const client = new Client({ url: connectionString, fetch: undiciFetch });
-const adapter = new PrismaPlanetScale(client);
-export const prisma = new PrismaClient({ adapter });
+declare global {
+  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
+}
+
+const prisma = globalThis.prisma ?? prismaClientSingleton();
+
+export default prisma;
+
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
