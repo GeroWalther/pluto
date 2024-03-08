@@ -10,9 +10,9 @@ import {
   Section,
   Text,
   render,
-} from '@react-email/components';
+} from "@react-email/components";
 
-import * as React from 'react';
+import * as React from "react";
 
 interface EmailTemplateProps {
   actionLabel: string;
@@ -33,15 +33,18 @@ export const EmailTemplate = ({
         <Container style={container}>
           <Img
             src={`/eis.png`}
-            width='150'
-            height='150'
-            alt='Pluto Market'
+            width="150"
+            height="150"
+            alt="Pluto Market"
             style={logo}
           />
           <Text style={paragraph}>Hi there,</Text>
           <Text style={paragraph}>
             Welcome to Pluto Market, the marketplace for high quality digital
-            goods. Use the button below to {actionLabel}.
+            goods. Use the button below to {actionLabel}. Or copy and paste the
+            following link into your browser:
+            <br />
+            <a href={href}>{href}</a>
           </Text>
           <Section style={btnContainer}>
             <Button style={button} href={href}>
@@ -67,46 +70,46 @@ export const PrimaryActionEmailHtml = (props: EmailTemplateProps) =>
   render(<EmailTemplate {...props} />, { pretty: true });
 
 const main = {
-  backgroundColor: '#ffffff',
+  backgroundColor: "#ffffff",
   fontFamily:
     '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
 };
 
 const container = {
-  margin: '0 auto',
-  padding: '20px 0 48px',
+  margin: "0 auto",
+  padding: "20px 0 48px",
 };
 
 const logo = {
-  margin: '0 auto',
+  margin: "0 auto",
 };
 
 const paragraph = {
-  fontSize: '16px',
-  lineHeight: '26px',
+  fontSize: "16px",
+  lineHeight: "26px",
 };
 
 const btnContainer = {
-  textAlign: 'center' as const,
+  textAlign: "center" as const,
 };
 
 const button = {
-  padding: '12px 12px',
-  backgroundColor: '#2563eb',
-  borderRadius: '3px',
-  color: '#fff',
-  fontSize: '16px',
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  display: 'block',
+  padding: "12px 12px",
+  backgroundColor: "#2563eb",
+  borderRadius: "3px",
+  color: "#fff",
+  fontSize: "16px",
+  textDecoration: "none",
+  textAlign: "center" as const,
+  display: "block",
 };
 
 const hr = {
-  borderColor: '#cccccc',
-  margin: '20px 0',
+  borderColor: "#cccccc",
+  margin: "20px 0",
 };
 
 const footer = {
-  color: '#8898aa',
-  fontSize: '12px',
+  color: "#8898aa",
+  fontSize: "12px",
 };
