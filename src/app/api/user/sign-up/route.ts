@@ -1,8 +1,8 @@
-import { PrimaryActionEmailHtml } from "@/components/emails/PrimaryActionEmail";
-import prisma from "@/db/db";
-import { sendEmail } from "@/lib/sendEmail";
-import { generateRandomToken, validateEmail } from "@/lib/utils";
-import { NextRequest } from "next/server";
+import { PrimaryActionEmailHtml } from '@/components/emails/PrimaryActionEmail';
+import prisma from '@/db/db';
+import { sendEmail } from '@/lib/sendEmail';
+import { generateRandomToken, validateEmail } from '@/lib/utils';
+import { NextRequest } from 'next/server';
 
 type userSignUp = {
   name: string;
@@ -32,18 +32,18 @@ export async function POST(request: NextRequest) {
     !user.confirm_password
   ) {
     return Response.json(
-      { error: "Error creating user. Input must not be empty." },
+      { error: 'Error creating user. Input must not be empty.' },
       { status: 500 }
     );
   }
 
   if (user.password !== user.confirm_password) {
-    return Response.json({ error: "Passwords do not match." }, { status: 500 });
+    return Response.json({ error: 'Passwords do not match.' }, { status: 500 });
   }
 
   if (!validateEmail(user.email.trim())) {
     return Response.json(
-      { error: "Must provide a valid Email." },
+      { error: 'Must provide a valid Email.' },
       { status: 500 }
     );
   }
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   });
   if (storedUser) {
     return Response.json(
-      { error: "User already registered. Please sign in instead." },
+      { error: 'User already registered. Please sign in instead.' },
       { status: 500 }
     );
   }
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
   if (!newUser) {
     return Response.json(
-      { error: "Error creating user. Please try again." },
+      { error: 'Error creating user. Please try again.' },
       { status: 500 }
     );
   }
@@ -85,21 +85,21 @@ export async function POST(request: NextRequest) {
   try {
     const info = await sendEmail({
       userEmail: user.email,
-      subject: "Thanks for your order! This is your receipt.",
+      subject: 'Thanks for your order! This is your receipt.',
       html: PrimaryActionEmailHtml({
-        actionLabel: "verify your account",
-        buttonText: "Verify Account",
-        href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email?token=${token}`,
+        actionLabel: 'verify your account',
+        buttonText: 'Verify Account',
+        href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email/{token}`,
       }),
     });
     console.log(info);
   } catch (error) {
-    console.log("Email failed to sent! ERROR: ", error);
-    return Response.json({ error: "Email failed to sent!" }, { status: 500 });
+    console.log('Email failed to sent! ERROR: ', error);
+    return Response.json({ error: 'Email failed to sent!' }, { status: 500 });
   }
 
   return Response.json(
-    { msg: "Successfully signed up!" },
+    { msg: 'Successfully signed up!' },
     {
       status: 200,
     }
