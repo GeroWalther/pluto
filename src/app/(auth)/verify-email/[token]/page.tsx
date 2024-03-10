@@ -1,4 +1,3 @@
-import MaxWidthWrapper from '@/components/comp/MaxWidthWrapper';
 import { buttonVariants } from '@/components/ui/button';
 import prisma from '@/db/db';
 import { hash } from 'bcryptjs';
