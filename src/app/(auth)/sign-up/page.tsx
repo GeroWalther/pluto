@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { ZodError } from 'zod';
+//import { ZodError } from 'zod';
 
 import {
   AuthCredentialsValidator,
@@ -68,7 +68,7 @@ const Page = () => {
       });
       if (user.ok) {
         const u = await user.json();
-        console.log(u);
+        // console.log(u);
         toast.success(u.msg);
 
         router.push('/verify-email');
@@ -179,6 +179,7 @@ const Page = () => {
             </form>
 
             <Separator />
+
             {/* TODO: Add google button from https://next-auth.js.org/providers/google */}
           </div>
         </div>
