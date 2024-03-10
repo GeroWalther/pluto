@@ -15,7 +15,8 @@ export default function Page() {
           </div>
           <h3 className=' font-semibold text-2xl '>Check your Email</h3>
           <p className=' text-muted-foreground text-center'>
-            We&apos;ve sent a verification link to your email.
+            We&apos;ve sent a verification link to your email. You can close
+            this tab now.
           </p>
         </div>
       </div>
