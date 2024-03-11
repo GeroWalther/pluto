@@ -15,6 +15,7 @@ import { PlutoLogo } from "@/components/svgs/Icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 
 const Page = () => {
@@ -35,33 +36,24 @@ const Page = () => {
   } = useForm<TAuthCredentialsValidator>({
     resolver: zodResolver(AuthCredentialsValidator),
   });
-  // const { mutate: signIn, isLoading } = trpc.auth.signIn.useMutation({
-  //   onSuccess: () => {
-  //     toast.success('Signed in successfully.');
 
-  //     router.refresh();
-
-  //     if (origin) {
-  //       router.push(`/${origin}`);
-  //       return;
-  //     }
-
-  //     if (isSeller) {
-  //       router.push('/sell');
-  //       return;
-  //     }
-
-  //     router.push('/');
-  //   },
-  //   onError: (e) => {
-  //     if (e.data?.code === 'UNAUTHORIZED') {
-  //       toast.error('Invalid email or password.');
-  //     }
-  //   },
-  // });
-
+  // TODO: Fix the onSubmit function
   const onSubmit = async (data: TAuthCredentialsValidator) => {
-    console.log("email", data.email);
+    signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    }).then((res) => {
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        if (origin) {
+          router.push(origin);
+        } else {
+          router.push("/");
+        }
+      }
+    });
   };
 
   return (
