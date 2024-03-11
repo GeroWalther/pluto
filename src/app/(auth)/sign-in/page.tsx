@@ -60,8 +60,8 @@ const Page = () => {
   //   },
   // });
 
-  const onSubmit = async ({ email, password }: TAuthCredentialsValidator) => {
-    // signIn({ email, password });
+  const onSubmit = async (data: TAuthCredentialsValidator) => {
+    console.log("email", data.email);
   };
 
   return (
