@@ -17,3 +17,14 @@ export const AuthCredentialsValidator = z
 export type TAuthCredentialsValidator = z.infer<
   typeof AuthCredentialsValidator
 >;
+
+export const AuthCredentialsValidatorSignIn = z.object({
+  email: z.string().email(),
+  password: z.string().min(8, {
+    message: 'Password must be at least 8 characters long.',
+  }),
+});
+
+export type TAuthCredentialsValidatorSignIn = z.infer<
+  typeof AuthCredentialsValidator
+>;
