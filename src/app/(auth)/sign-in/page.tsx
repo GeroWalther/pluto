@@ -36,7 +36,7 @@ const Page = () => {
     resolver: zodResolver(AuthCredentialsValidatorSignIn),
   });
 
-  const onSubmit = async (data: TAuthCredentialsValidatorSignIn) => {
+  const onSubmit = (data: TAuthCredentialsValidatorSignIn) => {
     signIn('credentials', {
       email: data.email,
       password: data.password,

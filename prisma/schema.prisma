@@ -1,158 +1,70 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-// schema.prisma
 generator client {
-  provider = "prisma-client-js"
+provider = "prisma-client-js"
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
-}
-
-model Product {
-  id              Int             @id @default(autoincrement())
-  name            String
-  description     String
-  image           String
-  price           Int
-  category        Category
-  approvedForSale ApprovalStatus?
-  priceId         String?
-  stripeId        String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  order           Order?          @relation(fields: [orderId], references: [id])
-  orderId         String?
-  createdBy       User            @relation("listedproducts", fields: [createdById], references: [id])
-  createdById     String
-  orderedBy       User?           @relation("orderedProducts", fields: [orderedById], references: [id])
-  orderedById     String
-
-  @@index([name])
-  @@index([createdById])
-  @@index([orderId])
-  @@index([orderedById])
-}
-
-enum Category {
-  fonts
-  icons
-  sprites
-  ebooks
-}
-
-enum ApprovalStatus {
-  pending
-  approved
-  denied
-}
-
-model ProductFile {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  order     Order?   @relation(fields: [orderId], references: [id])
-  orderId   String?
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-  url       String?
-  filename  String?
-  mimeType  String?
-  filesize  Int?
-  width     Int?
-  height    Int?
-
-  // Index
-  @@index([userId])
-  @@index([orderId])
-}
-
-model Order {
-  id           String        @id @default(uuid())
-  isPaid       Boolean
-  user         User          @relation(fields: [userId], references: [id])
-  userId       String
-  products     Product[]
-  productfiles ProductFile[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  // Index
-  @@index([userId])
-}
-
-// Necessary for Next auth
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model UserBankDetails {
-  id                  String @id @default(cuid())
-  user                User   @relation(fields: [email], references: [email])
-  email               String @unique
-  stripeAccountNumber Int
+provider = "mongodb"
+// url = env("DATABASE_URL")
+  url  = "mongodb+srv://Schnecke23:Schnecke23@plutomarket.il10loy.mongodb.net/?retryWrites=true&w=majority&appName=PlutoMarket"
 }
 
 model User {
-  id                 String           @id @default(cuid())
-  name               String?
-  email              String           @unique
-  password           String
-  isEmailVerified    Boolean          @default(false)
-  image              String?
-  accounts           Account[]
-  bankDetails        UserBankDetails?
-  sessions           Session[]
-  orders             Order[]
-  listedproducts     Product[]        @relation("listedproducts")
-  orderedProducts    Product[]        @relation("orderedProducts")
-  listedproductfiles ProductFile[]
-  isAdmin            Boolean          @default(false)
+id String @id @default(auto()) @map("_id") @db.ObjectId
+name String?
+email String @unique
+password String
+isEmailVerified Boolean @default(false)
+image String?
+isAdmin Boolean @default(false)
+token String @unique
 
-  token String @unique
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  // TODO: is active or not 
-
-  @@index([email])
+// Product list
+listedProducts Product[]
+orderedProduct OrderedProduct[]
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+enum Status {
+PENDING
+APPROVED
+REJECTED
+}
 
-  @@unique([identifier, token])
+// Product Model
+model Product {
+id String @id @default(auto()) @map("_id") @db.ObjectId
+// Product details
+name String
+description String
+price Float
+image String
+url String
+
+// product status
+status Status @default(PENDING)
+// Other info
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+// User who listed the product
+user User @relation(fields: [userId], references: [id])
+userId String @db.ObjectId
+}
+
+// Order Model
+model OrderedProduct {
+id String @id @default(auto()) @map("_id") @db.ObjectId
+// Order details
+productName String
+totalAmount Float
+// Other info
+// product ID
+productId String @db.ObjectId
+
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+// User who placed the order
+user User @relation(fields: [userId], references: [id])
+userId String @db.ObjectId
 }
