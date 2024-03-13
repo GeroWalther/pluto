@@ -85,16 +85,20 @@ export const authOptions: AuthOptions = {
       };
     },
 
-    jwt: async ({ token, user, trigger }) => {
+    jwt: async ({ token, user, trigger, session }) => {
       if (trigger === "update") {
         // update token
-        console.log("update");
+        console.log(session.user.role);
+        return {
+          ...token,
+          ...session.user,
+        };
       }
       // Add additional token info
 
       const dbUser = await prisma.user.findUnique({
         where: {
-          id: user.id,
+          email: token.email as string,
         },
       });
 
