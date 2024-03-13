@@ -4,8 +4,7 @@ provider = "prisma-client-js"
 
 datasource db {
 provider = "mongodb"
-// url = env("DATABASE_URL")
-  url  = "mongodb+srv://Schnecke23:Schnecke23@plutomarket.il10loy.mongodb.net/?retryWrites=true&w=majority&appName=PlutoMarket"
+url = env("DATABASE_URL")
 }
 
 model User {
@@ -61,6 +60,7 @@ totalAmount Float
 // Other info
 // product ID
 productId String @db.ObjectId
+orderId String @db.ObjectId
 
 createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt
