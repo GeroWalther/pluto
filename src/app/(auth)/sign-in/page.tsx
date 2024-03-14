@@ -7,6 +7,8 @@ import { useForm } from 'react-hook-form';
 
 import { PlutoLogo } from '@/components/svgs/Icons';
 import { Button, buttonVariants } from '@/components/ui/button';
+import GithubButton from '@/components/Btn/GithubButton';
+import GoogleButton from '@/components/Btn/GoogleButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -112,8 +114,13 @@ const Page = () => {
                   )}
                 </div>
                 <Button>Sign in</Button>
-                <Button onClick={githubLogin}>Github login</Button>
-                <Button onClick={googleLogin}>Google login</Button>
+
+                <div className=' flex items-center m-2'>
+                  <span className='w-full border-t' />
+                </div>
+
+                <GoogleButton onClick={googleLogin} />
+                <GithubButton onClick={githubLogin} />
               </div>
             </form>
 
