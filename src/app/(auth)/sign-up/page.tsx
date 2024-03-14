@@ -21,6 +21,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
 import GoogleButton from '@/components/Btn/GoogleButton';
+import { signIn } from 'next-auth/react';
+import GithubButton from '@/components/Btn/GithubButton';
 
 const Page = () => {
   const {
@@ -50,6 +52,12 @@ const Page = () => {
   //     router.push('/verify-email?to=' + sentToEmail);
   //   },
   // });
+  async function githubSignup() {
+    await signIn('github', { callbackUrl: '/' }); //todo change callbackUrl
+  }
+  async function googleSignup() {
+    await signIn('google', { callbackUrl: '/' }); //todo change callbackUrl
+  }
 
   const onSubmit = async ({
     name,
@@ -181,8 +189,8 @@ const Page = () => {
 
             <Separator />
 
-            {/* TODO: Add google button from https://next-auth.js.org/providers/google */}
-            {/* <GoogleButton signIn={false} onClick={}/> */}
+            <GoogleButton signIn={false} onClick={googleSignup} />
+            <GithubButton signIn={false} onClick={githubSignup} />
           </div>
         </div>
       </div>
