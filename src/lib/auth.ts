@@ -1,7 +1,8 @@
-import prisma from "@/db/db";
-import { AuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
+import prisma from '@/db/db';
+import { AuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import GitHubProvider from 'next-auth/providers/github';
 
 export const authOptions: AuthOptions = {
   // Providers array will be configured in the next steps
@@ -10,23 +11,27 @@ export const authOptions: AuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+    }),
     CredentialsProvider({
-      name: "Sign in",
+      name: 'Sign in',
       credentials: {
         email: {
-          label: "Email",
-          type: "email",
-          placeholder: "example@example.com",
+          label: 'Email',
+          type: 'email',
+          placeholder: 'example@example.com',
         },
         password: {
-          label: "Password",
-          type: "password",
+          label: 'Password',
+          type: 'password',
         },
       },
       //   When someone tries to sign in, the authorize method is called with the credentials they provide.
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
-          throw new Error("xxxxxx");
+          throw new Error('xxxxxx');
         }
 
         const user = await prisma.user.findUnique({
@@ -36,11 +41,11 @@ export const authOptions: AuthOptions = {
         });
 
         if (!user) {
-          throw new Error("Please enter an existing email");
+          throw new Error('Please enter an existing email');
         }
 
         if (!user.isEmailVerified) {
-          throw new Error("Please verify your email.");
+          throw new Error('Please verify your email.');
         }
 
         return {
@@ -55,12 +60,12 @@ export const authOptions: AuthOptions = {
   ],
 
   pages: {
-    signIn: "/sign-in",
-    newUser: "/sign-up",
+    signIn: '/sign-in',
+    newUser: '/sign-up',
   },
 
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
@@ -86,7 +91,7 @@ export const authOptions: AuthOptions = {
     },
 
     jwt: async ({ token, user, trigger, session }) => {
-      if (trigger === "update") {
+      if (trigger === 'update') {
         // update token
         console.log(session.user.role);
         return {
