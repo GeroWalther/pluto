@@ -61,8 +61,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  //  TODO const hashedPassword = hash(user.password);
-
   // send verification Email
   const token = generateRandomToken();
 
@@ -89,7 +87,7 @@ export async function POST(request: NextRequest) {
       html: PrimaryActionEmailHtml({
         actionLabel: 'verify your account',
         buttonText: 'Verify Account',
-        href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email/{token}`,
+        href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email/${token}`,
       }),
     });
     console.log(info);
@@ -105,53 +103,3 @@ export async function POST(request: NextRequest) {
     }
   );
 }
-// // check if user already exists
-//   const storedUser = await prisma.user.findUnique({
-//     where: {
-//       email: user.email as string,
-//     },
-//   });
-
-//   if (storedUser) {
-//     return Response.json(
-//       { error: 'User already registered. Please sign in instead.' },
-//       { status: 500 }
-//     );
-//   }
-
-//
-//   const newUser = await prisma.user.create({
-//     data: {
-//       name: user.name,
-//       email: user.email,
-//       password: user.password,
-//     },
-//   });
-
-//   if (newUser) {
-//     const token = generateRandomToken();
-
-//     // send verification Email
-//     try {
-//       const info = await sendEmail({
-//         userEmail: user.email,
-//         subject: 'Thanks for your order! This is your receipt.',
-//         html: PrimaryActionEmailHtml({
-//           actionLabel: 'verify your account',
-//           buttonText: 'Verify Account',
-//           href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email?token=${token}`,
-//         }),
-//       });
-//       console.log(info);
-//     } catch (error) {
-//       console.log('Email failed to sent! ERROR: ', error);
-//       return Response.json({ error: 'Email failed to sent!' }, { status: 500 });
-//     }
-//   }
-
-//   return Response.json(
-//     { msg: 'Successfully signed up!' },
-//     {
-//       status: 200,
-//     }
-//   );

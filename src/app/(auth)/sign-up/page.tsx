@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
+import GoogleButton from '@/components/Btn/GoogleButton';
 
 const Page = () => {
   const {
@@ -181,6 +182,7 @@ const Page = () => {
             <Separator />
 
             {/* TODO: Add google button from https://next-auth.js.org/providers/google */}
+            {/* <GoogleButton signIn={false} onClick={}/> */}
           </div>
         </div>
       </div>

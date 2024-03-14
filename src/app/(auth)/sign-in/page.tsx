@@ -42,7 +42,7 @@ const Page = () => {
       email: data.email,
       password: data.password,
       redirect: true,
-      callbackUrl: '/test',
+      callbackUrl: '/',
     }).then((res) => {
       if (res?.error) {
         toast.error(res.error);
