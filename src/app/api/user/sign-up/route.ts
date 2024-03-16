@@ -3,7 +3,7 @@ import prisma from '@/db/db';
 import { sendEmail } from '@/lib/sendEmail';
 import { generateRandomToken, validateEmail } from '@/lib/utils';
 import { NextRequest } from 'next/server';
-import { createUser } from '../../../../../prisma/prisma.user';
+import { createUser, findUserbyEmail } from '../../../../../prisma/prisma.user';
 
 export type userSignUp = {
   name: string;
@@ -50,11 +50,8 @@ export async function POST(request: NextRequest) {
   }
 
   // check if user already exists
-  const storedUser = await prisma.user.findUnique({
-    where: {
-      email: user.email as string,
-    },
-  });
+  const storedUser = await findUserbyEmail(user.email);
+
   if (storedUser) {
     return Response.json(
       { error: 'User already registered. Please sign in instead.' },
@@ -65,7 +62,7 @@ export async function POST(request: NextRequest) {
   // send verification Email
   const token = generateRandomToken();
 
-  const newUser = createUser({
+  const newUser = await createUser({
     name: user.name,
     email: user.email,
     password: user.password,

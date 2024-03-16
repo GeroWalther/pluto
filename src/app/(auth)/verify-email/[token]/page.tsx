@@ -6,16 +6,11 @@ import { XCircle } from 'lucide-react';
 import Image from 'next/image';
 
 import Link from 'next/link';
-import { updateUser } from '../../../../../prisma/prisma.user';
+import { updateUser, findUserbyToken } from '../../../../../prisma/prisma.user';
 
 export default async function Page({ params }: { params: { token: string } }) {
   const token = params.token;
-
-  const user = await prisma.user.findUnique({
-    where: {
-      token: token,
-    },
-  });
+  const user = await findUserbyToken(token);
 
   if (!user) {
     return (
@@ -41,7 +36,7 @@ export default async function Page({ params }: { params: { token: string } }) {
   const hashedPassword = await hash(user.password, 10);
   const updatedToken = generateRandomToken();
 
-  const updatedUser = updateUser(user.id, {
+  const updatedUser = await updateUser(user.id, {
     token: updatedToken,
     isEmailVerified: true,
     password: hashedPassword,
