@@ -6,6 +6,7 @@ import { XCircle } from 'lucide-react';
 import Image from 'next/image';
 
 import Link from 'next/link';
+import { updateUser } from '../../../../../prisma/prisma.user';
 
 export default async function Page({ params }: { params: { token: string } }) {
   const token = params.token;
@@ -40,18 +41,24 @@ export default async function Page({ params }: { params: { token: string } }) {
   const hashedPassword = await hash(user.password, 10);
   const updatedToken = generateRandomToken();
 
-  const updateUser = await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      token: updatedToken,
-      isEmailVerified: true,
-      password: hashedPassword,
-    },
+  const updatedUser = updateUser(user.id, {
+    token: updatedToken,
+    isEmailVerified: true,
+    password: hashedPassword,
   });
 
-  if (!updateUser) {
+  // const updateUser = await prisma.user.update({
+  //   where: {
+  //     id: user.id,
+  //   },
+  //   data: {
+  //     token: updatedToken,
+  //     isEmailVerified: true,
+  //     password: hashedPassword,
+  //   },
+  // });
+
+  if (!updatedUser) {
     return (
       <div className='flex flex-col items-center gap-2 pt-[8%]'>
         <XCircle className='h-6 w-8 text-red-700' />
