@@ -3,8 +3,9 @@ import prisma from '@/db/db';
 import { sendEmail } from '@/lib/sendEmail';
 import { generateRandomToken, validateEmail } from '@/lib/utils';
 import { NextRequest } from 'next/server';
+import { createUser } from '../../../../../prisma/prisma.user';
 
-type userSignUp = {
+export type userSignUp = {
   name: string;
   email: string;
   password: string;
@@ -64,14 +65,21 @@ export async function POST(request: NextRequest) {
   // send verification Email
   const token = generateRandomToken();
 
-  const newUser = await prisma.user.create({
-    data: {
-      name: user.name,
-      email: user.email,
-      password: user.password,
-      token: token,
-    },
+  const newUser = createUser({
+    name: user.name,
+    email: user.email,
+    password: user.password,
+    token,
   });
+
+  // const newUser = await prisma.user.create({
+  //   data: {
+  //     name: user.name,
+  //     email: user.email,
+  //     password: user.password,
+  //     token: token,
+  //   },
+  // });
 
   if (!newUser) {
     return Response.json(

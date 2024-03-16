@@ -17,7 +17,7 @@ const Navbar = () => {
   // const nextCookies = cookies();
   const { data: session } = useSession();
   const user = session?.user;
-  console.log(user);
+  console.log('user: ', user);
 
   return (
     <div className='bg-white sticky z-50 top-0 inset-x-0 h-16'>
@@ -57,15 +57,15 @@ const Navbar = () => {
                     />
                   )}
 
-                  {user ? null : (
-                    <UserAccountNav user={user} />
-                    // <Link
-                    //   href='/sign-up'
-                    //   className={buttonVariants({
-                    //     variant: 'ghost',
-                    //   })}>
-                    //   Create account
-                    // </Link>
+                  {!user && (
+                    // <UserAccountNav user={user} />
+                    <Link
+                      href='/sign-up'
+                      className={buttonVariants({
+                        variant: 'ghost',
+                      })}>
+                      Create account
+                    </Link>
                   )}
 
                   {user ? (

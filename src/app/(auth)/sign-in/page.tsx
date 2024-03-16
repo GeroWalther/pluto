@@ -17,6 +17,7 @@ import {
 } from '@/lib/validators/account-credentials-validator';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
+import { Separator } from '@/components/ui/separator';
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -81,8 +82,8 @@ const Page = () => {
 
           <div className='grid gap-6 pb-16'>
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className='grid gap-2'>
-                <div className='grid gap-2 py-2'>
+              <div className='grid gap-6'>
+                <div className='grid gap-2'>
                   <Label htmlFor='email'>Email</Label>
                   <Input
                     {...register('email')}
@@ -97,7 +98,7 @@ const Page = () => {
                     </p>
                   )}
                 </div>
-                <div className='grid gap-2 py-2'>
+                <div className='grid gap-2'>
                   <Label htmlFor='password'>Password</Label>
                   <Input
                     {...register('password')}
@@ -115,9 +116,7 @@ const Page = () => {
                 </div>
                 <Button>Sign in</Button>
 
-                <div className=' flex items-center m-2'>
-                  <span className='w-full border-t' />
-                </div>
+                <Separator />
 
                 <GoogleButton onClick={googleLogin} />
                 <GithubButton onClick={githubLogin} />
