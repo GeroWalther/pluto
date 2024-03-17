@@ -58,9 +58,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // send verification Email
   const token = generateRandomToken();
-
+  // store new user to DB
   const newUser = await createUser({
     name: user.name,
     email: user.email,
@@ -76,6 +75,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // send verification Email
   try {
     const info = await sendEmail({
       userEmail: user.email,

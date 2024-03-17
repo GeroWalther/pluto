@@ -130,7 +130,7 @@ export const authOptions: AuthOptions = {
           };
         }
 
-        // Normal sign in
+        //Or Github sign in if user exists
         return {
           ...token,
           id: user.id,
@@ -140,7 +140,7 @@ export const authOptions: AuthOptions = {
         };
       } else if (account?.provider === 'google') {
         const user = await findUserbyEmail(token.email!);
-        // Normal sign in
+        // Google sign in if user exists
         if (user) {
           return {
             ...token,
@@ -150,7 +150,7 @@ export const authOptions: AuthOptions = {
             image: token.picture,
           };
         }
-        // Now the sign Up part for github
+        // Now the sign Up part for google
         if (!user) {
           const newUser = await createUser({
             name: token.name,

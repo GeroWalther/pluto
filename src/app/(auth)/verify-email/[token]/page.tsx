@@ -9,8 +9,7 @@ import Link from 'next/link';
 import { updateUser, findUserbyToken } from '../../../../../prisma/prisma.user';
 
 export default async function Page({ params }: { params: { token: string } }) {
-  const token = params.token;
-  const user = await findUserbyToken(token);
+  const user = await findUserbyToken(params.token);
 
   if (!user) {
     return (
