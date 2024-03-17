@@ -18,8 +18,11 @@ import { toast } from 'sonner';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
+import GoogleButton from '@/components/Btn/GoogleButton';
+import { signIn } from 'next-auth/react';
+import GithubButton from '@/components/Btn/GithubButton';
+import { Separator } from '@/components/ui/separator';
 
 const Page = () => {
   const {
@@ -49,6 +52,12 @@ const Page = () => {
   //     router.push('/verify-email?to=' + sentToEmail);
   //   },
   // });
+  async function githubSignup() {
+    await signIn('github', { callbackUrl: '/' });
+  }
+  async function googleSignup() {
+    await signIn('google', { callbackUrl: '/' });
+  }
 
   const onSubmit = async ({
     name,
@@ -103,8 +112,8 @@ const Page = () => {
 
           <div className='grid gap-6 pb-16'>
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className='grid gap-2'>
-                <div className='grid gap-2 py-2'>
+              <div className='grid gap-6'>
+                <div className='grid gap-2 '>
                   <Label htmlFor='name'>Username</Label>
                   <Input
                     {...register('name')}
@@ -120,7 +129,7 @@ const Page = () => {
                     </p>
                   )}
                 </div>
-                <div className='grid gap-2 py-2'>
+                <div className='grid gap-2 '>
                   <Label htmlFor='email'>Email</Label>
                   <Input
                     type='email'
@@ -136,7 +145,7 @@ const Page = () => {
                     </p>
                   )}
                 </div>
-                <div className='grid gap-2 py-2'>
+                <div className='grid gap-2 '>
                   <Label htmlFor='password'>Password</Label>
                   <Input
                     {...register('password')}
@@ -152,7 +161,7 @@ const Page = () => {
                     </p>
                   )}
                 </div>
-                <div className='grid gap-2 py-2'>
+                <div className='grid gap-2'>
                   <Label htmlFor='confirm_password'>Repeat Password</Label>
                   <Input
                     {...register('confirm_password')}
@@ -177,10 +186,9 @@ const Page = () => {
                 )}
               </div>
             </form>
-
             <Separator />
-
-            {/* TODO: Add google button from https://next-auth.js.org/providers/google */}
+            <GoogleButton signIn={false} onClick={googleSignup} />
+            <GithubButton signIn={false} onClick={githubSignup} />
           </div>
         </div>
       </div>
