@@ -42,7 +42,7 @@ export const authOptions: AuthOptions = {
         }
 
         if (user.provider !== 'credentials' && user.provider === 'google') {
-          throw new Error('Please sign in in using Google sign in.');
+          throw new Error('Please sign in using Google sign in.');
         }
 
         if (user.provider !== 'credentials' && user.provider === 'github') {
