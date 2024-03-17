@@ -42,17 +42,6 @@ export default async function Page({ params }: { params: { token: string } }) {
     password: hashedPassword,
   });
 
-  // const updateUser = await prisma.user.update({
-  //   where: {
-  //     id: user.id,
-  //   },
-  //   data: {
-  //     token: updatedToken,
-  //     isEmailVerified: true,
-  //     password: hashedPassword,
-  //   },
-  // });
-
   if (!updatedUser) {
     return (
       <div className='flex flex-col items-center gap-2 pt-[8%]'>

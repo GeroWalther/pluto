@@ -1,9 +1,10 @@
-import prisma from "@/db/db";
-import { compare, hash } from "bcryptjs";
-import { AuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import GitHubProvider from "next-auth/providers/github";
-import GoogleProvider from "next-auth/providers/google";
+import prisma from '@/db/db';
+import { compare, hash } from 'bcryptjs';
+import { AuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GitHubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
+import { findUserbyEmail } from '../../prisma/prisma.user';
 
 export const authOptions: AuthOptions = {
   // Providers array will be configured in the next steps
@@ -17,22 +18,23 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GITHUB_SECRET!,
     }),
     CredentialsProvider({
-      name: "Sign in",
+      name: 'Sign in',
       credentials: {
         email: {
-          label: "Email",
-          type: "email",
-          placeholder: "example@example.com",
+          label: 'Email',
+          type: 'email',
+          placeholder: 'example@example.com',
         },
         password: {
-          label: "Password",
-          type: "password",
+          label: 'Password',
+          type: 'password',
         },
       },
-      //   When someone tries to sign in, the authorize method is called with the credentials they provide.
+
+      // When someone tries to sign in, the authorize method is called with the credentials they provide.
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
-          throw new Error("xxxxxx");
+          throw new Error('xxxxxx');
         }
 
         const user = await prisma.user.findUnique({
@@ -42,21 +44,26 @@ export const authOptions: AuthOptions = {
         });
 
         if (!user) {
-          throw new Error("Please enter an existing email");
+          throw new Error('Please enter an existing email');
         }
 
-        if (!(user.provider === "credentials")) {
-          throw new Error("Please sign in with your social account.");
+        if (user.provider !== 'credentials' && user.provider === 'google') {
+          throw new Error('Please sign in in using Google sign in.');
+        }
+
+        if (user.provider !== 'credentials' && user.provider === 'github') {
+          throw new Error('Please sign in using Github sign in.');
         }
 
         if (!user.isEmailVerified) {
-          throw new Error("Please verify your email.");
+          throw new Error('Please verify your email.');
         }
 
         if (!(await compare(credentials.password, user.password))) {
-          throw new Error("The password you entered is incorrect");
+          throw new Error('The password you entered is incorrect');
         }
 
+        // this is our token for the callback function
         return {
           id: user.id,
           name: user.name,
@@ -69,24 +76,26 @@ export const authOptions: AuthOptions = {
   ],
 
   pages: {
-    signIn: "/sign-in",
-    newUser: "/sign-up",
+    signIn: '/sign-in',
+    newUser: '/sign-up',
   },
 
   session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days expiration
   },
 
   jwt: {
     secret: process.env.JWT_SECRET!,
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days expiration
   },
 
   secret: process.env.SECRET!,
 
+  //runs after authorize function
   callbacks: {
     session: ({ session, token }) => {
+      //token is returned from authorize function above or O-Auth providers
       return {
         ...session,
         user: {
@@ -101,8 +110,9 @@ export const authOptions: AuthOptions = {
     },
 
     jwt: async ({ token, user, trigger, session, account }) => {
-      // from where do we get account passed in?
-      if (account?.provider === "github") {
+      // we get these from either our authorize function returned or from the github/google O-Auth
+
+      if (account?.provider === 'github') {
         const name = token.name;
         const email = token.email;
         const picture = token.picture;
@@ -121,7 +131,7 @@ export const authOptions: AuthOptions = {
               password: await hash(name!, 10),
               image: picture,
               token: await hash(email!, 10),
-              provider: "github",
+              provider: 'github',
             },
           });
 
@@ -142,7 +152,7 @@ export const authOptions: AuthOptions = {
           email: user.email,
           image: picture,
         };
-      } else if (account?.provider === "google") {
+      } else if (account?.provider === 'google') {
         const name = token.name;
         const email = token.email;
         const picture = token.picture;
@@ -171,7 +181,7 @@ export const authOptions: AuthOptions = {
               password: await hash(name!, 10),
               image: picture,
               token: await hash(email!, 10),
-              provider: "google",
+              provider: 'google',
             },
           });
 
@@ -184,7 +194,7 @@ export const authOptions: AuthOptions = {
           };
         }
       }
-      if (trigger === "update") {
+      if (trigger === 'update') {
         return {
           ...token,
           ...session.user,
@@ -202,6 +212,7 @@ export const authOptions: AuthOptions = {
         return token;
       }
 
+      // this will be available in the useSession hook under data
       return {
         ...token,
         id: dbUser.id,

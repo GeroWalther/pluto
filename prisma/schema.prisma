@@ -6,7 +6,11 @@ datasource db {
     provider = "mongodb"
     url      = env("DATABASE_URL")
 }
-
+enum Provider {
+    google
+    github
+    credentials
+}
 model User {
     id              String  @id @default(auto()) @map("_id") @db.ObjectId
     name            String?
@@ -16,7 +20,7 @@ model User {
     image           String?
     isAdmin         Boolean @default(false)
     token           String  @unique
-    provider        String?
+    provider        Provider? 
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

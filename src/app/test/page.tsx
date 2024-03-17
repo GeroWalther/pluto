@@ -1,6 +1,6 @@
-import Test from "@/components/Test";
-import { authOptions } from "@/lib/auth";
-import NextAuth, { getServerSession } from "next-auth/next";
+import Test from '@/components/Test';
+import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
 const Page = async () => {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -11,11 +11,11 @@ const Page = async () => {
   return (
     <section>
       <h1>Test</h1>
-      <div className="border p-3 m-4">
+      <div className='border p-3 m-4'>
         <h2>Server session</h2>
         <p>{JSON.stringify(user)}</p>
       </div>
-      <div className="border p-3 m-4">
+      <div className='border p-3 m-4'>
         <h2>Client session</h2>
         <Test />
       </div>
