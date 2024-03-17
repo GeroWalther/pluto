@@ -1,39 +1,24 @@
-"use client";
-
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-
-const Page = () => {
-  const { data: session, update, status } = useSession();
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "unauthenticated") return <p>Unauthenticated</p>;
-
-  const handleRole = () => {
-    update({
-      ...session,
-      user: {
-        ...session?.user,
-        role: "admin",
-      },
-    });
-
-    alert("Role updated");
-  };
-
+import Test from "@/components/Test";
+import { authOptions } from "@/lib/auth";
+import NextAuth, { getServerSession } from "next-auth/next";
+const Page = async () => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return <div>Auth failed</div>;
+  }
+  const user = session.user;
+  console.log(user);
   return (
     <section>
-      <h2>Name: {session?.user.name}</h2>
-      <h2>Id: {session?.user.id}</h2>
-      <h2>Email: {session?.user.email}</h2>
-      <h2>Role: {session?.user.role}</h2>
-      <h2>Image: {session?.user.image}</h2>
-      <img
-        src={session?.user.image!}
-        alt="user image"
-        width={100}
-        height={100}
-      />
-      <button onClick={handleRole}>handleRole</button>
+      <h1>Test</h1>
+      <div className="border p-3 m-4">
+        <h2>Server session</h2>
+        <p>{JSON.stringify(user)}</p>
+      </div>
+      <div className="border p-3 m-4">
+        <h2>Client session</h2>
+        <Test />
+      </div>
     </section>
   );
 };

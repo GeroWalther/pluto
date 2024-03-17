@@ -1,5 +1,5 @@
 // /prisma/user.js
-import prisma from '../src/db/db';
+import prisma from "../src/db/db";
 
 // READ
 export const getAllUsers = async () => {
@@ -25,6 +25,7 @@ interface createUserType {
   email: string;
   password: string;
   token: string;
+  provider?: string;
 }
 // CREATE
 export const createUser = async ({
@@ -32,6 +33,7 @@ export const createUser = async ({
   name,
   password,
   token,
+  provider,
 }: createUserType) => {
   const user = await prisma.user.create({
     data: {
@@ -39,6 +41,7 @@ export const createUser = async ({
       name,
       password,
       token,
+      provider,
     },
   });
   return user;

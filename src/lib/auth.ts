@@ -45,6 +45,10 @@ export const authOptions: AuthOptions = {
           throw new Error("Please enter an existing email");
         }
 
+        if (!(user.provider === "credentials")) {
+          throw new Error("Please sign in with your social account.");
+        }
+
         if (!user.isEmailVerified) {
           throw new Error("Please verify your email.");
         }
@@ -117,6 +121,7 @@ export const authOptions: AuthOptions = {
               password: await hash(name!, 10),
               image: picture,
               token: await hash(email!, 10),
+              provider: "github",
             },
           });
 
@@ -166,6 +171,7 @@ export const authOptions: AuthOptions = {
               password: await hash(name!, 10),
               image: picture,
               token: await hash(email!, 10),
+              provider: "google",
             },
           });
 
@@ -179,8 +185,6 @@ export const authOptions: AuthOptions = {
         }
       }
       if (trigger === "update") {
-        // update token
-        console.log(session.user.role);
         return {
           ...token,
           ...session.user,

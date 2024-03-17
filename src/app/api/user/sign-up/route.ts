@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
     name: user.name,
     email: user.email,
     password: user.password,
+    provider: "credentials",
     token,
   });
 
