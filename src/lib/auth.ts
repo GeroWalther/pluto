@@ -33,12 +33,12 @@ export const authOptions: AuthOptions = {
       // When someone tries to sign in, the authorize method is called with the credentials they provide.
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
-          throw new Error('xxxxxx');
+          throw new Error('No credentials provided.');
         }
         const user = await findUserbyEmail(credentials.email);
 
         if (!user) {
-          throw new Error('Please enter an existing email');
+          throw new Error('Please enter an existing email.');
         }
 
         if (user.provider !== 'credentials' && user.provider === 'google') {
@@ -139,10 +139,7 @@ export const authOptions: AuthOptions = {
           image: token.picture,
         };
       } else if (account?.provider === 'google') {
-        const name = token.name;
-        const email = token.email;
-        const picture = token.picture;
-        const user = await findUserbyEmail(email!);
+        const user = await findUserbyEmail(token.email!);
         // Normal sign in
         if (user) {
           return {
@@ -150,18 +147,18 @@ export const authOptions: AuthOptions = {
             id: user.id,
             name: user.name,
             email: user.email,
-            image: picture,
+            image: token.picture,
           };
         }
         // Now the sign Up part for github
         if (!user) {
           const newUser = await createUser({
-            name,
-            email: email!,
+            name: token.name,
+            email: token.email!,
             isEmailVerified: true,
-            password: await hash(name!, 10),
-            image: picture,
-            token: await hash(email!, 10),
+            password: await hash(token.name!, 10),
+            image: token.picture,
+            token: await hash(token.email!, 10),
             provider: 'google',
           });
 
@@ -170,7 +167,7 @@ export const authOptions: AuthOptions = {
             id: newUser.id,
             name: newUser.name,
             email: newUser.email,
-            image: picture,
+            image: token.picture,
           };
         }
       }
