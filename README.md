@@ -36,4 +36,4 @@ Go to prisma then check prisma.user.ts file to create delete and find users. All
 
 # Have a look at our well thought out system design
 
-![alt text](https://github.com/GeroWalther/pluto/tree/master/public/pluto_system-design.png?raw=true)
+![See Pluto Market's system design](https://github.com/GeroWalther/pluto/tree/master/public/pluto_system-design.png?raw=true)
