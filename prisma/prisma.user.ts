@@ -1,5 +1,5 @@
 // /prisma/user.js
-import prisma from "../src/db/db";
+import prisma from '../src/db/db';
 
 // READ
 export const getAllUsers = async () => {
@@ -21,11 +21,13 @@ export const findUserbyToken = async (token: string) => {
 };
 
 interface createUserType {
-  name: string;
+  name: string | null | undefined;
   email: string;
+  isEmailVerified?: boolean;
   password: string;
   token: string;
-  provider?: string;
+  image?: string | null | undefined;
+  provider?: 'google' | 'github' | 'credentials' | null;
 }
 // CREATE
 export const createUser = async ({

@@ -1,10 +1,9 @@
-import prisma from '@/db/db';
 import { compare, hash } from 'bcryptjs';
 import { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
-import { findUserbyEmail } from '../../prisma/prisma.user';
+import { createUser, findUserbyEmail } from '../../prisma/prisma.user';
 
 export const authOptions: AuthOptions = {
   // Providers array will be configured in the next steps
@@ -36,12 +35,7 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials.password) {
           throw new Error('xxxxxx');
         }
-
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
+        const user = await findUserbyEmail(credentials.email);
 
         if (!user) {
           throw new Error('Please enter an existing email');
@@ -113,26 +107,18 @@ export const authOptions: AuthOptions = {
       // we get these from either our authorize function returned or from the github/google O-Auth
 
       if (account?.provider === 'github') {
-        const name = token.name;
-        const email = token.email;
-        const picture = token.picture;
-        const user = await prisma.user.findUnique({
-          where: {
-            email: email!,
-          },
-        });
+        const user = await findUserbyEmail(token.email!);
+
         // Now the sign Up part for github
         if (!user) {
-          const newUser = await prisma.user.create({
-            data: {
-              name,
-              email: email!,
-              isEmailVerified: true,
-              password: await hash(name!, 10),
-              image: picture,
-              token: await hash(email!, 10),
-              provider: 'github',
-            },
+          const newUser = await createUser({
+            name: token?.name,
+            email: token.email!,
+            isEmailVerified: true,
+            password: await hash(token.name!, 10),
+            image: token.picture,
+            token: await hash(token.email!, 10),
+            provider: 'github',
           });
 
           return {
@@ -140,7 +126,7 @@ export const authOptions: AuthOptions = {
             id: newUser.id,
             name: newUser.name,
             email: newUser.email,
-            image: picture,
+            image: token.picture,
           };
         }
 
@@ -150,17 +136,13 @@ export const authOptions: AuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
-          image: picture,
+          image: token.picture,
         };
       } else if (account?.provider === 'google') {
         const name = token.name;
         const email = token.email;
         const picture = token.picture;
-        const user = await prisma.user.findUnique({
-          where: {
-            email: email!,
-          },
-        });
+        const user = await findUserbyEmail(email!);
         // Normal sign in
         if (user) {
           return {
@@ -173,16 +155,14 @@ export const authOptions: AuthOptions = {
         }
         // Now the sign Up part for github
         if (!user) {
-          const newUser = await prisma.user.create({
-            data: {
-              name,
-              email: email!,
-              isEmailVerified: true,
-              password: await hash(name!, 10),
-              image: picture,
-              token: await hash(email!, 10),
-              provider: 'google',
-            },
+          const newUser = await createUser({
+            name,
+            email: email!,
+            isEmailVerified: true,
+            password: await hash(name!, 10),
+            image: picture,
+            token: await hash(email!, 10),
+            provider: 'google',
           });
 
           return {
@@ -202,11 +182,7 @@ export const authOptions: AuthOptions = {
       }
 
       // Add additional token info
-      const dbUser = await prisma.user.findUnique({
-        where: {
-          email: token.email as string,
-        },
-      });
+      const dbUser = await findUserbyEmail(token.email as string);
 
       if (!dbUser) {
         return token;
