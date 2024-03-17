@@ -70,6 +70,7 @@ export const authOptions: AuthOptions = {
   },
 
   secret: process.env.SECRET!,
+
   callbacks: {
     session: ({ session, token }) => {
       return {
@@ -94,8 +95,8 @@ export const authOptions: AuthOptions = {
           ...session.user,
         };
       }
-      // Add additional token info
 
+      // Add additional token info
       const dbUser = await prisma.user.findUnique({
         where: {
           email: token.email as string,
