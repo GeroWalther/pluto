@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 const Page = () => {
   const { data: session, update, status } = useSession();
@@ -26,7 +27,12 @@ const Page = () => {
       <h2>Email: {session?.user.email}</h2>
       <h2>Role: {session?.user.role}</h2>
       <h2>Image: {session?.user.image}</h2>
-
+      <img
+        src={session?.user.image!}
+        alt="user image"
+        width={100}
+        height={100}
+      />
       <button onClick={handleRole}>handleRole</button>
     </section>
   );

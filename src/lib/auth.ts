@@ -1,9 +1,9 @@
-import prisma from '@/db/db';
-import { AuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import GitHubProvider from 'next-auth/providers/github';
-import { hash } from 'bcryptjs';
+import prisma from "@/db/db";
+import { compare, hash } from "bcryptjs";
+import { AuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions: AuthOptions = {
   // Providers array will be configured in the next steps
@@ -17,22 +17,22 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GITHUB_SECRET!,
     }),
     CredentialsProvider({
-      name: 'Sign in',
+      name: "Sign in",
       credentials: {
         email: {
-          label: 'Email',
-          type: 'email',
-          placeholder: 'example@example.com',
+          label: "Email",
+          type: "email",
+          placeholder: "example@example.com",
         },
         password: {
-          label: 'Password',
-          type: 'password',
+          label: "Password",
+          type: "password",
         },
       },
       //   When someone tries to sign in, the authorize method is called with the credentials they provide.
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
-          throw new Error('xxxxxx');
+          throw new Error("xxxxxx");
         }
 
         const user = await prisma.user.findUnique({
@@ -42,11 +42,15 @@ export const authOptions: AuthOptions = {
         });
 
         if (!user) {
-          throw new Error('Please enter an existing email');
+          throw new Error("Please enter an existing email");
         }
 
         if (!user.isEmailVerified) {
-          throw new Error('Please verify your email.');
+          throw new Error("Please verify your email.");
+        }
+
+        if (!(await compare(credentials.password, user.password))) {
+          throw new Error("The password you entered is incorrect");
         }
 
         return {
@@ -61,12 +65,12 @@ export const authOptions: AuthOptions = {
   ],
 
   pages: {
-    signIn: '/sign-in',
-    newUser: '/sign-up',
+    signIn: "/sign-in",
+    newUser: "/sign-up",
   },
 
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
@@ -94,79 +98,87 @@ export const authOptions: AuthOptions = {
 
     jwt: async ({ token, user, trigger, session, account }) => {
       // from where do we get account passed in?
-      if (account?.provider === 'github') {
-        const dbUser = await prisma.user.findUnique({
-          where: {
-            email: token.email as string,
-          },
-        });
-        if (dbUser) {
-          return {
-            ...token,
-            id: dbUser.id,
-            name: dbUser.name,
-            email: dbUser.email,
-          };
-        }
-
-        // if (!dbUser) {
-        //   const hashedPassword = await hash(user.password, 10);
-        //   const newUser = await prisma.user.create({
-        //     data: {
-        //       name,
-        //       email,
-        //       provider: 'github',
-        //       emailVerified: true,
-        //       password: hashedPassword,
-        //       subscriptionTier: 'free',
-        //       membership: 'active',
-        //     },
-        //   });
-
-        //   return {
-        //     ...token,
-        //     id: newUser.id,
-        //     name: newUser.name,
-        //     email: newUser.email,
-        //   };
-        // }
-      } else if (account?.provider === 'google') {
+      if (account?.provider === "github") {
+        const name = token.name;
+        const email = token.email;
         const picture = token.picture;
-
-        const dbUser = await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
           where: {
-            email: token.email as string,
+            email: email!,
           },
         });
-        if (dbUser) {
+        // Now the sign Up part for github
+        if (!user) {
+          const newUser = await prisma.user.create({
+            data: {
+              name,
+              email: email!,
+              isEmailVerified: true,
+              password: await hash(name!, 10),
+              image: picture,
+              token: await hash(email!, 10),
+            },
+          });
+
           return {
             ...token,
-            id: dbUser.id,
-            name: dbUser.name,
-            email: dbUser.email,
-            picture: picture,
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            image: picture,
           };
         }
-        // if (!dbUser) {
-        //   const newUser = await prisma.user.create({
-        //     data: {
-        //       name,
-        //       email,
-        //       provider: 'google',
-        //       emailVerified: true,
-        //       password: await hash(name!, 10),
-        //     },
-        //   });
 
-        //   return {
-        //     ...token,
-        //     id: newUser.id,
-        //     name: newUser.name,
-        //     email: newUser.email,
-        //   };
-        // }
+        // Normal sign in
+        return {
+          ...token,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: picture,
+        };
+      } else if (account?.provider === "google") {
+        const name = token.name;
+        const email = token.email;
+        const picture = token.picture;
+        const user = await prisma.user.findUnique({
+          where: {
+            email: email!,
+          },
+        });
+        // Normal sign in
+        if (user) {
+          return {
+            ...token,
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: picture,
+          };
+        }
+        // Now the sign Up part for github
+        if (!user) {
+          const newUser = await prisma.user.create({
+            data: {
+              name,
+              email: email!,
+              isEmailVerified: true,
+              password: await hash(name!, 10),
+              image: picture,
+              token: await hash(email!, 10),
+            },
+          });
+
+          return {
+            ...token,
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            image: picture,
+          };
+        }
       }
-      if (trigger === 'update') {
+      if (trigger === "update") {
         // update token
         console.log(session.user.role);
         return {
