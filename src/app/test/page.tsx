@@ -1,26 +1,52 @@
-import Test from '@/components/Test';
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth/next';
+import { serverCaller } from '@/trpc';
+
 const Page = async () => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return <div>Auth failed</div>;
+  const data = await serverCaller.getUserFromEmail('gero.walther@gmail.com');
+  const changedName = await serverCaller.updateUserName({
+    email: 'gero.walther@gmail.com',
+    newUserName: 'gero used trpc! ',
+  });
+  if (data) {
+    return (
+      <section>
+        <div>
+          <p>Old name in DB: </p>
+          <h2>{data.name}</h2>
+        </div>
+        <div>
+          <p>updated name in DB: </p>
+          <h2>{changedName.name}</h2>
+        </div>
+      </section>
+    );
   }
-  const user = session.user;
-  console.log(user);
-  return (
-    <section>
-      <h1>Test</h1>
-      <div className='border p-3 m-4'>
-        <h2>Server session</h2>
-        <p>{JSON.stringify(user)}</p>
-      </div>
-      <div className='border p-3 m-4'>
-        <h2>Client session</h2>
-        <Test />
-      </div>
-    </section>
-  );
 };
 
 export default Page;
+
+// import Test from '@/components/Test';
+// import { authOptions } from '@/lib/auth';
+// import { getServerSession } from 'next-auth/next';
+// const Page = async () => {
+//   const session = await getServerSession(authOptions);
+//   if (!session) {
+//     return <div>Auth failed</div>;
+//   }
+//   const user = session.user;
+//   console.log(user);
+//   return (
+//     <section>
+//       <h1>Test</h1>
+//       <div className='border p-3 m-4'>
+//         <h2>Server session</h2>
+//         <p>{JSON.stringify(user)}</p>
+//       </div>
+//       <div className='border p-3 m-4'>
+//         <h2>Client session</h2>
+//         <Test />
+//       </div>
+//     </section>
+//   );
+// };
+
+// export default Page;
