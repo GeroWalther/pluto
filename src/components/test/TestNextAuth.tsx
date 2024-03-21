@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
-const Test = () => {
+const TestNextAuth = () => {
   const { data: session, update, status } = useSession();
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "unauthenticated") return <p>Unauthenticated</p>;
+  if (status === 'loading') return <p>Loading...</p>;
+  if (status === 'unauthenticated') return <p>Unauthenticated</p>;
   console.log(session?.user);
   const handleRole = () => {
     update({
@@ -17,7 +17,7 @@ const Test = () => {
       },
     });
 
-    alert("Role updated");
+    alert('Role updated');
   };
 
   return (
@@ -29,7 +29,7 @@ const Test = () => {
       <h2>Image: {session?.user.image}</h2>
       <img
         src={session?.user.image!}
-        alt="user image"
+        alt='user image'
         width={100}
         height={100}
       />
@@ -39,4 +39,4 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default TestNextAuth;

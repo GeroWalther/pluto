@@ -1,20 +1,11 @@
-import { z } from 'zod';
-import { createCallerFactory, publicProcedure, router } from './trpc';
-import { findUserbyEmail, updateUser } from '../../prisma/prisma.user';
+import { createCallerFactory, router } from './trpc';
+import { authRouter } from './api/auth';
 
-// Step 4 defining the api routes
+// Main root appRouter containing all of the defined api routes on a higher level. Routes are split up the api folder into different nested roters each handling only certain related tasks.
+//In controller folder are the low level data manipulation functions, also split up accordingly.
+
 export const appRouter = router({
-  getUserFromEmail: publicProcedure
-    .input(z.string())
-    .query(async ({ input }) => {
-      return await findUserbyEmail(input);
-    }),
-
-  updateUserName: publicProcedure
-    .input(z.object({ email: z.string(), newUserName: z.string() }))
-    .mutation(async ({ input }) => {
-      return await updateUser(input.email, { name: input.newUserName });
-    }),
+  user: authRouter,
 });
 
 export type TAppRouter = typeof appRouter;

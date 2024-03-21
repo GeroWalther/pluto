@@ -1,5 +1,4 @@
 import { buttonVariants } from '@/components/ui/button';
-import prisma from '@/db/db';
 import { generateRandomToken } from '@/lib/utils';
 import { hash } from 'bcryptjs';
 import { XCircle } from 'lucide-react';
@@ -35,7 +34,7 @@ export default async function Page({ params }: { params: { token: string } }) {
   const hashedPassword = await hash(user.password, 10);
   const updatedToken = generateRandomToken();
 
-  const updatedUser = await updateUser(user.id, {
+  const updatedUser = await updateUser(user.email, {
     token: updatedToken,
     isEmailVerified: true,
     password: hashedPassword,

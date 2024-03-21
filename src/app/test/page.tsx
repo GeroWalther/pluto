@@ -1,30 +1,38 @@
-import { serverCaller } from '@/trpc';
+import TestTRPC from '@/components/test/TestTRPC';
 
 const Page = async () => {
-  const data = await serverCaller.getUserFromEmail('gero.walther@gmail.com');
-  const changedName = await serverCaller.updateUserName({
-    email: 'gero.walther@gmail.com',
-    newUserName: 'gero used trpc! ',
-  });
-  if (data) {
-    return (
-      <section>
-        <div>
-          <p>Old name in DB: </p>
-          <h2>{data.name}</h2>
-        </div>
-        <div>
-          <p>updated name in DB: </p>
-          <h2>{changedName.name}</h2>
-        </div>
-      </section>
-    );
-  }
+  return <TestTRPC />;
 };
 
 export default Page;
 
-// import Test from '@/components/Test';
+// import { serverCaller } from '@/trpc';
+
+// const Page = async () => {
+//   const data = await serverCaller.getUserFromEmail('gero.walther@gmail.com');
+//   const changedName = await serverCaller.updateUserName({
+//     email: 'gero.walther@gmail.com',
+//     newUserName: 'gero used trpc! ',
+//   });
+//   if (data) {
+//     return (
+//       <section>
+//         <div>
+//           <p>Old name in DB: </p>
+//           <h2>{data.name}</h2>
+//         </div>
+//         <div>
+//           <p>updated name in DB: </p>
+//           <h2>{changedName.name}</h2>
+//         </div>
+//       </section>
+//     );
+//   }
+// };
+
+// export default Page;
+
+// import TestNextAuth from '@/components/Test/TestNextAuth';
 // import { authOptions } from '@/lib/auth';
 // import { getServerSession } from 'next-auth/next';
 // const Page = async () => {
@@ -43,7 +51,7 @@ export default Page;
 //       </div>
 //       <div className='border p-3 m-4'>
 //         <h2>Client session</h2>
-//         <Test />
+//         <TestNextAuth />
 //       </div>
 //     </section>
 //   );

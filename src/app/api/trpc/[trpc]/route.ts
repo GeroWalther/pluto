@@ -8,8 +8,8 @@ type Context = {
   res: NextApiResponse;
 };
 
-const handler = (req: NextRequest) => {
-  fetchRequestHandler({
+const handler = async (req: NextRequest) => {
+  const result = await fetchRequestHandler({
     endpoint: 'api/trpc',
     req,
     router: appRouter,
@@ -17,6 +17,8 @@ const handler = (req: NextRequest) => {
       return {} as Context;
     },
   });
+
+  return result;
 };
 
 export { handler as DELETE, handler as GET, handler as POST, handler as PUT };

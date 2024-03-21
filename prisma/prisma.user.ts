@@ -49,7 +49,7 @@ export const createUser = async ({
   return user;
 };
 
-type updateUser = {
+export type TupdateUser = {
   name?: string;
   email?: string;
   password?: string;
@@ -58,7 +58,7 @@ type updateUser = {
   isEmailVerified?: boolean;
 };
 // UPDATE
-export const updateUser = async (email: string, updateData: updateUser) => {
+export const updateUser = async (email: string, updateData: TupdateUser) => {
   const user = await prisma.user.update({
     where: {
       email,

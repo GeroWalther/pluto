@@ -83,7 +83,13 @@ const Navbar = () => {
                       />
                     </div>
                   )}
-
+                  <Link
+                    href={'/sign-up'}
+                    className={buttonVariants({
+                      variant: 'ghost',
+                    })}>
+                    sign up
+                  </Link>
                   <div className='ml-4 flow-root lg:ml-6'>{/* <Cart /> */}</div>
                 </div>
               </div>
