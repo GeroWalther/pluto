@@ -31,7 +31,6 @@ export default function TestTRPC() {
   async function changeUserName(event: React.FormEvent<HTMLFormElement>) {
     event?.preventDefault();
     mutate({ email, newUserName });
-    getUserfromEmailagain();
   }
 
   return (
