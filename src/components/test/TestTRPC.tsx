@@ -62,8 +62,8 @@ export default function TestTRPC() {
 
       <form onSubmit={changeUserName}>
         <h3>change your user name</h3>
-        <label htmlFor='username'>new username</label>
         <div className='flex items-center'>
+          <label htmlFor='username'>new username</label>
           <input
             className='border border-blue-500 m-4 w-full'
             type='text'
