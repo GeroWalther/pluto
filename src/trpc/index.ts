@@ -5,7 +5,7 @@ import { authRouter } from './api/auth';
 //In controller folder are the low level data manipulation functions, also split up accordingly.
 
 export const appRouter = router({
-  user: authRouter,
+  auth: authRouter,
 });
 
 export type TAppRouter = typeof appRouter;

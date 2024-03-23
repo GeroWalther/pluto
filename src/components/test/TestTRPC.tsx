@@ -11,14 +11,14 @@ export default function TestTRPC() {
     data: fetchedUser,
     refetch: getUserfromEmailagain,
     isSuccess: gotUserfromEmail,
-  } = trpc.user.getUserFromEmail.useQuery(email, {});
-  //what options do we usually pass in here?
+  } = trpc.auth.getUserFromEmail.useQuery(email, {});
+  // configurs the query; we don't parameters
 
   const {
     data: updatedUser,
     isSuccess: gotUpdatedUser,
     mutate,
-  } = trpc.user.updateUserName.useMutation({
+  } = trpc.auth.updateUserName.useMutation({
     onSuccess: () => {
       getUserfromEmailagain(); // Refetch user data after mutation success
     },

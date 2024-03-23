@@ -1,5 +1,10 @@
 import { findUserbyEmail } from '../../../prisma/prisma.user';
-import { publicProcedure, router } from '../trpc';
+import {
+  adminProcedure,
+  privateProcedure,
+  publicProcedure,
+  router,
+} from '../trpc';
 import { z } from 'zod';
 
 import {
@@ -7,7 +12,7 @@ import {
   updateUserNameController,
 } from './controller/auth';
 
-//auth related routes and their precedures. low level
+//auth related routes and their precedures.
 export const authRouter = router({
   getUserFromEmail: publicProcedure
     .input(z.string())
@@ -33,4 +38,19 @@ export const authRouter = router({
     .mutation(async ({ input }) => {
       return await signUpUserController(input);
     }),
+  isAuthorized: privateProcedure.query(async ({ ctx }) => {
+    return {
+      user: ctx.user,
+      greeting: ctx.greeting,
+    };
+  }),
+  approvalDashboard: adminProcedure.query(
+    async ({ ctx: { userId, email, role } }) => {
+      return {
+        userId,
+        email,
+        role,
+      };
+    }
+  ),
 });

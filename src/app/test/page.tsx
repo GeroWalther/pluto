@@ -1,7 +1,7 @@
-import TestTRPC from '@/components/test/TestTRPC';
+import TestProtectedTRPC from '@/components/test/TestProtectedTRPC';
 
 const Page = async () => {
-  return <TestTRPC />;
+  return <TestProtectedTRPC />;
 };
 
 export default Page;

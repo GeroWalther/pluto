@@ -36,7 +36,7 @@ const Page = () => {
   const router = useRouter();
 
   // why no isLoading ??
-  const { mutate } = trpc.user.signUp.useMutation({
+  const { mutate, isPending } = trpc.auth.signUp.useMutation({
     onError: (err) => {
       if (err.data) {
         toast.error(err.message);
@@ -179,8 +179,8 @@ const Page = () => {
                   )}
                 </div>
 
-                <Button disabled={isSubmitting}>
-                  {!isSubmitting ? 'Sign up' : 'Loading...'}
+                <Button disabled={isPending}>
+                  {!isPending ? 'Sign up' : 'Loading...'}
                 </Button>
                 {errors.root && (
                   <p className='text-sm text-red-500'>{errors.root.message}</p>
@@ -191,12 +191,12 @@ const Page = () => {
             <GoogleButton
               signIn={false}
               onClick={googleSignup}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             <GithubButton
               signIn={false}
               onClick={githubSignup}
-              disabled={isSubmitting}
+              disabled={isPending}
             />
           </div>
         </div>

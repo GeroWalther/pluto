@@ -12,8 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 
-export default function UserAccountNav({ user }: { user: any }) {
+export default function UserAccountNav({ user }: any) {
   const { plutoSignOut } = useSignOut();
+  console.log(user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className='overflow-visible'>
@@ -23,9 +24,9 @@ export default function UserAccountNav({ user }: { user: any }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className='bg-white w-60 align-end'>
-        {/* <div className='flex items-center justify-start gap-2 p-2'>
-          <p className='font-medium text-sm text-stone-900'>{user.email}</p>
-        </div> */}
+        <div className='flex items-center justify-start gap-2 p-2'>
+          <p className='font-medium text-sm text-stone-900'>{user?.email}</p>
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href='/sell'>Seller Dashboard</Link>

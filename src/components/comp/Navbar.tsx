@@ -2,23 +2,22 @@
 import Link from 'next/link';
 import MaxWidthWrapper from './MaxWidthWrapper';
 
-import { buttonVariants } from '../ui/button';
+import { Button, buttonVariants } from '../ui/button';
 // import Cart from "./Cart";
 import NavItems from './NavItems';
-//import { getServerSideUser } from '@/lib/payload-utils';
 import { cookies } from 'next/headers';
 import { PlutoLogo } from '../svgs/Icons';
 import MobileNav from './MobilNav';
 import { useSession } from 'next-auth/react';
 import UserAccountNav from './UserAccountNav';
+import { useSignOut } from '@/hooks/use-sign-out';
 // import UserAccountNav from "./UserAccountNav";
 
 const Navbar = () => {
   // const nextCookies = cookies();
   const { data: session } = useSession();
   const user = session?.user;
-  console.log('user: ', user);
-
+  const { plutoSignOut } = useSignOut();
   return (
     <div className='bg-white sticky z-50 top-0 inset-x-0 h-16'>
       <header className='relative bg-white'>
@@ -57,15 +56,23 @@ const Navbar = () => {
                     />
                   )}
 
-                  {!user && (
+                  {!user ? (
                     // <UserAccountNav user={user} />
                     <Link
-                      href='/sign-up'
+                      href='/sign-in'
                       className={buttonVariants({
                         variant: 'ghost',
                       })}>
                       Create account
                     </Link>
+                  ) : (
+                    <Button
+                      onClick={plutoSignOut}
+                      className={buttonVariants({
+                        variant: 'ghost',
+                      })}>
+                      Log out
+                    </Button>
                   )}
 
                   {user ? (
@@ -83,13 +90,13 @@ const Navbar = () => {
                       />
                     </div>
                   )}
-                  <Link
+                  {/* <Link
                     href={'/sign-up'}
                     className={buttonVariants({
                       variant: 'ghost',
                     })}>
                     sign up
-                  </Link>
+                  </Link> */}
                   <div className='ml-4 flow-root lg:ml-6'>{/* <Cart /> */}</div>
                 </div>
               </div>
