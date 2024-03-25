@@ -1,7 +1,15 @@
-import TestUploadThing from '@/components/test/TestUploadThing';
+import TestUploadThing from "@/components/test/TestUploadThing";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 const Page = async () => {
-  return <TestUploadThing />;
+  const user = await getServerSession(authOptions);
+  return (
+    <>
+      <p>{JSON.stringify(user)}</p>
+      <TestUploadThing />
+    </>
+  );
 };
 
 export default Page;
