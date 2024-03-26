@@ -1,16 +1,16 @@
-import { findUserbyEmail } from '../../../prisma/prisma.user';
+import { z } from "zod";
+import { findUserbyEmail } from "../../lib/prisma.user";
 import {
   adminProcedure,
   privateProcedure,
   publicProcedure,
   router,
-} from '../trpc';
-import { z } from 'zod';
+} from "../trpc";
 
 import {
   signUpUserController,
   updateUserNameController,
-} from './controller/auth';
+} from "./controller/auth";
 
 //auth related routes and their precedures.
 export const authRouter = router({

@@ -1,12 +1,12 @@
-import { generateRandomToken, validateEmail } from '@/lib/utils';
+import { PrimaryActionEmailHtml } from "@/components/emails/PrimaryActionEmail";
+import { sendEmail } from "@/lib/sendEmail";
+import { generateRandomToken, validateEmail } from "@/lib/utils";
+import { TRPCError } from "@trpc/server";
 import {
   createUser,
   findUserbyEmail,
   updateUser,
-} from '../../../../prisma/prisma.user';
-import { TRPCError } from '@trpc/server';
-import { sendEmail } from '@/lib/sendEmail';
-import { PrimaryActionEmailHtml } from '@/components/emails/PrimaryActionEmail';
+} from "../../../lib/prisma.user";
 
 export type TuserSignUp = {
   name: string;
@@ -23,28 +23,28 @@ export const signUpUserController = async (newUser: TuserSignUp) => {
     !newUser.confirm_password
   ) {
     throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'Error creating user. Input must not be empty.',
+      code: "NOT_FOUND",
+      message: "Error creating user. Input must not be empty.",
     });
   }
   if (newUser.password.trim() !== newUser.confirm_password.trim()) {
     throw new TRPCError({
-      code: 'CONFLICT',
-      message: 'Passwords do not match.',
+      code: "CONFLICT",
+      message: "Passwords do not match.",
     });
   }
   if (!validateEmail(newUser.email.trim())) {
     throw new TRPCError({
-      code: 'CONFLICT',
-      message: 'Must provide a valid Email.',
+      code: "CONFLICT",
+      message: "Must provide a valid Email.",
     });
   }
   const storedUser = await findUserbyEmail(newUser.email);
 
   if (storedUser) {
     throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: 'User already registered. Please sign in instead.',
+      code: "BAD_REQUEST",
+      message: "User already registered. Please sign in instead.",
     });
   }
 
@@ -54,33 +54,33 @@ export const signUpUserController = async (newUser: TuserSignUp) => {
     email: newUser.email,
     name: newUser.name,
     password: newUser.password,
-    provider: 'credentials',
+    provider: "credentials",
     token,
   });
 
   if (!createdUser)
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Error creating user. Please try again.',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Error creating user. Please try again.",
     });
 
   // send verification Email
   try {
     const info = await sendEmail({
       userEmail: newUser.email,
-      subject: 'Thanks for your order! This is your receipt.',
+      subject: "Thanks for your order! This is your receipt.",
       html: PrimaryActionEmailHtml({
-        actionLabel: 'verify your account',
-        buttonText: 'Verify Account',
+        actionLabel: "verify your account",
+        buttonText: "Verify Account",
         href: `${process.env.NEXT_PUBLIC_SERVER_URL}/verify-email/${token}`,
       }),
     });
     console.log(info);
   } catch (error) {
-    console.log('Email failed to sent! ERROR: ', error);
+    console.log("Email failed to sent! ERROR: ", error);
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Email failed to sent!',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Email failed to sent!",
     });
   }
 
@@ -94,8 +94,8 @@ export const updateUserNameController = async (input: {
   const res = await updateUser(input.email, { name: input.newUserName });
   if (!res) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'User not found',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "User not found",
     });
   }
   return res;

@@ -1,9 +1,9 @@
-import { compare, hash } from 'bcryptjs';
-import { AuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GitHubProvider from 'next-auth/providers/github';
-import GoogleProvider from 'next-auth/providers/google';
-import { createUser, findUserbyEmail } from '../../prisma/prisma.user';
+import { compare, hash } from "bcryptjs";
+import { AuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+import { createUser, findUserbyEmail } from "./prisma.user";
 
 export const authOptions: AuthOptions = {
   // Providers array will be configured in the next steps
@@ -17,44 +17,44 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GITHUB_SECRET!,
     }),
     CredentialsProvider({
-      name: 'Sign in',
+      name: "Sign in",
       credentials: {
         email: {
-          label: 'Email',
-          type: 'email',
-          placeholder: 'example@example.com',
+          label: "Email",
+          type: "email",
+          placeholder: "example@example.com",
         },
         password: {
-          label: 'Password',
-          type: 'password',
+          label: "Password",
+          type: "password",
         },
       },
 
       // When someone tries to sign in, the authorize method is called with the credentials they provide.
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
-          throw new Error('No credentials provided.');
+          throw new Error("No credentials provided.");
         }
         const user = await findUserbyEmail(credentials.email);
 
         if (!user) {
-          throw new Error('Please enter an existing email.');
+          throw new Error("Please enter an existing email.");
         }
 
-        if (user.provider !== 'credentials' && user.provider === 'google') {
-          throw new Error('Please sign in using Google sign in.');
+        if (user.provider !== "credentials" && user.provider === "google") {
+          throw new Error("Please sign in using Google sign in.");
         }
 
-        if (user.provider !== 'credentials' && user.provider === 'github') {
-          throw new Error('Please sign in using Github sign in.');
+        if (user.provider !== "credentials" && user.provider === "github") {
+          throw new Error("Please sign in using Github sign in.");
         }
 
         if (!user.isEmailVerified) {
-          throw new Error('Please verify your email.');
+          throw new Error("Please verify your email.");
         }
 
         if (!(await compare(credentials.password, user.password))) {
-          throw new Error('The password you entered is incorrect');
+          throw new Error("The password you entered is incorrect");
         }
 
         // this is our token for the callback function
@@ -70,12 +70,12 @@ export const authOptions: AuthOptions = {
   ],
 
   pages: {
-    signIn: '/sign-in',
-    newUser: '/sign-up',
+    signIn: "/sign-in",
+    newUser: "/sign-up",
   },
 
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days expiration
   },
 
@@ -106,7 +106,7 @@ export const authOptions: AuthOptions = {
     jwt: async ({ token, user, trigger, session, account }) => {
       // we get these from either our authorize function returned or from the github/google O-Auth
 
-      if (account?.provider === 'github') {
+      if (account?.provider === "github") {
         const user = await findUserbyEmail(token.email!);
 
         // Now the sign Up part for github
@@ -118,7 +118,7 @@ export const authOptions: AuthOptions = {
             password: await hash(token.name!, 10),
             image: token.picture,
             token: await hash(token.email!, 10),
-            provider: 'github',
+            provider: "github",
           });
 
           return {
@@ -138,7 +138,7 @@ export const authOptions: AuthOptions = {
           email: user.email,
           image: token.picture,
         };
-      } else if (account?.provider === 'google') {
+      } else if (account?.provider === "google") {
         const user = await findUserbyEmail(token.email!);
         // Google sign in if user exists
         if (user) {
@@ -159,7 +159,7 @@ export const authOptions: AuthOptions = {
             password: await hash(token.name!, 10),
             image: token.picture,
             token: await hash(token.email!, 10),
-            provider: 'google',
+            provider: "google",
           });
 
           return {
@@ -171,7 +171,7 @@ export const authOptions: AuthOptions = {
           };
         }
       }
-      if (trigger === 'update') {
+      if (trigger === "update") {
         return {
           ...token,
           ...session.user,

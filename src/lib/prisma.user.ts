@@ -1,5 +1,5 @@
 // /prisma/user.js
-import prisma from '../src/db/db';
+import prisma from "../db/db";
 
 // READ
 export const getAllUsers = async () => {
@@ -27,7 +27,7 @@ interface createUserType {
   password: string;
   token: string;
   image?: string | null | undefined;
-  provider?: 'google' | 'github' | 'credentials' | null;
+  provider?: "google" | "github" | "credentials" | null;
 }
 // CREATE
 export const createUser = async ({

@@ -1,15 +1,15 @@
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
-import { createUploadthing, type FileRouter } from 'uploadthing/next';
-import { UploadThingError } from 'uploadthing/server';
-import { createProduct } from '../../../../prisma/prisma.product';
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { UploadThingError } from "uploadthing/server";
+import { createProduct } from "../../../lib/prisma.product";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: '4MB' } })
+  imageUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
+      if (!session) throw new UploadThingError("Unauthorized");
 
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: session.user.id };
@@ -18,9 +18,9 @@ export const ourFileRouter = {
       // This code RUNS ON YOUR SERVER after upload
       const uploadProduct = await createProduct({
         image: file.name,
-        name: 'name',
+        name: "name",
         url: file.url,
-        description: 'description',
+        description: "description",
         price: 1000,
         user: {
           connect: {
@@ -30,8 +30,8 @@ export const ourFileRouter = {
       });
 
       if (!uploadProduct) {
-        console.error('Failed to upload product');
-        throw new UploadThingError('Failed to upload product');
+        console.error("Failed to upload product");
+        throw new UploadThingError("Failed to upload product");
       }
 
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
