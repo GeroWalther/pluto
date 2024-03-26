@@ -1,8 +1,8 @@
 import { PrimaryActionEmailHtml } from "@/components/emails/PrimaryActionEmail";
+import { createUser, findUserbyEmail } from "@/db/prisma.user";
 import { sendEmail } from "@/lib/sendEmail";
 import { generateRandomToken, validateEmail } from "@/lib/utils";
 import { NextRequest } from "next/server";
-import { createUser, findUserbyEmail } from "../../../../lib/prisma.user";
 
 export type userSignUp = {
   name: string;

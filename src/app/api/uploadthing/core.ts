@@ -1,8 +1,8 @@
+import { createProduct } from "@/db/prisma.product";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
-import { createProduct } from "../../../lib/prisma.product";
 const f = createUploadthing();
 
 export const ourFileRouter = {

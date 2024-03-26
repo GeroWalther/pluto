@@ -1,9 +1,9 @@
+import { createUser, findUserbyEmail } from "@/db/prisma.user";
 import { compare, hash } from "bcryptjs";
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import { createUser, findUserbyEmail } from "./prisma.user";
 
 export const authOptions: AuthOptions = {
   // Providers array will be configured in the next steps
