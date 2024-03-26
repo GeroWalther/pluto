@@ -1,12 +1,9 @@
 import { generateRandomToken, validateEmail } from '@/lib/utils';
-import {
-  createUser,
-  findUserbyEmail,
-  updateUser,
-} from '../../../../prisma/prisma.user';
+
 import { TRPCError } from '@trpc/server';
 import { sendEmail } from '@/lib/sendEmail';
 import { PrimaryActionEmailHtml } from '@/components/emails/PrimaryActionEmail';
+import { createUser, findUserbyEmail, updateUser } from '@/db/prisma.user';
 
 export type TuserSignUp = {
   name: string;

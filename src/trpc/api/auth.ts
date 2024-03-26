@@ -1,4 +1,4 @@
-import { findUserbyEmail } from '../../../prisma/prisma.user';
+import { findUserbyEmail } from '../../db/prisma.user';
 import {
   adminProcedure,
   privateProcedure,

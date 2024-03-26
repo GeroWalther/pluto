@@ -1,5 +1,5 @@
 // /prisma/user.js
-import prisma from '../src/db/db';
+import prisma from './db';
 
 // READ
 export const getAllUsers = async () => {
