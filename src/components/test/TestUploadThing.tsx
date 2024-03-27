@@ -6,14 +6,8 @@ import ImageSlider from '../comp/ImageSlider';
 import { trpc } from '@/trpc/client';
 import { Button } from '../ui/button';
 
-const testArr = [
-  process.env.NEXT_PUBLIC_SERVER_URL + '/nav/e-books/mixed.jpg',
-  process.env.NEXT_PUBLIC_SERVER_URL + '/nav/e-books/blue.jpg',
-  process.env.NEXT_PUBLIC_SERVER_URL + '/nav/e-book/purple.jpg',
-];
-
 export default function TestUploadThing() {
-  const [urls, setUrls] = useState<string[]>(testArr);
+  const [urls, setUrls] = useState<string[]>([]);
   const [fileKeys, setFileKeys] = useState<string[]>([]);
 
   const { mutate: deleteAll } = trpc.seller.deleteAllUploadedFiles.useMutation({
