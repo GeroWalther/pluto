@@ -4,7 +4,7 @@ import { deleteSellerFileController } from './controller/seller';
 
 export const sellerRouter = router({
   deleteUploadFile: privateProcedure
-    .input(z.string())
+    .input(z.array(z.string()))
     .mutation(async ({ input, ctx }) => {
       const deletedFile = await deleteSellerFileController(input, ctx.user);
       return deletedFile;

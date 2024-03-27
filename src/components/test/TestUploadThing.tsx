@@ -1,38 +1,40 @@
 'use client';
 import { UploadDropzone } from '@/lib/uploadthing';
-import { useEffect, useState } from 'react';
-import DeleteUploadFileBtn from './comp/DeleteUploadFileBtn';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import ImageSlider from '../comp/ImageSlider';
+import { trpc } from '@/trpc/client';
+import { Button } from '../ui/button';
 
-export default function Home() {
-  const [url, setUrl] = useState<string>('');
-  const [fileKey, setFileKey] = useState('');
-  const [refresh, setRefresh] = useState(false);
+export default function TestUploadThing() {
+  const [urls, setUrls] = useState<string[]>([]);
+  const [fileKeys, setFileKeys] = useState<string[]>([]);
 
-  useEffect(() => {
-    setUrl('');
-    setFileKey('');
-    setRefresh(false);
-  }, [refresh]);
+  const { mutate } = trpc.seller.deleteUploadFile.useMutation({
+    onSuccess: (data) => {
+      setUrls([]);
+      setFileKeys([]);
+      toast.success(data);
+    },
+    onError: () => {
+      toast.error('Error deleting file');
+    },
+  });
 
   return (
     <div className='flex min-h-screen flex-col items-center justify-center p-2'>
       <UploadDropzone
         endpoint='imageUploader'
         onClientUploadComplete={(res) => {
-          // Do something with the response
-          setUrl(res?.[0]?.url);
-          setFileKey(res?.[0]?.key);
+          setUrls((s) => [...s, res?.[0]?.url]);
+          setFileKeys((s) => [...s, res?.[0]?.key]);
         }}
         onUploadError={(error) => {
-          // Do something with the error.
           toast.error('Error uploading');
         }}
       />
-      {url && <img src={url} width={200} height={200} alt='uploaded image' />}
-      {url && (
-        <DeleteUploadFileBtn fileName={fileKey} setRefreshed={setRefresh} />
-      )}
+      {urls && <ImageSlider urls={urls} />}
+      {urls && <Button onClick={() => mutate(fileKeys)}>Delete all</Button>}
     </div>
   );
 }

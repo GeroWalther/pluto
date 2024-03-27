@@ -11,7 +11,7 @@ type user = User & {
   role: boolean;
 };
 
-export async function deleteSellerFileController(file: string, user: user) {
+export async function deleteSellerFileController(file: string[], user: user) {
   const utapi = new UTApi();
   const deleted = await utapi.deleteFiles(file);
 

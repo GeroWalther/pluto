@@ -16,9 +16,15 @@ export const getProductById = async (id: string) => {
   return product;
 };
 
+export const getProductFromUserId = async (userId: string) => {};
+
 export const getProductByFileName = async (image: string) => {
   const product = await prisma.product.findFirst({
-    where: {},
+    where: {
+      images: {
+        has: image,
+      },
+    },
   });
   return product;
 };

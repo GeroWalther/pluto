@@ -4,7 +4,7 @@ import { createUploadthing, type FileRouter } from 'uploadthing/next';
 import { UploadThingError } from 'uploadthing/server';
 import {
   createProduct,
-  getProductByUrl,
+  getProductByFileName,
   updateProduct,
 } from '@/db/prisma.product';
 const f = createUploadthing();
@@ -20,7 +20,10 @@ export const ourFileRouter = {
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
-      const productExists = await getProductByUrl(file.name);
+
+      // first check if product already exists if not create new one if it exists update existing.
+      const productExists = await getProductByFileName(file.name);
+
       if (!productExists) {
         const uploadProduct = await createProduct({
           images: [file.name],
