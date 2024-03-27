@@ -43,7 +43,7 @@ model Product {
     name        String
     description String
     price       Float
-    image       String
+    images      String[]
     url         String
 
     // product status

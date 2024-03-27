@@ -5,7 +5,7 @@ import { XCircle } from 'lucide-react';
 import Image from 'next/image';
 
 import Link from 'next/link';
-import { updateUser, findUserbyToken } from '../../../../db/prisma.user';
+import { updateUser, findUserbyToken } from '@/db/prisma.user';
 
 export default async function Page({ params }: { params: { token: string } }) {
   const user = await findUserbyToken(params.token);

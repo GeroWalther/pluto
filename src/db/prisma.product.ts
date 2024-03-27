@@ -16,9 +16,16 @@ export const getProductById = async (id: string) => {
   return product;
 };
 
+export const getProductByFileName = async (image: string) => {
+  const product = await prisma.product.findFirst({
+    where: {},
+  });
+  return product;
+};
+
 // CREATE
 export interface CreateProductType {
-  image: string;
+  images: string[];
   name: string;
   url: string;
   description: string;
@@ -46,7 +53,9 @@ export const updateProduct = async (
 ) => {
   const product = await prisma.product.update({
     where: { id },
-    data: updateData,
+    data: {
+      ...updateData,
+    },
   });
   return product;
 };
