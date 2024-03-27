@@ -6,21 +6,23 @@ datasource db {
     provider = "mongodb"
     url      = env("DATABASE_URL")
 }
+
 enum Provider {
     google
     github
     credentials
 }
+
 model User {
-    id              String  @id @default(auto()) @map("_id") @db.ObjectId
+    id              String    @id @default(auto()) @map("_id") @db.ObjectId
     name            String?
-    email           String  @unique
+    email           String    @unique
     password        String
-    isEmailVerified Boolean @default(false)
+    isEmailVerified Boolean   @default(false)
     image           String?
-    isAdmin         Boolean @default(false)
-    token           String  @unique
-    provider        Provider? 
+    isAdmin         Boolean   @default(false)
+    token           String    @unique
+    provider        Provider?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -38,13 +40,13 @@ enum Status {
 
 // Product Model
 model Product {
-    id          String @id @default(auto()) @map("_id") @db.ObjectId
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
     // Product details
     name        String
     description String
     price       Float
-    images      String[]
-    url         String
+    key         String[]
+    url         String[]
 
     // product status
     status    Status   @default(PENDING)
