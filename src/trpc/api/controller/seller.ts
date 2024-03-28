@@ -3,17 +3,9 @@ import { TRPCError } from '@trpc/server';
 import type { User } from 'next-auth';
 import { UTApi } from 'uploadthing/server';
 
-type user = User & {
-  id: string;
-  name: string;
-  email: string;
-  image: string;
-  role: boolean;
-};
-
 export async function deleteAllSellerFilesController(
   file: string[],
-  user: user
+  user: User
 ) {
   const utapi = new UTApi();
   const deleted = await utapi.deleteFiles(file);
@@ -27,8 +19,9 @@ export async function deleteAllSellerFilesController(
 
   // remove the file from the database
   const { id } = user;
+
   const updatedProduct = updateProduct(id, {
-    images: [],
+    images: file,
   });
 
   if (!updatedProduct) {

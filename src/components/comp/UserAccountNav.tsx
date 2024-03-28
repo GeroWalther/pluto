@@ -11,10 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import { User } from 'next-auth';
 
-export default function UserAccountNav({ user }: any) {
+export default function UserAccountNav({ user }: { user: User }) {
   const { plutoSignOut } = useSignOut();
-  console.log(user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className='overflow-visible'>
@@ -29,7 +29,7 @@ export default function UserAccountNav({ user }: any) {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href='/sell'>Seller Dashboard</Link>
+          <Link href='/dashboard'>Dashboard</Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={plutoSignOut} className=' cursor-pointer'>
           Log out

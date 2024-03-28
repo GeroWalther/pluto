@@ -2,22 +2,21 @@
 import Link from 'next/link';
 import MaxWidthWrapper from './MaxWidthWrapper';
 
-import { Button, buttonVariants } from '../ui/button';
-// import Cart from "./Cart";
+import { buttonVariants } from '../ui/button';
+import Cart from './Cart';
 import NavItems from './NavItems';
 import { cookies } from 'next/headers';
 import { PlutoLogo } from '../svgs/Icons';
 import MobileNav from './MobilNav';
 import { useSession } from 'next-auth/react';
 import UserAccountNav from './UserAccountNav';
-import { useSignOut } from '@/hooks/use-sign-out';
+
 // import UserAccountNav from "./UserAccountNav";
 
 const Navbar = () => {
   // const nextCookies = cookies();
   const { data: session } = useSession();
   const user = session?.user;
-  const { plutoSignOut } = useSignOut();
   return (
     <div className='bg-white sticky z-50 top-0 inset-x-0 h-16'>
       <header className='relative bg-white'>
@@ -39,7 +38,13 @@ const Navbar = () => {
 
               <div className='ml-auto flex items-center'>
                 <div className='hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6'>
-                  {user ? null : (
+                  {!user && (
+                    <span
+                      className='h-6 w-px bg-stone-200'
+                      aria-hidden='true'
+                    />
+                  )}
+                  {!user && (
                     <Link
                       href='/sign-in'
                       className={buttonVariants({
@@ -49,55 +54,27 @@ const Navbar = () => {
                     </Link>
                   )}
 
-                  {user ? null : (
+                  {user && (
                     <span
-                      className='h-6 w-px bg-stone-200'
+                      className='h-6 w-px bg-stone-200 ml-8'
                       aria-hidden='true'
                     />
                   )}
 
-                  {!user ? (
-                    // <UserAccountNav user={user} />
+                  {user ? (
+                    <UserAccountNav user={user} />
+                  ) : (
                     <Link
-                      href='/sign-in'
+                      href='/sign-up'
                       className={buttonVariants({
                         variant: 'ghost',
                       })}>
                       Create account
                     </Link>
-                  ) : (
-                    <Button
-                      onClick={plutoSignOut}
-                      className={buttonVariants({
-                        variant: 'ghost',
-                      })}>
-                      Log out
-                    </Button>
                   )}
-
-                  {user ? (
-                    <span
-                      className='h-6 w-px bg-stone-200'
-                      aria-hidden='true'
-                    />
-                  ) : null}
-
-                  {user ? null : (
-                    <div className='flex lg:ml-6'>
-                      <span
-                        className='h-6 w-px bg-stone-200'
-                        aria-hidden='true'
-                      />
-                    </div>
-                  )}
-                  {/* <Link
-                    href={'/sign-up'}
-                    className={buttonVariants({
-                      variant: 'ghost',
-                    })}>
-                    sign up
-                  </Link> */}
-                  <div className='ml-4 flow-root lg:ml-6'>{/* <Cart /> */}</div>
+                  <div className='flow-root lg:ml-2'>
+                    <Cart />
+                  </div>
                 </div>
               </div>
             </div>

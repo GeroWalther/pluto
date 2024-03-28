@@ -21,20 +21,35 @@ export default function TestUploadThing() {
     },
   });
 
+  function onSubmit(e: any) {
+    e.preventDefault();
+  }
+
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center p-2'>
+    <form
+      onSubmit={onSubmit}
+      className='flex min-h-screen flex-col items-center justify-center p-2'>
+      <h3>Upload Products</h3>
+      <p>Upload one image</p>
+      {/*a form for Product name and description and price */}
+
       <UploadDropzone
         endpoint='imageUploader'
         onClientUploadComplete={(res) => {
-          setUrls((s) => [...s, res?.[0]?.url]);
-          setFileKeys((s) => [...s, res?.[0]?.key]);
+          setUrls(res.map((r) => r.url));
+          setFileKeys(res.map((r) => r.key));
         }}
         onUploadError={(error) => {
-          toast.error('Error uploading');
+          toast.error(error.message);
         }}
       />
-      {urls && <ImageSlider urls={urls} />}
-      {urls && <Button onClick={() => deleteAll(fileKeys)}>Delete all</Button>}
-    </div>
+
+      {urls.length >= 0 && (
+        <div>
+          <ImageSlider urls={urls} />
+          <Button onClick={() => deleteAll(fileKeys)}>Delete all</Button>
+        </div>
+      )}
+    </form>
   );
 }

@@ -2,11 +2,9 @@ import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { createUploadthing, type FileRouter } from 'uploadthing/next';
 import { UploadThingError } from 'uploadthing/server';
-import {
-  createProduct,
-  getProductByFileName,
-  updateProduct,
-} from '@/db/prisma.product';
+import prisma from '@/db/db';
+import { createProduct } from '@/db/prisma.product';
+
 const f = createUploadthing();
 
 export const ourFileRouter = {
@@ -21,42 +19,45 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
 
-      // first check if product already exists if not create new one if it exists update existing.
-      const productExists = await getProductByFileName(file.name);
-
-      if (!productExists) {
-        const uploadProduct = await createProduct({
-          images: [file.name],
-          name: 'name',
-          url: file.url,
-          description: 'description',
-          price: 1000,
-          user: {
-            connect: {
-              id: metadata.userId,
-            },
-          },
-        });
-
-        if (!uploadProduct) {
-          console.error('Failed to upload product');
-          throw new UploadThingError('Failed to upload product');
-        }
-        return {
-          uploadedBy: metadata.userId,
-          productId: uploadProduct.id,
-          url: file.url,
-        };
-      }
-      const updatedProduct = await updateProduct(productExists.id, {
-        images: [...productExists.images, file.name],
+      // first check how many products the user has uploaded
+      const products = await prisma.product.count({
+        where: { userId: metadata.userId },
       });
 
+      if (products >= 5) {
+        throw new UploadThingError(
+          'You have reached the maximum number of products.'
+        );
+      }
+
+      const newProduct = await createProduct({
+        images: [file.url],
+        description: 'Test description',
+        name: 'Test name',
+        price: 100,
+        url: file.url,
+        user: {
+          connect: {
+            id: metadata.userId,
+          },
+        },
+      });
+
+      if (!newProduct) {
+        throw new UploadThingError('Error creating product');
+      }
+      const productinfo = {
+        id: newProduct.id,
+        name: newProduct.name,
+        description: newProduct.description,
+        price: newProduct.price,
+        url: newProduct.url,
+        status: newProduct.status,
+      };
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return {
         uploadedBy: metadata.userId,
-        productId: updatedProduct.id,
-        url: file.url,
+        productinfo,
       };
     }),
 } satisfies FileRouter;

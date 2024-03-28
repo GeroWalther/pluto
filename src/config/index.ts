@@ -7,17 +7,7 @@ export const PRODUCT_CATEGORIES = [
       {
         name: 'Editor picks',
         href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/e-books/mixed.jpg',
-      },
-      {
-        name: 'New Arrivals',
-        href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/e-books/blue.jpg',
-      },
-      {
-        name: 'Best Sellers',
-        href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/e-book/purple.jpg',
+        ImageSrc: '/public/eis.jpg',
       },
     ],
   },
@@ -26,20 +16,9 @@ export const PRODUCT_CATEGORIES = [
     value: 'icons' as const,
     featured: [
       {
-        name: 'Favorite Icon Picks',
+        name: 'Top Icons',
         href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/icons/picks.jpg',
-      },
-      {
-        name: 'New Arrivals',
-        href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/icons/new.jpg',
-      },
-      {
-        name: 'Best selling Icons',
-        href: '#',
-        ImageSrc:
-          process.env.NEXT_PUBLIC_SERVER_URL + '/nav/icons/bestsellers.jpg',
+        ImageSrc: '/public/pluto_system-design.png',
       },
     ],
   },
@@ -48,17 +27,7 @@ export const PRODUCT_CATEGORIES = [
     value: 'figma' as const,
     featured: [
       {
-        name: 'Favorite Icon Picks',
-        href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/figma/picks.jpg',
-      },
-      {
-        name: 'New Arrivals',
-        href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/figma/new.jpg',
-      },
-      {
-        name: 'Best selling figma',
+        name: 'Well designed Figma',
         href: '#',
         ImageSrc:
           process.env.NEXT_PUBLIC_SERVER_URL + '/nav/figma/bestsellers.jpg',
@@ -70,20 +39,9 @@ export const PRODUCT_CATEGORIES = [
     value: 'fonts' as const,
     featured: [
       {
-        name: 'Favorite Icon Picks',
-        href: '#',
-        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/fonts/picks.jpg',
-      },
-      {
-        name: 'New Arrivals',
+        name: 'Classics and modern Fonts',
         href: '#',
         ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/fonts/new.jpg',
-      },
-      {
-        name: 'Best selling fonts',
-        href: '#',
-        ImageSrc:
-          process.env.NEXT_PUBLIC_SERVER_URL + '/nav/fonts/bestsellers.jpg',
       },
     ],
   },
