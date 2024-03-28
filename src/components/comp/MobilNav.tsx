@@ -1,6 +1,6 @@
 // "use client";
 
-import { PRODUCT_CATEGORIES } from '@/config';
+// import { PRODUCT_CATEGORIES } from '@/config';
 // import { Menu, X } from "lucide-react";
 // import Image from "next/image";
 // import Link from "next/link";
@@ -137,17 +137,11 @@ import { PRODUCT_CATEGORIES } from '@/config';
 // export default MobileNav;
 
 import React from 'react';
+import { PRODUCT_CATEGORIES } from '@/config';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { Button, buttonVariants } from '../ui/button';
 import { Menu, Package2, Users } from 'lucide-react';
 import Link from 'next/link';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { useSession } from 'next-auth/react';
 import { useSignOut } from '@/hooks/use-sign-out';
@@ -158,9 +152,6 @@ export default function MobilNav() {
   const { data: session } = useSession();
   const user = session?.user;
   const { plutoSignOut } = useSignOut();
-
-  // this must check users tier
-  const isPro = false;
 
   return (
     <div className='mt-3'>

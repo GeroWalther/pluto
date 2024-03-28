@@ -13,7 +13,7 @@ export default function IsProAd() {
   const isPro = false;
   if (isPro) return;
   return (
-    <div className='mt-auto'>
+    <div className='mt-auto p-4'>
       <Card>
         <CardHeader>
           <CardTitle>Upgrade to Pro</CardTitle>

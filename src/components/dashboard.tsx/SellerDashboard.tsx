@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 import {
   BadgeDollarSign,
   LineChart,
@@ -12,13 +11,6 @@ import {
 import UploadDrawerDialog from '@/components/comp/UploadDrawerDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useReducer } from 'react';
@@ -27,7 +19,7 @@ import { User } from 'next-auth';
 
 const initialState = {
   content: 'products',
-  products: [],
+  products: null, // will be an array of product images
 };
 const reducer = (state: any, action: any) => {
   switch (action.type) {
@@ -44,6 +36,7 @@ const reducer = (state: any, action: any) => {
 
 export default function SellerDashboard({ user }: { user: User }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  console.log(state?.products?.length);
 
   return (
     <div className='grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]'>
@@ -79,22 +72,7 @@ export default function SellerDashboard({ user }: { user: User }) {
               </button>
             </nav>
           </div>
-          <div className='mt-auto p-4'>
-            <Card>
-              <CardHeader className='p-2 pt-0 md:p-4'>
-                <CardTitle>Upgrade to Pro</CardTitle>
-                <CardDescription>
-                  Unlock all features and get unlimited product listings and
-                  access to our seller support.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='p-2 pt-0 md:p-4 md:pt-0'>
-                <Button size='sm' className='w-full'>
-                  Upgrade
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <IsProAd />
         </div>
       </div>
       <div className='flex flex-col'>
@@ -165,7 +143,7 @@ export default function SellerDashboard({ user }: { user: User }) {
             </div>
             <div className='flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm'>
               <div className='flex flex-col items-center gap-1 text-center'>
-                {state.products.length >= 0 && (
+                {!state.products && (
                   <>
                     <h3 className='text-2xl font-bold tracking-tight'>
                       You have no products
