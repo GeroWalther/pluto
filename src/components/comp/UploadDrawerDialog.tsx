@@ -88,6 +88,9 @@ function UploadForm({ className }: React.ComponentProps<'form'>) {
       toast.error('Error deleting file');
     },
   });
+  function onSubmit(e: any) {
+    e.preventDefault();
+  }
   return (
     <form className={cn('grid items-start gap-4', className)}>
       <div className='grid gap-2'>
@@ -126,7 +129,7 @@ function UploadForm({ className }: React.ComponentProps<'form'>) {
           </Button>
         </div>
       )}
-      <Button className='mt-5' type='submit'>
+      <Button className='mt-5' type='submit' onClick={onSubmit}>
         Upload for sale
       </Button>
     </form>
