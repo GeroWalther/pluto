@@ -23,7 +23,6 @@ export const ourFileRouter = {
       const products = await prisma.product.count({
         where: { userId: metadata.userId },
       });
-
       if (products >= 5) {
         throw new UploadThingError(
           'You have reached the maximum number of products.'

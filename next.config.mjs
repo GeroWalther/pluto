@@ -13,6 +13,10 @@ const nextConfig = {
         hostname: process.env.NEXT_PUBLIC_SERVER_URL.split('https://')[1] || '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+      },
     ],
   },
 };

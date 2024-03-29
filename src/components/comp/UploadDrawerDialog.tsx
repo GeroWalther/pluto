@@ -88,8 +88,11 @@ function UploadForm({ className }: React.ComponentProps<'form'>) {
       toast.error('Error deleting file');
     },
   });
-  function onSubmit(e: any) {
-    e.preventDefault();
+  async function onSubmit(data: any) {
+    data.imageUrl = urls;
+    console.log('DATA: ', data);
+
+    // add more data if needed and then create a new product in the database
   }
   return (
     <form className={cn('grid items-start gap-4', className)}>
@@ -105,19 +108,8 @@ function UploadForm({ className }: React.ComponentProps<'form'>) {
         <Label htmlFor='description'>Description</Label>
         <textarea id='description' />
       </div>
-      <p className='text-sm font-semi-bold'>Upload one product image</p>
-      <UploadDropzone
-        endpoint='imageUploader'
-        onClientUploadComplete={(res) => {
-          setUrls(res.map((r) => r.url));
-          setFileKeys(res.map((r) => r.key));
-          toast.success('uploaded successfully');
-        }}
-        onUploadError={(error) => {
-          toast.error(error.message);
-        }}
-      />
-      {urls.length >= 0 && urls?.[0] && (
+
+      {urls.length >= 0 && urls?.[0] ? (
         <div className='mb-10'>
           <Image src={urls?.[0]} alt='uploaded image' />
           <Button
@@ -128,6 +120,21 @@ function UploadForm({ className }: React.ComponentProps<'form'>) {
             Delete image
           </Button>
         </div>
+      ) : (
+        <>
+          <p className='text-sm font-semi-bold'>Upload one product image</p>
+          <UploadDropzone
+            endpoint='imageUploader'
+            onClientUploadComplete={(res) => {
+              setUrls(res.map((r) => r.url));
+              setFileKeys(res.map((r) => r.key));
+              toast.success('uploaded successfully');
+            }}
+            onUploadError={(error) => {
+              toast.error(error.message);
+            }}
+          />
+        </>
       )}
       <Button className='mt-5' type='submit' onClick={onSubmit}>
         Upload for sale
