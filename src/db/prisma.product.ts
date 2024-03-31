@@ -1,4 +1,4 @@
-import prisma from './db';
+import prisma from "./db";
 
 // READ
 export const getAllProducts = async () => {
@@ -33,7 +33,7 @@ export const getProductByFileName = async (image: string) => {
 export interface CreateProductType {
   images: string[];
   name: string;
-  url: string;
+  url: string[];
   description: string;
   price: number;
   user: {

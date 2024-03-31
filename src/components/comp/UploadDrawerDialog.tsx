@@ -1,8 +1,6 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import { cn } from '@/lib/utils';
-import { useMediaQuery } from 'usehooks-ts';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -12,9 +10,16 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
+import { cn } from "@/lib/utils";
+import { trpc } from "@/trpc/client";
+import Image from "next/image";
+import { toast } from "sonner";
+import { json } from "stream/consumers";
+import { useMediaQuery } from "usehooks-ts";
 import {
   Dialog,
   DialogContent,
@@ -22,23 +27,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
-import { UploadDropzone } from '@/lib/uploadthing';
-import { toast } from 'sonner';
-import { trpc } from '@/trpc/client';
-import Image from 'next/image';
+} from "../ui/dialog";
 
 export default function UploadDrawerDialog() {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant='outline'>Upload a product for sale</Button>
+          <Button variant="outline">Upload a product for sale</Button>
         </DialogTrigger>
-        <DialogContent className='w-full overflow-y-scroll max-h-screen'>
+        <DialogContent className="w-full overflow-y-scroll max-h-screen">
           <DialogHeader>
             <DialogTitle>Product listing</DialogTitle>
             <DialogDescription>
@@ -55,19 +56,19 @@ export default function UploadDrawerDialog() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant='outline'>Upload a product for sale</Button>
+        <Button variant="outline">Upload a product for sale</Button>
       </DrawerTrigger>
-      <DrawerContent className='w-full overflow-y-scroll max-h-screen'>
-        <DrawerHeader className='text-left'>
+      <DrawerContent className="w-full overflow-y-scroll max-h-screen">
+        <DrawerHeader className="text-left">
           <DrawerTitle>Product listing</DrawerTitle>
           <DrawerDescription>
             List a product for sale by filing out this form.
           </DrawerDescription>
         </DrawerHeader>
-        <UploadForm className='px-4' />
-        <DrawerFooter className='pt-2'>
+        <UploadForm className="px-4" />
+        <DrawerFooter className="pt-2">
           <DrawerClose asChild>
-            <Button variant='outline'>Cancel</Button>
+            <Button variant="outline">Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -75,9 +76,10 @@ export default function UploadDrawerDialog() {
   );
 }
 
-function UploadForm({ className }: React.ComponentProps<'form'>) {
+function UploadForm({ className }: React.ComponentProps<"form">) {
   const [urls, setUrls] = useState<string[]>([]);
   const [fileKeys, setFileKeys] = useState<string[]>([]);
+  const [fileDesc, setfileDesc] = useState({});
   const { mutate } = trpc.seller.deleteAllUploadedFiles.useMutation({
     onSuccess: (data) => {
       setUrls([]);
@@ -85,50 +87,87 @@ function UploadForm({ className }: React.ComponentProps<'form'>) {
       toast.success(data);
     },
     onError: () => {
-      toast.error('Error deleting file');
+      toast.error("Error deleting file");
     },
   });
-  async function onSubmit(data: any) {
-    data.imageUrl = urls;
-    console.log('DATA: ', data);
 
-    // add more data if needed and then create a new product in the database
-  }
   return (
-    <form className={cn('grid items-start gap-4', className)}>
-      <div className='grid gap-2'>
-        <Label htmlFor='name'>Product name</Label>
-        <Input type='text' id='name' />
+    <form className={cn("grid items-start gap-4", className)}>
+      <div className="grid gap-2">
+        <Label htmlFor="name">Product name</Label>
+        <Input
+          type="text"
+          id="name"
+          name="name"
+          onChange={(e) =>
+            setfileDesc((prevState) => ({ ...prevState, name: e.target.value }))
+          }
+        />
       </div>
-      <div className='grid gap-2'>
-        <Label htmlFor='price'>Price</Label>
-        <Input id='price' />
+      <div className="grid gap-2">
+        <Label htmlFor="price">Price</Label>
+        <Input
+          id="price"
+          type="number"
+          name="price"
+          onChange={(e) =>
+            setfileDesc((prevState) => ({
+              ...prevState,
+              price: e.target.value,
+            }))
+          }
+        />
       </div>
-      <div className='grid gap-2'>
-        <Label htmlFor='description'>Description</Label>
-        <textarea id='description' />
+      <div className="grid gap-2">
+        <Label htmlFor="description">Description</Label>
+        <textarea
+          id="description"
+          name="description"
+          onChange={(e) =>
+            setfileDesc((prevState) => ({
+              ...prevState,
+              description: e.target.value,
+            }))
+          }
+        />
       </div>
 
       {urls.length >= 0 && urls?.[0] ? (
-        <div className='mb-10'>
-          <Image src={urls?.[0]} alt='uploaded image' />
+        <div className="mb-10">
+          <img src={urls?.[0]} alt="uploaded image" />
           <Button
             className={buttonVariants({
-              variant: 'destructive',
+              variant: "destructive",
             })}
-            onClick={() => mutate(fileKeys)}>
+            onClick={() => mutate(fileKeys)}
+          >
             Delete image
           </Button>
         </div>
       ) : (
         <>
-          <p className='text-sm font-semi-bold'>Upload one product image</p>
+          <p className="text-sm font-semi-bold">Upload one product image</p>
           <UploadDropzone
-            endpoint='imageUploader'
+            endpoint="imageUploader"
             onClientUploadComplete={(res) => {
               setUrls(res.map((r) => r.url));
               setFileKeys(res.map((r) => r.key));
-              toast.success('uploaded successfully');
+              toast.success("uploaded successfully");
+            }}
+            headers={{
+              body: JSON.stringify(fileDesc),
+            }}
+            onBeforeUploadBegin={(files) => {
+              return files;
+            }}
+            onUploadError={(error) => {
+              toast.error(error.message);
+            }}
+          />
+          <UploadButton
+            endpoint="someThingElse"
+            headers={{
+              body: JSON.stringify(fileDesc),
             }}
             onUploadError={(error) => {
               toast.error(error.message);
@@ -136,9 +175,6 @@ function UploadForm({ className }: React.ComponentProps<'form'>) {
           />
         </>
       )}
-      <Button className='mt-5' type='submit' onClick={onSubmit}>
-        Upload for sale
-      </Button>
     </form>
   );
 }
