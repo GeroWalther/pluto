@@ -29,7 +29,7 @@ const Page = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<TAuthCredentialsValidator>({
     resolver: zodResolver(AuthCredentialsValidator),
   });
@@ -66,7 +66,7 @@ const Page = () => {
     password,
     confirm_password,
   }: TAuthCredentialsValidator) => {
-    mutate({ email, password, name, confirm_password });
+    await mutate({ email, password, name, confirm_password });
 
     // try {
     //   const user = await fetch("/api/user/sign-up", {

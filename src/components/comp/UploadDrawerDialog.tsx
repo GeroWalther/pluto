@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
-import { cn } from '@/lib/utils';
 import { useMediaQuery } from 'usehooks-ts';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Drawer,
   DrawerClose,
@@ -13,8 +12,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import {
   Dialog,
   DialogContent,
@@ -23,10 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import { UploadDropzone } from '@/lib/uploadthing';
-import { toast } from 'sonner';
-import { trpc } from '@/trpc/client';
-import Image from 'next/image';
+import UploadForm from './UploadForm';
 
 export default function UploadDrawerDialog() {
   const [open, setOpen] = useState(false);
@@ -72,73 +67,5 @@ export default function UploadDrawerDialog() {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-}
-
-function UploadForm({ className }: React.ComponentProps<'form'>) {
-  const [urls, setUrls] = useState<string[]>([]);
-  const [fileKeys, setFileKeys] = useState<string[]>([]);
-  const { mutate } = trpc.seller.deleteAllUploadedFiles.useMutation({
-    onSuccess: (data) => {
-      setUrls([]);
-      setFileKeys([]);
-      toast.success(data);
-    },
-    onError: () => {
-      toast.error('Error deleting file');
-    },
-  });
-  async function onSubmit(data: any) {
-    data.imageUrl = urls;
-    console.log('DATA: ', data);
-
-    // add more data if needed and then create a new product in the database
-  }
-  return (
-    <form className={cn('grid items-start gap-4', className)}>
-      <div className='grid gap-2'>
-        <Label htmlFor='name'>Product name</Label>
-        <Input type='text' id='name' />
-      </div>
-      <div className='grid gap-2'>
-        <Label htmlFor='price'>Price</Label>
-        <Input id='price' />
-      </div>
-      <div className='grid gap-2'>
-        <Label htmlFor='description'>Description</Label>
-        <textarea id='description' />
-      </div>
-
-      {urls.length >= 0 && urls?.[0] ? (
-        <div className='mb-10'>
-          <Image src={urls?.[0]} alt='uploaded image' />
-          <Button
-            className={buttonVariants({
-              variant: 'destructive',
-            })}
-            onClick={() => mutate(fileKeys)}>
-            Delete image
-          </Button>
-        </div>
-      ) : (
-        <>
-          <p className='text-sm font-semi-bold'>Upload one product image</p>
-          <UploadDropzone
-            endpoint='imageUploader'
-            onClientUploadComplete={(res) => {
-              setUrls(res.map((r) => r.url));
-              setFileKeys(res.map((r) => r.key));
-              toast.success('uploaded successfully');
-            }}
-            onUploadError={(error) => {
-              toast.error(error.message);
-            }}
-          />
-        </>
-      )}
-      <Button className='mt-5' type='submit' onClick={onSubmit}>
-        Upload for sale
-      </Button>
-    </form>
   );
 }

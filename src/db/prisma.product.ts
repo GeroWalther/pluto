@@ -33,7 +33,6 @@ export const getProductByFileName = async (image: string) => {
 export interface CreateProductType {
   images: string[];
   name: string;
-  url: string;
   description: string;
   price: number;
   user: {
@@ -72,4 +71,12 @@ export const deleteProduct = async (id: string) => {
     where: { id },
   });
   return product;
+};
+
+//COUNT
+export const countAllProductsFromAUser = async (id: string) => {
+  const productsCount = await prisma.product.count({
+    where: { id },
+  });
+  return productsCount;
 };
