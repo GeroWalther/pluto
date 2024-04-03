@@ -4,6 +4,7 @@ import {
   createProductController,
   deleteFileController,
 } from './controller/seller';
+import { uploadSchema } from '@/lib/validators/account-credentials-validator';
 
 export const sellerRouter = router({
   deleteUploadedFile: privateProcedure
@@ -12,15 +13,7 @@ export const sellerRouter = router({
       return await deleteFileController(input, ctx.user);
     }),
   uploadProduct: privateProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        description: z.string(),
-        price: z.number(),
-        imageUrl: z.array(z.string()),
-        // productFile: z.array(z.string()),
-      })
-    )
+    .input(uploadSchema)
     .mutation(async ({ input, ctx }) => {
       return await createProductController(input, ctx.user);
     }),

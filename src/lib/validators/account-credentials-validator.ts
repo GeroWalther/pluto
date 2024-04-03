@@ -28,3 +28,12 @@ export const AuthCredentialsValidatorSignIn = z.object({
 export type TAuthCredentialsValidatorSignIn = z.infer<
   typeof AuthCredentialsValidator
 >;
+
+export const uploadSchema = z.object({
+  name: z.string().min(3).max(15),
+  price: z.number().nonnegative(),
+  description: z.string().min(10).max(500),
+  imageUrl: z.array(z.string()),
+});
+
+export type FormFields = z.infer<typeof uploadSchema>;

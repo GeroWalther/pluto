@@ -11,15 +11,10 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { ZodError, z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-
-const uploadSchema = z.object({
-  name: z.string().min(3).max(15),
-  price: z.number().nonnegative(),
-  description: z.string().min(10).max(500),
-  imageUrl: z.array(z.string()),
-});
-
-type FormFields = z.infer<typeof uploadSchema>;
+import {
+  FormFields,
+  uploadSchema,
+} from '@/lib/validators/account-credentials-validator';
 
 export default function UploadForm({
   className,
