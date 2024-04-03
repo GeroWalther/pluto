@@ -31,7 +31,7 @@ export default function UploadDrawerDialog() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant='outline'>Upload a product for sale</Button>
+          <Button variant='default'>Upload a product for sale</Button>
         </DialogTrigger>
         <DialogContent className='w-full overflow-y-scroll max-h-screen'>
           <DialogHeader>
@@ -50,7 +50,7 @@ export default function UploadDrawerDialog() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant='outline'>Upload a product for sale</Button>
+        <Button variant='default'>Upload a product for sale</Button>
       </DrawerTrigger>
       <DrawerContent className='w-full overflow-y-scroll max-h-screen'>
         <DrawerHeader className='text-left'>

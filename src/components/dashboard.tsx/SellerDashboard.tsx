@@ -16,10 +16,11 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useReducer } from 'react';
 import IsProAd from '../comp/IsProAd';
 import { User } from 'next-auth';
+import { ProductTable } from '../comp/ProductTable';
 
 const initialState = {
   content: 'products',
-  products: null, // will be an array of product images
+  products: [{ p: 1 }], // will be an array of product images
 };
 const reducer = (state: any, action: any) => {
   switch (action.type) {
@@ -76,7 +77,7 @@ export default function SellerDashboard({ user }: { user: User }) {
         </div>
       </div>
       <div className='flex flex-col'>
-        <header className='flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6'>
+        <header className='md:hidden flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6'>
           {/* Mobile Nav */}
           <Sheet>
             <SheetTrigger asChild>
@@ -123,7 +124,7 @@ export default function SellerDashboard({ user }: { user: User }) {
           </Sheet>
 
           {/* Right Side Main content */}
-          <div className='w-full flex-1'>
+          {/* <div className='w-full flex-1'>
             <form>
               <div className='relative'>
                 <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
@@ -134,16 +135,17 @@ export default function SellerDashboard({ user }: { user: User }) {
                 />
               </div>
             </form>
-          </div>
+          </div> */}
         </header>
         {state.content === 'products' && (
           <main className='flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6'>
-            <div className='flex items-center'>
+            <div className='flex justify-between'>
               <h1 className='text-lg font-semibold md:text-2xl'>Inventory</h1>
+              {state.products.length > 0 && <UploadDrawerDialog />}
             </div>
-            <div className='flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm'>
-              <div className='flex flex-col items-center gap-1 text-center'>
-                {!state.products && (
+            {state.products.length === 0 || null ? (
+              <div className='flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm'>
+                <div className='flex flex-col items-center gap-1 text-center'>
                   <>
                     <h3 className='text-2xl font-bold tracking-tight'>
                       You have no products
@@ -153,9 +155,11 @@ export default function SellerDashboard({ user }: { user: User }) {
                     </p>
                     <UploadDrawerDialog />
                   </>
-                )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <ProductTable />
+            )}
           </main>
         )}
         {state.content === 'sales' && (
