@@ -15,7 +15,6 @@ export const sellerRouter = router({
   uploadProduct: privateProcedure
     .input(uploadSchema)
     .mutation(async ({ input, ctx }) => {
-      console.log(input);
       return "Uploaded product";
     }),
 });

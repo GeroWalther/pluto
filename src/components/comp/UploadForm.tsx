@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { buttonVariants } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 
 const schema = z.object({
   name: z.string(),
@@ -57,6 +57,10 @@ export default function UploadForm() {
     });
   };
 
+  const deleteImage = () => {
+    onDelete(fileKeys);
+  };
+
   return (
     <form className="grid items-start gap-4" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid gap-2">
@@ -82,26 +86,27 @@ export default function UploadForm() {
         )}
       </div>
 
-      <UploadDropzone
-        endpoint="imageUploader"
-        onClientUploadComplete={(res) => {
-          setUrls(res.map((r) => r.url));
-          setFileKeys(res.map((r) => r.key));
-          console.log(res);
-          console.log(
-            "URL: ",
-            res.map((r) => r.url)
-          );
-          console.log(
-            "KEY: ",
-            res.map((r) => r.key)
-          );
-          toast.success("uploaded successfully");
-        }}
-        onUploadError={(error) => {
-          toast.error(error.message);
-        }}
-      />
+      {urls.length > 0 ? (
+        <>
+          <img src={urls[0]} alt="product" className="w-32 h-32" />
+          <Button variant="destructive" onClick={deleteImage}>
+            Delete
+          </Button>
+        </>
+      ) : (
+        <UploadDropzone
+          endpoint="imageUploader"
+          onClientUploadComplete={(res) => {
+            setUrls(res.map((r) => r.url));
+            setFileKeys(res.map((r) => r.key));
+            console.log(res);
+            toast.success("uploaded successfully");
+          }}
+          onUploadError={(error) => {
+            toast.error(error.message);
+          }}
+        />
+      )}
 
       <button
         type="submit"
