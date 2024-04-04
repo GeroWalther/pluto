@@ -4,6 +4,7 @@ import { privateProcedure, router } from "../trpc";
 import {
   createProductController,
   deleteFileController,
+  getAllProductsController,
 } from "./controller/seller";
 
 export const sellerRouter = router({
@@ -29,4 +30,9 @@ export const sellerRouter = router({
 
       return result;
     }),
+
+  getAllProducts: privateProcedure.query(async ({ ctx }) => {
+    const result = await getAllProductsController(ctx.user.id);
+    return result;
+  }),
 });

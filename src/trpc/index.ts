@@ -1,6 +1,6 @@
-import { createCallerFactory, router } from './trpc';
-import { authRouter } from './api/auth';
-import { sellerRouter } from './api/seller';
+import { authRouter } from "./api/auth";
+import { sellerRouter } from "./api/seller";
+import { createCallerFactory, router } from "./trpc";
 
 // Main root appRouter containing all of the defined api routes on a higher level. Routes are split up the api folder into different nested roters each handling only certain related tasks.
 //In controller folder are the low level data manipulation functions, also split up accordingly.

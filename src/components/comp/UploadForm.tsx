@@ -1,5 +1,5 @@
 "use client";
-import { UploadDropzone } from "@/lib/uploadthing";
+import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
 import { trpc } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -31,14 +31,15 @@ export default function UploadForm() {
     },
   });
 
-  const { mutate: uploadProduct } = trpc.seller.uploadProduct.useMutation({
-    onError: (err) => {
-      toast.error(err.message);
-    },
-    onSuccess: (success) => {
-      toast.success(success);
-    },
-  });
+  const { mutate: uploadProduct, error } =
+    trpc.seller.uploadProduct.useMutation({
+      onError: (err) => {
+        toast.error("Error uploading product");
+      },
+      onSuccess: (success) => {
+        toast.success(success);
+      },
+    });
 
   const {
     register,
@@ -93,6 +94,7 @@ export default function UploadForm() {
           <Button variant="destructive" onClick={deleteImage}>
             Delete
           </Button>
+          <UploadButton endpoint="imageUploader" />
         </>
       ) : (
         <UploadDropzone
@@ -100,7 +102,6 @@ export default function UploadForm() {
           onClientUploadComplete={(res) => {
             setUrls(res.map((r) => r.url));
             setFileKeys(res.map((r) => r.key));
-            console.log(res);
             toast.success("uploaded successfully");
           }}
           onUploadError={(error) => {

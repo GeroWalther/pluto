@@ -7,6 +7,8 @@ import {
 import { TRPCError } from "@trpc/server";
 import type { User } from "next-auth";
 import { UTApi } from "uploadthing/server";
+
+// delete file from the server
 export async function deleteFileController(file: string[], user: User) {
   const utapi = new UTApi();
   const deleted = await utapi.deleteFiles(file);
@@ -18,23 +20,10 @@ export async function deleteFileController(file: string[], user: User) {
     });
   }
 
-  // remove the file from the database
-  const { id } = user;
-
-  const updatedProduct = updateProduct(id, {
-    images: file,
-  });
-
-  if (!updatedProduct) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Product not found in DB",
-    });
-  }
-
   return "File deleted";
 }
 
+// create a new product
 export type createdProductInput = {
   description: string;
   name: string;
@@ -42,6 +31,7 @@ export type createdProductInput = {
   imageUrl: string[];
   urls: string[];
 };
+
 export async function createProductController(
   input: createdProductInput,
   ctx: User
@@ -54,13 +44,20 @@ export async function createProductController(
     urls,
     //productFile
   } = input;
-  console.log("createProductController", input);
   // check for possible wrong input and throw error msg
-  if (!description || description.length < 15 || description.length > 500) {
+  if (
+    !description ||
+    description.length < 15 ||
+    description.length > 500 ||
+    !name ||
+    !price ||
+    !imageUrl ||
+    !urls
+  ) {
     throw new TRPCError({
       code: "UNPROCESSABLE_CONTENT",
       message:
-        "Product description must be between 15 and 500 characters long.",
+        "Must provide a product name, description, price, and at least one Product image.",
     });
   }
 
@@ -105,7 +102,7 @@ export async function createProductController(
     },
   });
 
-  console.log("newProduct");
+  console.log(newProduct);
 
   if (!newProduct) {
     throw new TRPCError({
@@ -115,5 +112,17 @@ export async function createProductController(
   }
 
   //return
-  return `you got these from trpc: ${description}, ${name}, ${price}, ${imageUrl},  from user: ${ctx.name}, new PRODUCT: ${newProduct}`;
+  return `you got these from trpc: ${description}, ${name}, ${price}, ${imageUrl},`;
 }
+
+// Get all Products
+
+export const getAllProductsController = async (userId: string) => {
+  const products = await prisma.product.findMany({
+    where: {
+      userId: userId,
+    },
+  });
+
+  return products;
+};

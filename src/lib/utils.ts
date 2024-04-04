@@ -1,14 +1,15 @@
-import { type ClassValue, clsx } from 'clsx';
-import { Metadata } from 'next';
-import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from "clsx";
+import { Metadata } from "next";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
 export function generateRandomToken(length: number = 10) {
   const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
@@ -24,10 +25,10 @@ export function validateEmail(email: string): boolean {
 }
 
 export function constructMetadata({
-  title = 'Pluto Market - the marketplace for digital assets',
-  description = 'Pluto Market is an open-source marketplace for high-quality digital goods.',
-  image = '/eis.jpg',
-  icons = '/favicon.ico',
+  title = "Pluto Market - the marketplace for digital assets",
+  description = "Pluto Market is an open-source marketplace for high-quality digital goods.",
+  image = "/eis.jpg",
+  icons = "/favicon.ico",
   noIndex = false,
 }: {
   title?: string;
@@ -49,14 +50,14 @@ export function constructMetadata({
       ],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
       images: [image],
-      creator: '@GeroWalther',
+      creator: "@GeroWalther",
     },
     icons,
-    metadataBase: new URL('https://pluto-market.up.railway.app'),
+    metadataBase: new URL("https://pluto-market.up.railway.app"),
     ...(noIndex && {
       robots: {
         index: false,
@@ -69,16 +70,16 @@ export function constructMetadata({
 export function formatPrice(
   price: number | string,
   options: {
-    currency?: 'USD' | 'EUR' | 'GBP' | 'JPY';
-    notation?: Intl.NumberFormatOptions['notation'];
+    currency?: "USD" | "EUR" | "GBP" | "JPY";
+    notation?: Intl.NumberFormatOptions["notation"];
   } = {}
 ) {
-  const { currency = 'USD', notation = 'standard' } = options;
+  const { currency = "USD", notation = "standard" } = options;
 
-  const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+  const numericPrice = typeof price === "string" ? parseFloat(price) : price;
 
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency,
     notation,
     maximumFractionDigits: 2,

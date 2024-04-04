@@ -2,6 +2,7 @@ import SellerDashboard from "@/components/dashboard/SellerDashboard";
 import UserDashboard from "@/components/dashboard/UserDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authOptions } from "@/lib/auth";
+import { serverCaller } from "@/trpc";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 
@@ -10,6 +11,9 @@ export default async function Dashboard() {
   if (!session) {
     redirect("/");
   }
+
+  const sellerProducts = await serverCaller.seller.getAllProducts();
+
   return (
     <Tabs defaultValue="userdash" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
@@ -20,7 +24,7 @@ export default async function Dashboard() {
         <UserDashboard user={session?.user} />
       </TabsContent>
       <TabsContent value="sellerdash">
-        <SellerDashboard user={session?.user} />
+        <SellerDashboard user={session?.user} allProducts={sellerProducts} />
       </TabsContent>
     </Tabs>
   );
