@@ -35,6 +35,9 @@ export default function UploadForm() {
     onError: (err) => {
       toast.error("Something went wrong. Please try again.");
     },
+    onSuccess: () => {
+      toast.success("Product uploaded successfully");
+    },
   });
 
   const {

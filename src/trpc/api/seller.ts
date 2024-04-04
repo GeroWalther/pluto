@@ -1,10 +1,10 @@
-import { z } from 'zod';
-import { privateProcedure, router } from '../trpc';
+import { uploadSchema } from "@/lib/validators/account-credentials-validator";
+import { z } from "zod";
+import { privateProcedure, router } from "../trpc";
 import {
   createProductController,
   deleteFileController,
-} from './controller/seller';
-import { uploadSchema } from '@/lib/validators/account-credentials-validator';
+} from "./controller/seller";
 
 export const sellerRouter = router({
   deleteUploadedFile: privateProcedure
@@ -15,6 +15,7 @@ export const sellerRouter = router({
   uploadProduct: privateProcedure
     .input(uploadSchema)
     .mutation(async ({ input, ctx }) => {
-      return await createProductController(input, ctx.user);
+      console.log(input);
+      return "Uploaded product";
     }),
 });
