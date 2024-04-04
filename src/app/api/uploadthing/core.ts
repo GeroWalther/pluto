@@ -1,5 +1,3 @@
-import prisma from "@/db/db";
-import { createProduct } from "@/db/prisma.product";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { createUploadthing, type FileRouter } from "uploadthing/next";

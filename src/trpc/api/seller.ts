@@ -1,11 +1,11 @@
-import { uploadSchema } from "@/lib/validators/account-credentials-validator";
-import { z } from "zod";
-import { privateProcedure, router } from "../trpc";
+import { uploadSchema } from '@/lib/validators/account-credentials-validator';
+import { z } from 'zod';
+import { privateProcedure, router } from '../trpc';
 import {
   createProductController,
   deleteFileController,
   getAllProductsController,
-} from "./controller/seller";
+} from './controller/seller';
 
 export const sellerRouter = router({
   deleteUploadedFile: privateProcedure
@@ -32,7 +32,6 @@ export const sellerRouter = router({
     }),
 
   getAllProducts: privateProcedure.query(async ({ ctx }) => {
-    const result = await getAllProductsController(ctx.user.id);
-    return result;
+    return await getAllProductsController(ctx.user.id);
   }),
 });
