@@ -33,7 +33,8 @@ export const uploadSchema = z.object({
   name: z.string().min(3).max(15),
   price: z.string(),
   description: z.string().min(10).max(500),
-  imageUrl: z.array(z.string()),
+  imageKey: z.string(),
+  url: z.string(),
 });
 
 export type FormFields = z.infer<typeof uploadSchema>;

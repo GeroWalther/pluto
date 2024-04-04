@@ -15,6 +15,18 @@ export const sellerRouter = router({
   uploadProduct: privateProcedure
     .input(uploadSchema)
     .mutation(async ({ input, ctx }) => {
-      return "Uploaded product";
+      const { description, name, price, imageKey, url } = input;
+      const result = await createProductController(
+        {
+          description,
+          name,
+          price: Number(price),
+          imageUrl: [imageKey],
+          urls: [url],
+        },
+        ctx.user
+      );
+
+      return result;
     }),
 });

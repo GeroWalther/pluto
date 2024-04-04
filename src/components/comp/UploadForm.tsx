@@ -33,10 +33,10 @@ export default function UploadForm() {
 
   const { mutate: uploadProduct } = trpc.seller.uploadProduct.useMutation({
     onError: (err) => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(err.message);
     },
-    onSuccess: () => {
-      toast.success("Product uploaded successfully");
+    onSuccess: (success) => {
+      toast.success(success);
     },
   });
 
@@ -53,7 +53,8 @@ export default function UploadForm() {
       name: data.name,
       price: data.price,
       description: data.description,
-      imageUrl: urls,
+      imageKey: fileKeys[0],
+      url: urls[0],
     });
   };
 

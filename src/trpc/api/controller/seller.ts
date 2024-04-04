@@ -1,20 +1,20 @@
+import prisma from "@/db/db";
 import {
   countAllProductsFromAUser,
   createProduct,
   updateProduct,
-} from '@/db/prisma.product';
-import { TRPCError } from '@trpc/server';
-import type { User } from 'next-auth';
-import { UTApi } from 'uploadthing/server';
-
+} from "@/db/prisma.product";
+import { TRPCError } from "@trpc/server";
+import type { User } from "next-auth";
+import { UTApi } from "uploadthing/server";
 export async function deleteFileController(file: string[], user: User) {
   const utapi = new UTApi();
   const deleted = await utapi.deleteFiles(file);
 
   if (!deleted) {
     throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'File not found',
+      code: "NOT_FOUND",
+      message: "File not found",
     });
   }
 
@@ -27,12 +27,12 @@ export async function deleteFileController(file: string[], user: User) {
 
   if (!updatedProduct) {
     throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'Product not found in DB',
+      code: "NOT_FOUND",
+      message: "Product not found in DB",
     });
   }
 
-  return 'File deleted';
+  return "File deleted";
 }
 
 export type createdProductInput = {
@@ -40,7 +40,7 @@ export type createdProductInput = {
   name: string;
   price: number;
   imageUrl: string[];
-  // productFile: string[];
+  urls: string[];
 };
 export async function createProductController(
   input: createdProductInput,
@@ -51,28 +51,30 @@ export async function createProductController(
     name,
     price,
     imageUrl,
+    urls,
     //productFile
   } = input;
-
+  console.log("createProductController", input);
   // check for possible wrong input and throw error msg
   if (!description || description.length < 15 || description.length > 500) {
     throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
+      code: "UNPROCESSABLE_CONTENT",
       message:
-        'Product description must be between 15 and 500 characters long.',
+        "Product description must be between 15 and 500 characters long.",
     });
   }
-  if (name.length !== 3) {
+
+  if (name.length < 3) {
     throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
+      code: "UNPROCESSABLE_CONTENT",
       message:
-        'Must provide a product name that is at least 3 characters long.',
+        "Must provide a product name that is at least 3 characters long.",
     });
   }
   if (!price || isNaN(price) || price <= 0) {
     throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
-      message: 'Must provide a valid positive product price.',
+      code: "UNPROCESSABLE_CONTENT",
+      message: "Must provide a valid positive product price.",
     });
   }
 
@@ -80,30 +82,35 @@ export async function createProductController(
   const prodCount = await countAllProductsFromAUser(ctx.id);
   if (prodCount >= 5) {
     throw new TRPCError({
-      code: 'FORBIDDEN',
+      code: "FORBIDDEN",
       message:
-        'You have reached the maximum number of products you can list on a free tier. Please upgrade to the Pro Version',
+        "You have reached the maximum number of products you can list on a free tier. Please upgrade to the Pro Version",
     });
   }
 
   // create a new product with prisma in DB
 
-  const newProduct = await createProduct({
-    images: imageUrl,
-    description,
-    name,
-    price,
-    user: {
-      connect: {
-        id: ctx.id,
+  const newProduct = await prisma.product.create({
+    data: {
+      name,
+      images: [...imageUrl],
+      description,
+      url: [...urls],
+      price,
+      user: {
+        connect: {
+          id: ctx.id,
+        },
       },
     },
   });
 
-  if (newProduct) {
+  console.log("newProduct");
+
+  if (!newProduct) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Something went wrong creating the product',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong creating the product",
     });
   }
 
