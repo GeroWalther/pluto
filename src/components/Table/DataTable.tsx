@@ -7,6 +7,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
 } from '../ui/table';
@@ -317,11 +318,11 @@ const DataTable = ({ data }: TableProps) => {
     <div>
       <Table>
         <TableHeader>
-          <TableRow>Product Name</TableRow>
-          <TableRow>Status</TableRow>
-          <TableRow>Price</TableRow>
-          <TableRow>Image</TableRow>
-          <TableRow className='w-20'></TableRow>
+          <TableHead>Product Name</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Price</TableHead>
+          <TableHead>Image</TableHead>
+          <TableHead className='w-20'></TableHead>
         </TableHeader>
         <TableBody>
           {data.map((p) => (
