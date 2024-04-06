@@ -14,22 +14,22 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { User } from 'next-auth';
 import { useEffect, useReducer } from 'react';
 import IsProAd from '../comp/IsProAd';
-import { ProductTable } from '../comp/ProductTable';
 import { trpc } from '@/trpc/client';
 import Loader from '../Loader/Loader';
+import DataTable from '../Table/DataTable';
 
-export type Tdata =
-  | {
-      status: 'PENDING' | 'APPROVED' | 'REJECTED';
-      name: string;
-      description: string;
-      userId: string;
-      id: string;
-      createdAt: string;
-      updatedAt: string;
-      price: number;
-      images: string[];
-    }[];
+export type Tdata = {
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  description: string;
+  name: string;
+  price: number;
+  id: string;
+  imageKeys: string[];
+  imageurl: string[];
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}[];
 
 type TinitState = {
   content: 'products' | 'sales' | 'analytics';
@@ -65,6 +65,7 @@ export default function SellerDashboard({ user }: { user: User }) {
     }
   }, [products]);
   console.log(products);
+
   return (
     <div className='grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]'>
       <div className='hidden border-r bg-muted/40 md:block'>
@@ -191,7 +192,7 @@ export default function SellerDashboard({ user }: { user: User }) {
                 </div>
               </div>
             ) : (
-              <ProductTable data={products} />
+              <DataTable data={products} />
             )}
           </main>
         )}

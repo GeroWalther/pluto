@@ -9,14 +9,9 @@ import { z } from 'zod';
 import { Button, buttonVariants } from '../ui/button';
 import { trpc } from '@/trpc/client';
 import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
+import { uploadSchema } from '@/lib/validators/account-credentials-validator';
 
-const schema = z.object({
-  name: z.string(),
-  price: z.string(),
-  description: z.string(),
-});
-
-type FormFields = z.infer<typeof schema>;
+type FormFields = z.infer<typeof uploadSchema>;
 
 export default function UploadForm() {
   const [urls, setUrls] = useState<string[]>([]);
@@ -36,7 +31,7 @@ export default function UploadForm() {
   const { mutate: uploadProduct } = trpc.seller.uploadProduct.useMutation({
     onError: (err) => {
       toast.error(err.message);
-      console.log(err.message);
+      console.log('ERROR: ', err.message);
     },
     onSuccess: (success) => {
       toast.success(success);
@@ -48,7 +43,7 @@ export default function UploadForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormFields>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(uploadSchema),
   });
 
   const onSubmit = (data: FormFields) => {

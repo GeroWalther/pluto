@@ -1,12 +1,12 @@
-import prisma from "@/db/db";
+import prisma from '@/db/db';
 import {
   countAllProductsFromAUser,
   createProduct,
   updateProduct,
-} from "@/db/prisma.product";
-import { TRPCError } from "@trpc/server";
-import type { User } from "next-auth";
-import { UTApi } from "uploadthing/server";
+} from '@/db/prisma.product';
+import { TRPCError } from '@trpc/server';
+import type { User } from 'next-auth';
+import { UTApi } from 'uploadthing/server';
 
 // delete file from the server
 export async function deleteFileController(file: string[], user: User) {
@@ -15,12 +15,12 @@ export async function deleteFileController(file: string[], user: User) {
 
   if (!deleted) {
     throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "File not found",
+      code: 'NOT_FOUND',
+      message: 'File not found',
     });
   }
 
-  return "File deleted";
+  return 'File deleted';
 }
 
 // create a new product
@@ -55,23 +55,23 @@ export async function createProductController(
     !urls
   ) {
     throw new TRPCError({
-      code: "UNPROCESSABLE_CONTENT",
+      code: 'UNPROCESSABLE_CONTENT',
       message:
-        "Must provide a product name, description, price, and at least one Product image.",
+        'Must provide a product name, description, price, and at least one Product image.',
     });
   }
 
   if (name.length < 3) {
     throw new TRPCError({
-      code: "UNPROCESSABLE_CONTENT",
+      code: 'UNPROCESSABLE_CONTENT',
       message:
-        "Must provide a product name that is at least 3 characters long.",
+        'Must provide a product name that is at least 3 characters long.',
     });
   }
   if (!price || isNaN(price) || price <= 0) {
     throw new TRPCError({
-      code: "UNPROCESSABLE_CONTENT",
-      message: "Must provide a valid positive product price.",
+      code: 'UNPROCESSABLE_CONTENT',
+      message: 'Must provide a valid positive product price.',
     });
   }
 
@@ -79,9 +79,9 @@ export async function createProductController(
   const prodCount = await countAllProductsFromAUser(ctx.id);
   if (prodCount >= 5) {
     throw new TRPCError({
-      code: "FORBIDDEN",
+      code: 'FORBIDDEN',
       message:
-        "You have reached the maximum number of products you can list on a free tier. Please upgrade to the Pro Version",
+        'You have reached the maximum number of products you can list on a free tier. Please upgrade to the Pro Version',
     });
   }
 
@@ -90,9 +90,9 @@ export async function createProductController(
   const newProduct = await prisma.product.create({
     data: {
       name,
-      images: [...imageUrl],
+      imageKeys: [...imageUrl],
       description,
-      url: [...urls],
+      imageurl: [...urls],
       price,
       user: {
         connect: {
@@ -106,8 +106,8 @@ export async function createProductController(
 
   if (!newProduct) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Something went wrong creating the product",
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Something went wrong creating the product',
     });
   }
 
@@ -116,13 +116,10 @@ export async function createProductController(
 }
 
 // Get all Products
-
 export const getAllProductsController = async (userId: string) => {
-  const products = await prisma.product.findMany({
+  return await prisma.product.findMany({
     where: {
       userId: userId,
     },
   });
-
-  return products;
 };
