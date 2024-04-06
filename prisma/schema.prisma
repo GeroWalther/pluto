@@ -44,7 +44,8 @@ model Product {
     description String
     price       Float
     imageKeys   String[]
-    imageurl    String[]
+    imageUrls    String[]
+    productFiles  String[]
 
     // product status
     status    Status   @default(PENDING)

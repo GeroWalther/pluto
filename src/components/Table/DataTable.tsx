@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
+import Link from 'next/link';
 
 // import {
 //   ColumnDef,
@@ -315,37 +316,42 @@ interface TableProps {
 
 const DataTable = ({ data }: TableProps) => {
   return (
-    <div>
-      <Table>
-        <TableHeader>
-          <TableHead>Product Name</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Price</TableHead>
-          <TableHead>Image</TableHead>
-          <TableHead className='w-20'></TableHead>
-        </TableHeader>
-        <TableBody>
-          {data.map((p) => (
-            <TableRow key={p.id}>
-              <TableCell>{p.name}</TableCell>
-              <TableCell>{p.status}</TableCell>
-              <TableCell>{p.price}</TableCell>
+    <p>Test</p>
+    // <div>
+    //   <Table>
+    //     <TableHeader>
+    //       <TableHead>Product Name</TableHead>
+    //       <TableHead>Status</TableHead>
+    //       <TableHead>Price</TableHead>
+    //       <TableHead>Image</TableHead>
+    //       <TableHead>File</TableHead>
+    //       <TableHead className='w-20'></TableHead>
+    //     </TableHeader>
+    //     <TableBody>
+    //       {data.map((p) => (
+    //         <TableRow key={p.id}>
+    //           <TableCell>{p.name}</TableCell>
+    //           <TableCell>{p.status}</TableCell>
+    //           <TableCell>{p.price}</TableCell>
+    //           <TableCell>
+    //             <Link href='#'>{'http:kjsakjkjsd.com'}</Link>
+    //           </TableCell>
 
-              <TableCell className='text-right'>
-                {/* <img src={p.imageUrl[0]} /> */}
-              </TableCell>
-              <TableCell className='text-right'>
-                <Button
-                  variant='secondary'
-                  className='ml-auto flex h-8 w-8 p-0'>
-                  <MoreVertical className='h-4 w-4' />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    //           <TableCell className='text-right'>
+    //             {/* <img src={p.imageUrl[0]} /> */}
+    //           </TableCell>
+    //           <TableCell className='text-right'>
+    //             <Button
+    //               variant='secondary'
+    //               className='ml-auto flex h-8 w-8 p-0'>
+    //               <MoreVertical className='h-4 w-4' />
+    //             </Button>
+    //           </TableCell>
+    //         </TableRow>
+    //       ))}
+    //     </TableBody>
+    //   </Table>
+    // </div>
   );
 };
 

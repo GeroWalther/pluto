@@ -31,10 +31,11 @@ export type TAuthCredentialsValidatorSignIn = z.infer<
 
 export const uploadSchema = z.object({
   name: z.string().min(3).max(15),
-  price: z.string(),
+  price: z.number(),
   description: z.string().min(10).max(500),
-  imageKey: z.string(),
-  url: z.string(),
+  imageKeys: z.array(z.string()),
+  imageUrls: z.array(z.string()),
+  productFiles: z.array(z.string()),
 });
 
 export type FormFields = z.infer<typeof uploadSchema>;

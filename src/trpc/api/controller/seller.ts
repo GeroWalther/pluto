@@ -7,6 +7,7 @@ import {
 import { TRPCError } from '@trpc/server';
 import type { User } from 'next-auth';
 import { UTApi } from 'uploadthing/server';
+import { uploadSchema } from '@/lib/validators/account-credentials-validator';
 
 // delete file from the server
 export async function deleteFileController(file: string[], user: User) {
@@ -28,22 +29,17 @@ export type createdProductInput = {
   description: string;
   name: string;
   price: number;
-  imageUrl: string[];
-  urls: string[];
+  imageKeys: string[];
+  imageUrls: string[];
+  productFiles: string[];
 };
 
 export async function createProductController(
   input: createdProductInput,
   ctx: User
 ) {
-  const {
-    description,
-    name,
-    price,
-    imageUrl,
-    urls,
-    //productFile
-  } = input;
+  const { description, name, price, imageKeys, imageUrls, productFiles } =
+    input;
   // check for possible wrong input and throw error msg
   if (
     !description ||
@@ -51,13 +47,13 @@ export async function createProductController(
     description.length > 500 ||
     !name ||
     !price ||
-    !imageUrl ||
-    !urls
+    !imageUrls ||
+    !productFiles
   ) {
     throw new TRPCError({
       code: 'UNPROCESSABLE_CONTENT',
       message:
-        'Must provide a product name, description, price, and at least one Product image.',
+        'Must provide a product name, description, price, and at least one product image and a product file.',
     });
   }
 
@@ -90,9 +86,9 @@ export async function createProductController(
   const newProduct = await prisma.product.create({
     data: {
       name,
-      imageKeys: [...imageUrl],
+      imageKeys: [...imageKeys],
       description,
-      imageurl: [...urls],
+      imageurl: [...imageUrls],
       price,
       user: {
         connect: {
@@ -112,7 +108,7 @@ export async function createProductController(
   }
 
   //return
-  return `you got these from trpc: ${description}, ${name}, ${price}, ${imageUrl},`;
+  return `you got these from trpc: ${description}, ${name}, ${price}, ${imageUrls},`;
 }
 
 // Get all Products

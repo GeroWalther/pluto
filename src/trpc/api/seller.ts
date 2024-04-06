@@ -16,14 +16,16 @@ export const sellerRouter = router({
   uploadProduct: privateProcedure
     .input(uploadSchema)
     .mutation(async ({ input, ctx }) => {
-      const { description, name, price, imageKey, url } = input;
+      const { description, name, price, imageKeys, imageUrls, productFiles } =
+        input;
       const result = await createProductController(
         {
           description,
           name,
-          price: Number(price),
-          imageUrl: [imageKey],
-          urls: [url],
+          price,
+          imageUrls,
+          imageKeys,
+          productFiles,
         },
         ctx.user
       );
