@@ -36,6 +36,7 @@ export const uploadSchema = z.object({
   imageKeys: z.array(z.string()),
   imageUrls: z.array(z.string()),
   productFiles: z.array(z.string()),
+  productFileKeys: z.array(z.string()),
 });
 
 export type FormFields = z.infer<typeof uploadSchema>;
