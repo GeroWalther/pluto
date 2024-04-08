@@ -11,50 +11,6 @@ import { z } from 'zod';
 import { Button, buttonVariants } from '../ui/button';
 import { Combobox } from './Combobox';
 
-// state/reducer to set value and pass to combobox?
-const values = [
-  {
-    value: 'imageUploader',
-    label: 'Image (PGN, JPEG)',
-  },
-  {
-    value: 'svnUploader',
-    label: 'SVN',
-  },
-  {
-    value: 'pdfUploader',
-    label: 'PDF',
-  },
-  {
-    value: 'ttfFontUploader',
-    label: 'ttf',
-  },
-  {
-    value: 'otfFontUploader',
-    label: 'otf',
-  },
-  {
-    value: 'epubUploader',
-    label: 'epub',
-  },
-  {
-    value: 'mobiUploader',
-    label: 'mobi',
-  },
-  {
-    value: 'txtUploader',
-    label: 'txt (plain text)',
-  },
-  {
-    value: 'markdownUploader',
-    label: 'MD Markdown',
-  },
-  {
-    value: 'jsonUploader',
-    label: 'JSON',
-  },
-] as const;
-
 const schema = z.object({
   name: z.string(),
   price: z.string(),
@@ -69,7 +25,7 @@ export default function UploadForm() {
   const [prodFile, setProdFile] = useState<string[]>([]);
   const [prodFileKeys, setprodFileKeys] = useState<string[]>([]);
 
-  const [value, setValue] = useState(values[0]);
+  const [value, setValue] = useState<{ value: string; label: string }[]>([]);
 
   const { mutate: onDelete } = trpc.seller.deleteUploadedFile.useMutation({
     onSuccess: (data) => {
@@ -158,7 +114,7 @@ export default function UploadForm() {
           <p className=' text-sm mt-8'>
             Please select a format and upload the file you wish to sale
           </p>
-          <Combobox values={values} setValue={setValue} value={value} />
+          <Combobox setValue={setValue} value={value} />
           {/*  */}
           <p>{value?.label}</p>
           <UploadDropzone

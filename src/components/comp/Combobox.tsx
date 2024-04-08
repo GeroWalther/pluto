@@ -19,7 +19,51 @@ import {
   CommandItem,
 } from '../ui/command';
 
-export function Combobox({ values, value, setValue }: any) {
+// state/reducer to set value and pass to combobox?
+const values = [
+  {
+    value: 'imageUploader',
+    label: 'Image (PGN, JPEG)',
+  },
+  {
+    value: 'svnUploader',
+    label: 'SVN',
+  },
+  {
+    value: 'pdfUploader',
+    label: 'PDF',
+  },
+  {
+    value: 'ttfFontUploader',
+    label: 'ttf',
+  },
+  {
+    value: 'otfFontUploader',
+    label: 'otf',
+  },
+  {
+    value: 'epubUploader',
+    label: 'epub',
+  },
+  {
+    value: 'mobiUploader',
+    label: 'mobi',
+  },
+  {
+    value: 'txtUploader',
+    label: 'txt (plain text)',
+  },
+  {
+    value: 'markdownUploader',
+    label: 'MD Markdown',
+  },
+  {
+    value: 'jsonUploader',
+    label: 'JSON',
+  },
+];
+
+export function Combobox({ value, setValue }: any) {
   const [open, setOpen] = React.useState(false);
 
   return (
