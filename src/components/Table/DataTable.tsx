@@ -1,8 +1,9 @@
 // 'use client';
 
-import { MoreVertical } from 'lucide-react';
-import { Tdata } from '../dashboard/SellerDashboard';
-import { Button } from '../ui/button';
+import { trpc } from "@/trpc/client";
+import { Loader2, MoreVertical } from "lucide-react";
+import Link from "next/link";
+import { Button } from "../ui/button";
 import {
   Table,
   TableBody,
@@ -10,8 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
-import Link from 'next/link';
+} from "../ui/table";
 
 // import {
 //   ColumnDef,
@@ -268,9 +268,6 @@ import Link from 'next/link';
 //     </div>
 //   );
 // }
-interface TableProps {
-  data: Tdata;
-}
 
 // const data = [
 //   {
@@ -313,10 +310,35 @@ interface TableProps {
 //     userId: '65f70c0de1451541ddd0d021',
 //   },
 // ];
+interface colType {
+  name: string;
+  id: string;
+  price: number;
+  description: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  imageKeys: string[];
+  imageUrls: string[];
+  productFiles: string[];
+}
+const DataTable = ({ x }: { x: colType[] }) => {
+  const { data, isLoading, isError } = trpc.seller.getAllProducts.useQuery();
+  if (isLoading) {
+    return (
+      <div>
+        <Loader2 className="animate-spin h-12 w-12" />
+      </div>
+    );
+  }
 
-const DataTable = ({ data }: TableProps) => {
+  if (isError) {
+    return <p>Error</p>;
+  }
+
   return (
-    <p>Test</p>
+    <p>{JSON.stringify(data)}</p>
     // <div>
     //   <Table>
     //     <TableHeader>
