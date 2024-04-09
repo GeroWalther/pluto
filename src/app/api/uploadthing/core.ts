@@ -5,22 +5,30 @@ import { UploadThingError } from 'uploadthing/server';
 
 const f = createUploadthing();
 
+const middlewareHandle = async () => {
+  const session = await getServerSession(authOptions);
+  if (!session) throw new UploadThingError('Unauthorized');
+
+  // Whatever is returned here is accessible in onUploadComplete as `metadata`
+  return { userId: session.user.id };
+};
+
+const onUploadCompleteHandle = async ({ userId }: { userId: string }) => {
+  // This code RUNS ON YOUR SERVER after upload
+
+  // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
+  return {
+    uploadedBy: userId,
+  };
+};
+
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   pdfUploader: f({ pdf: { maxFileSize: '4MB' } })
