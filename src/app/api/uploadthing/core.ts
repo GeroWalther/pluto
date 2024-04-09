@@ -33,172 +33,82 @@ export const ourFileRouter = {
 
   pdfUploader: f({ pdf: { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   ttfFontUploader: f({ 'font/ttf': { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   otfFontUploader: f({ 'font/otf': { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   markdownUploader: f({ 'text/markdown': { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   jsonUploader: f({ 'application/json': { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   javascriptUploader: f({ 'application/javascript': { maxFileSize: '16MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   svgUploader: f({ 'image/svg+xml': { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   epubUploader: f({ 'application/epub+zip': { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   mobiUploader: f({ 'application/x-mobipocket-ebook': { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
   txtUploader: f({ text: { maxFileSize: '4MB' } })
     .middleware(async ({ req }) => {
-      const session = await getServerSession(authOptions);
-      if (!session) throw new UploadThingError('Unauthorized');
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: session.user.id };
+      return await middlewareHandle();
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return {
-        uploadedBy: metadata.userId,
-      };
+      return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 } satisfies FileRouter;
 
