@@ -1,13 +1,13 @@
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
-import { createUploadthing, type FileRouter } from 'uploadthing/next';
-import { UploadThingError } from 'uploadthing/server';
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
 const middlewareHandle = async () => {
   const session = await getServerSession(authOptions);
-  if (!session) throw new UploadThingError('Unauthorized');
+  if (!session) throw new UploadThingError("Unauthorized");
 
   // Whatever is returned here is accessible in onUploadComplete as `metadata`
   return { userId: session.user.id };
@@ -23,7 +23,7 @@ const onUploadCompleteHandle = async ({ userId }: { userId: string }) => {
 };
 
 export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: '4MB' } })
+  imageUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -31,7 +31,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  pdfUploader: f({ pdf: { maxFileSize: '4MB' } })
+  pdfUploader: f({ pdf: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -39,7 +39,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  ttfFontUploader: f({ 'font/ttf': { maxFileSize: '4MB' } })
+  ttfFontUploader: f({ "font/ttf": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -47,7 +47,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  otfFontUploader: f({ 'font/otf': { maxFileSize: '4MB' } })
+  otfFontUploader: f({ "font/otf": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -55,7 +55,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  markdownUploader: f({ 'text/markdown': { maxFileSize: '4MB' } })
+  markdownUploader: f({ "text/markdown": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -63,7 +63,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  jsonUploader: f({ 'application/json': { maxFileSize: '4MB' } })
+  jsonUploader: f({ "application/json": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -71,7 +71,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  javascriptUploader: f({ 'application/javascript': { maxFileSize: '16MB' } })
+  javascriptUploader: f({ "application/javascript": { maxFileSize: "16MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -79,7 +79,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  svgUploader: f({ 'image/svg+xml': { maxFileSize: '4MB' } })
+  svgUploader: f({ "image/svg+xml": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -87,7 +87,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  epubUploader: f({ 'application/epub+zip': { maxFileSize: '4MB' } })
+  epubUploader: f({ "application/epub+zip": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -95,7 +95,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  mobiUploader: f({ 'application/x-mobipocket-ebook': { maxFileSize: '4MB' } })
+  mobiUploader: f({ "application/x-mobipocket-ebook": { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })
@@ -103,7 +103,7 @@ export const ourFileRouter = {
       return await onUploadCompleteHandle({ userId: metadata.userId });
     }),
 
-  txtUploader: f({ text: { maxFileSize: '4MB' } })
+  txtUploader: f({ text: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       return await middlewareHandle();
     })

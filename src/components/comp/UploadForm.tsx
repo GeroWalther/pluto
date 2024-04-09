@@ -1,15 +1,15 @@
-'use client';
-import React from 'react';
+"use client";
+import React from "react";
 
-import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
-import { trpc } from '@/trpc/client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { Button, buttonVariants } from '../ui/button';
-import { Combobox } from './Combobox';
+import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
+import { trpc } from "@/trpc/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Button, buttonVariants } from "../ui/button";
+import { Combobox } from "./Combobox";
 
 const schema = z.object({
   name: z.string(),
@@ -25,7 +25,19 @@ export default function UploadForm() {
   const [prodFile, setProdFile] = useState<string[]>([]);
   const [prodFileKeys, setprodFileKeys] = useState<string[]>([]);
 
-  const [value, setValue] = useState<{ value: string; label: string }[]>([]);
+  const [value, setValue] = useState<
+    | "imageUploader"
+    | "pdfUploader"
+    | "ttfFontUploader"
+    | "otfFontUploader"
+    | "markdownUploader"
+    | "jsonUploader"
+    | "javascriptUploader"
+    | "svgUploader"
+    | "epubUploader"
+    | "mobiUploader"
+    | "txtUploader"
+  >("imageUploader");
 
   const { mutate: onDelete } = trpc.seller.deleteUploadedFile.useMutation({
     onSuccess: (data) => {
@@ -42,7 +54,7 @@ export default function UploadForm() {
   const { mutate: uploadProduct } = trpc.seller.uploadProduct.useMutation({
     onError: (err) => {
       toast.error(err.message);
-      console.log('ERROR: ', err.message);
+      console.log("ERROR: ", err.message);
     },
     onSuccess: (success) => {
       toast.success(success);
@@ -58,7 +70,7 @@ export default function UploadForm() {
   });
 
   const onSubmit = (data: FormFields) => {
-    alert('something...');
+    alert("something...");
     uploadProduct({
       name: data.name,
       price: parseFloat(data.price),
@@ -75,55 +87,54 @@ export default function UploadForm() {
   };
 
   return (
-    <form className='grid items-start gap-4' onSubmit={handleSubmit(onSubmit)}>
-      <div className='grid gap-2'>
-        <label htmlFor='productName'>Product name</label>
-        <input type='text' id='productName' {...register('name')} />
+    <form className="grid items-start gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <div className="grid gap-2">
+        <label htmlFor="productName">Product name</label>
+        <input type="text" id="productName" {...register("name")} />
         {errors.name && (
-          <p className='text-sm text-red-500'>{errors.name.message}</p>
+          <p className="text-sm text-red-500">{errors.name.message}</p>
         )}
       </div>
-      <div className='grid gap-2'>
-        <label htmlFor='price'>Price</label>
-        <input type='number' id='price' {...register('price')} />
+      <div className="grid gap-2">
+        <label htmlFor="price">Price</label>
+        <input type="number" id="price" {...register("price")} />
         {errors.price && (
-          <p className='text-sm text-red-500'>{errors.price.message}</p>
+          <p className="text-sm text-red-500">{errors.price.message}</p>
         )}
       </div>
       {/* Add other form fields here */}
-      <div className='grid gap-2'>
-        <label htmlFor='description'>Description</label>
-        <textarea id='description' {...register('description')} />
+      <div className="grid gap-2">
+        <label htmlFor="description">Description</label>
+        <textarea id="description" {...register("description")} />
         {errors.description && (
-          <p className='text-sm text-red-500'>{errors.description.message}</p>
+          <p className="text-sm text-red-500">{errors.description.message}</p>
         )}
       </div>
 
       {prodFile.length > 0 ? (
         <>
-          <p className=' text-sm'>
+          <p className=" text-sm">
             Your File(s) have been uploaded and are stored securely.
           </p>
-          <Button variant='destructive' onClick={deleteImage}>
+          <Button variant="destructive" onClick={deleteImage}>
             Delete
           </Button>
 
-          <UploadButton endpoint='imageUploader' />
+          <UploadButton endpoint="imageUploader" />
         </>
       ) : (
         <>
-          <p className=' text-sm mt-8'>
+          <p className=" text-sm mt-8">
             Please select a format and upload the file you wish to sale
           </p>
-          <Combobox setValue={setValue} value={value} />
-          {/*  */}
-          <p>{value?.label}</p>
+          <Combobox selectedValue={value} setSelectedValue={setValue} />
+          <p>{value}</p>
           <UploadDropzone
-            endpoint={value?.value}
+            endpoint={value}
             onClientUploadComplete={(res) => {
               setProdFile(res.map((r) => r.url));
               setprodFileKeys(res.map((r) => r.key));
-              toast.success('uploaded successfully');
+              toast.success("uploaded successfully");
             }}
             onUploadError={(error) => {
               toast.error(error.message);
@@ -132,22 +143,22 @@ export default function UploadForm() {
         </>
       )}
 
-      <p className=' text-sm mt-8'>Finally select an image</p>
+      <p className=" text-sm mt-8">Finally select an image</p>
       {imageUrls.length > 0 ? (
         <>
-          <img src={imageUrls[0]} alt='product' className='w-32 h-32' />
-          <Button variant='destructive' onClick={deleteImage}>
+          <img src={imageUrls[0]} alt="product" className="w-32 h-32" />
+          <Button variant="destructive" onClick={deleteImage}>
             Delete
           </Button>
-          <UploadButton endpoint='imageUploader' />
+          <UploadButton endpoint="imageUploader" />
         </>
       ) : (
         <UploadDropzone
-          endpoint='imageUploader'
+          endpoint="imageUploader"
           onClientUploadComplete={(res) => {
             setImageUrls(res.map((r) => r.url));
             setImageFileKeys(res.map((r) => r.key));
-            toast.success('uploaded successfully');
+            toast.success("uploaded successfully");
           }}
           onUploadError={(error) => {
             toast.error(error.message);
@@ -156,11 +167,12 @@ export default function UploadForm() {
       )}
 
       <button
-        type='submit'
+        type="submit"
         className={buttonVariants({
-          variant: 'default',
-          size: 'lg',
-        })}>
+          variant: "default",
+          size: "lg",
+        })}
+      >
         Submit
       </button>
     </form>
