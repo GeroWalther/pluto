@@ -107,6 +107,7 @@ export default function UploadForm() {
           <Button variant='destructive' onClick={deleteImage}>
             Delete
           </Button>
+
           <UploadButton endpoint='imageUploader' />
         </>
       ) : (
