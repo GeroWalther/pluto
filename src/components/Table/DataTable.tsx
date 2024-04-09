@@ -1,9 +1,9 @@
 // 'use client';
 
-import { trpc } from "@/trpc/client";
-import { Loader2, MoreVertical } from "lucide-react";
-import Link from "next/link";
-import { Button } from "../ui/button";
+import { trpc } from '@/trpc/client';
+import { Loader2, MoreVertical } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '../ui/button';
 import {
   Table,
   TableBody,
@@ -11,7 +11,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from '../ui/table';
+import { cn } from '@/lib/utils';
 
 // import {
 //   ColumnDef,
@@ -315,7 +316,7 @@ interface colType {
   id: string;
   price: number;
   description: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -323,57 +324,55 @@ interface colType {
   imageUrls: string[];
   productFiles: string[];
 }
-const DataTable = ({ x }: { x: colType[] }) => {
-  const { data, isLoading, isError } = trpc.seller.getAllProducts.useQuery();
-  if (isLoading) {
-    return (
-      <div>
-        <Loader2 className="animate-spin h-12 w-12" />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return <p>Error</p>;
-  }
-
+const DataTable = ({ data }: { data: colType[] | undefined }) => {
   return (
-    <p>{JSON.stringify(data)}</p>
-    // <div>
-    //   <Table>
-    //     <TableHeader>
-    //       <TableHead>Product Name</TableHead>
-    //       <TableHead>Status</TableHead>
-    //       <TableHead>Price</TableHead>
-    //       <TableHead>Image</TableHead>
-    //       <TableHead>File</TableHead>
-    //       <TableHead className='w-20'></TableHead>
-    //     </TableHeader>
-    //     <TableBody>
-    //       {data.map((p) => (
-    //         <TableRow key={p.id}>
-    //           <TableCell>{p.name}</TableCell>
-    //           <TableCell>{p.status}</TableCell>
-    //           <TableCell>{p.price}</TableCell>
-    //           <TableCell>
-    //             <Link href='#'>{'http:kjsakjkjsd.com'}</Link>
-    //           </TableCell>
+    <div>
+      <Table>
+        <TableHeader>
+          <TableHead>Product Name</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Price</TableHead>
+          <TableHead>Image</TableHead>
+          <TableHead>File</TableHead>
+          <TableHead className='w-20'></TableHead>
+        </TableHeader>
+        <TableBody>
+          {data?.map((p) => (
+            <TableRow key={p.id}>
+              <TableCell>{p.name}</TableCell>
+              <TableCell>
+                <span
+                  className={cn(
+                    p.status === 'APPROVED'
+                      ? 'bg-green-500'
+                      : p.status === 'PENDING'
+                      ? 'bg-stone-400'
+                      : 'bg-red-600',
+                    'p-2 text-stone-50 rounded-full text-[10px]'
+                  )}>
+                  {p.status}
+                </span>
+              </TableCell>
+              <TableCell>{p.price}</TableCell>
+              <TableCell>
+                <Link href='#'>{'http:kjsakjkjsd.com'}</Link>
+              </TableCell>
 
-    //           <TableCell className='text-right'>
-    //             {/* <img src={p.imageUrl[0]} /> */}
-    //           </TableCell>
-    //           <TableCell className='text-right'>
-    //             <Button
-    //               variant='secondary'
-    //               className='ml-auto flex h-8 w-8 p-0'>
-    //               <MoreVertical className='h-4 w-4' />
-    //             </Button>
-    //           </TableCell>
-    //         </TableRow>
-    //       ))}
-    //     </TableBody>
-    //   </Table>
-    // </div>
+              <TableCell className='text-right'>
+                {/* <img src={p.imageUrl[0]} /> */}
+              </TableCell>
+              <TableCell className='text-right'>
+                <Button
+                  variant='secondary'
+                  className='ml-auto flex h-8 w-8 p-0'>
+                  <MoreVertical className='h-4 w-4' />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

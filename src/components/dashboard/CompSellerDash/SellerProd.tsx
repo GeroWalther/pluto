@@ -1,3 +1,4 @@
+import DataTable from '@/components/Table/DataTable';
 import UploadDrawerDialog from '@/components/comp/UploadDrawerDialog';
 import { trpc } from '@/trpc/client';
 import React from 'react';
@@ -25,7 +26,7 @@ export default function SellerProd() {
           </div>
         </div>
       ) : (
-        <p>DataTable</p>
+        <DataTable products={products}></DataTable>
       )}
     </main>
   );
