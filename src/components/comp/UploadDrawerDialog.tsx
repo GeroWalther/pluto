@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Drawer,
   DrawerClose,
@@ -10,8 +10,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
-import { useMediaQuery } from "usehooks-ts";
+} from '@/components/ui/drawer';
+import { useMediaQuery } from 'usehooks-ts';
 
 import {
   Dialog,
@@ -20,26 +20,30 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import UploadForm from "./UploadForm";
+} from '../ui/dialog';
+import UploadForm from './UploadForm';
 
 export default function UploadDrawerDialog() {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="default">Upload a product for sale</Button>
+          <Button variant='default'>Upload a product for sale</Button>
         </DialogTrigger>
-        <DialogContent className="w-full overflow-y-scroll max-h-screen">
+        <DialogContent className='w-full overflow-y-scroll max-h-screen'>
           <DialogHeader>
-            <DialogTitle>Product listing</DialogTitle>
+            <DialogTitle className='font-bold text-stone-800'>
+              Product listing
+            </DialogTitle>
           </DialogHeader>
-          <DialogDescription>
-            List a product for sale by filling out this form. (Once our team
-            approves your upload, it will be listed for sale.)
+          <DialogDescription className='font-semibold text-stone-700'>
+            List a product for sale by filling out this form. <br />
+            <span className='font-semibold text-muted-foreground'>
+              (Once our team approves your upload, it will be listed for sale.)
+            </span>
           </DialogDescription>
           <UploadForm />
         </DialogContent>
@@ -50,19 +54,19 @@ export default function UploadDrawerDialog() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="default">Upload a product for sale</Button>
+        <Button variant='default'>Upload a product for sale</Button>
       </DrawerTrigger>
-      <DrawerContent className="w-full overflow-y-scroll max-h-screen">
-        <DrawerHeader className="text-left">
+      <DrawerContent className='w-full overflow-y-scroll max-h-screen'>
+        <DrawerHeader className='text-left'>
           <DrawerTitle>Product listing</DrawerTitle>
           <DrawerDescription>
             List a product for sale by filing out this form.
             <UploadForm />
           </DrawerDescription>
         </DrawerHeader>
-        <DrawerFooter className="pt-2">
+        <DrawerFooter className='pt-2'>
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant='outline'>Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

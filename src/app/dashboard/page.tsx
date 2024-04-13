@@ -14,7 +14,7 @@ export default async function Dashboard() {
 
   return (
     <Tabs defaultValue='sellerdash' className='w-full'>
-      <TabsList className='grid w-full grid-cols-3'>
+      <TabsList className='grid w-full grid-cols-2'>
         <TabsTrigger value='userdash'>Main Dashboard</TabsTrigger>
         <TabsTrigger value='sellerdash'>Seller Dashboard</TabsTrigger>
       </TabsList>

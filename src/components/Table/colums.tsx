@@ -26,23 +26,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { trpc } from '@/trpc/client';
-import { cn } from '@/lib/utils';
 
 export type colType =
   | {
       id: string;
       price: number;
       status: 'PENDING' | 'APPROVED' | 'REJECTED';
+      image: string;
+      file: string;
       name: string;
     }
   | undefined;

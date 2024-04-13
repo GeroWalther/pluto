@@ -1,7 +1,7 @@
 // 'use client';
 
 import { trpc } from '@/trpc/client';
-import { Loader2, MoreVertical } from 'lucide-react';
+import { Loader2, MoreHorizontal, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import {
@@ -13,6 +13,15 @@ import {
   TableRow,
 } from '../ui/table';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 // import {
 //   ColumnDef,
@@ -311,6 +320,7 @@ import { cn } from '@/lib/utils';
 //     userId: '65f70c0de1451541ddd0d021',
 //   },
 // ];
+
 interface colType {
   name: string;
   id: string;
@@ -324,6 +334,7 @@ interface colType {
   imageUrls: string[];
   productFiles: string[];
 }
+
 const DataTable = ({ data }: { data: colType[] | undefined }) => {
   return (
     <div>
@@ -333,7 +344,6 @@ const DataTable = ({ data }: { data: colType[] | undefined }) => {
           <TableHead>Status</TableHead>
           <TableHead>Price</TableHead>
           <TableHead>Image</TableHead>
-          <TableHead>File</TableHead>
           <TableHead className='w-20'></TableHead>
         </TableHeader>
         <TableBody>
@@ -354,19 +364,43 @@ const DataTable = ({ data }: { data: colType[] | undefined }) => {
                 </span>
               </TableCell>
               <TableCell>{p.price}</TableCell>
-              <TableCell>
-                <Link href='#'>{'http:kjsakjkjsd.com'}</Link>
-              </TableCell>
+              {p.imageUrls[0] ? (
+                <TableCell className='text-right'>
+                  <img
+                    className='h-10 w-10'
+                    src={p.imageUrls[0]}
+                    alt={p.name}
+                  />
+                </TableCell>
+              ) : (
+                <TableCell className='text-right'>
+                  <Image height={50} width={50} src='/eis.jpg' alt={p.name} />
+                </TableCell>
+              )}
 
               <TableCell className='text-right'>
-                {/* <img src={p.imageUrl[0]} /> */}
-              </TableCell>
-              <TableCell className='text-right'>
-                <Button
-                  variant='secondary'
-                  className='ml-auto flex h-8 w-8 p-0'>
-                  <MoreVertical className='h-4 w-4' />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant='ghost' className=' ml-auto h-8 w-8 p-0'>
+                      <MoreVertical className='h-4 w-4' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        alert('DELLETE!!');
+                      }}>
+                      Delete
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        alert('Clñickkced!!');
+                      }}>
+                      Edit
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}
