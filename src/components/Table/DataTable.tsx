@@ -1,7 +1,14 @@
 // 'use client';
 
 import { trpc } from '@/trpc/client';
-import { Loader2, MoreHorizontal, MoreVertical } from 'lucide-react';
+import {
+  Delete,
+  Loader2,
+  MoreHorizontal,
+  MoreVertical,
+  Pen,
+  Trash2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import {
@@ -387,17 +394,25 @@ const DataTable = ({ data }: { data: colType[] | undefined }) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem
+                      className='bg-red flex justify-between items-center'
                       onClick={() => {
                         alert('DELLETE!!');
                       }}>
-                      Delete
+                      <span className='text-red-500 font-semibold '>
+                        Delete
+                      </span>
+                      <Trash2 color='red' className='h-4 w-4' />
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
+                      className='bg-red flex justify-between items-center'
                       onClick={() => {
                         alert('Clñickkced!!');
                       }}>
-                      Edit
+                      <span className='text-stone-600 font-semibold '>
+                        Edit
+                      </span>
+                      <Pen color='blue' className='h-4 w-4' />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

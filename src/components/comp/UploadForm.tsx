@@ -222,7 +222,7 @@ export default function UploadForm() {
           />
         </>
       )}
-      <Separator className='my-6' />
+      <Separator className='mt-6' />
       {imageUrls.length > 0 ? (
         <>
           <p className=' text-sm mt-8 text-green-600 font-semibold'>
@@ -302,48 +302,3 @@ export default function UploadForm() {
     </form>
   );
 }
-
-// 'use client';
-// import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
-// import { trpc } from '@/trpc/client';
-// import { zodResolver } from '@hookform/resolvers/zod';
-// import { useState } from 'react';
-// import { useForm } from 'react-hook-form';
-// import { toast } from 'sonner';
-// import { z } from 'zod';
-
-// const schema = z.object({
-//   name: z.string(),
-//   price: z.string(),
-//   description: z.string(),
-// });
-
-// type FormFields = z.infer<typeof schema>;
-
-// export default function UploadForm() {
-//   const [uploading, setUploading] = useState(false);
-//   const {
-//     register,
-//     handleSubmit,
-//     formState: { errors },
-//   } = useForm<FormFields>({
-//     resolver: zodResolver(schema),
-//   });
-
-//   const onSubmit = async (data: FormFields) => {
-//     alert(JSON.stringify(data));
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit(onSubmit)}>
-//       <input type='text' placeholder='Name' {...register('name')} />
-//       <input type='text' placeholder='Price' {...register('price')} />
-//       <input
-//         type='text'
-//         placeholder='Description'
-//         {...register('description')}
-//       />
-//       <button type='submit'>Submit</button>
-//     </form>
-//   );
-// }
