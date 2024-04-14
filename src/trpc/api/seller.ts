@@ -4,9 +4,9 @@ import { privateProcedure, router } from '../trpc';
 import {
   createProductController,
   deleteFileController,
-  deleteProductController,
   getAllProductsController,
 } from './controller/seller';
+import { deleteProduct } from '@/db/prisma.product';
 
 export const sellerRouter = router({
   deleteUploadedFile: privateProcedure
@@ -39,7 +39,7 @@ export const sellerRouter = router({
   }),
   deleteProduct: privateProcedure
     .input(z.string())
-    .mutation(async ({ input, ctx }) => {
-      return await deleteProductController(input, ctx.user);
+    .mutation(async ({ input }) => {
+      return await deleteProduct(input);
     }),
 });

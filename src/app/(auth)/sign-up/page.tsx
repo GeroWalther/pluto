@@ -35,7 +35,6 @@ const Page = () => {
   });
   const router = useRouter();
 
-  // why no isLoading ??
   const { mutate, isPending } = trpc.auth.signUp.useMutation({
     onError: (err) => {
       if (err.data) {

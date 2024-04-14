@@ -1,11 +1,6 @@
 import prisma from '@/db/db';
-import {
-  countAllProductsFromAUser,
-  createProduct,
-  deleteProduct,
-  updateProduct,
-} from '@/db/prisma.product';
-import { uploadSchema } from '@/lib/validators/account-credentials-validator';
+import { countAllProductsFromAUser } from '@/db/prisma.product';
+
 import { TRPCError } from '@trpc/server';
 import type { User } from 'next-auth';
 import { UTApi } from 'uploadthing/server';
@@ -134,11 +129,4 @@ export const getAllProductsController = async (userId: string) => {
   }
 
   return response;
-};
-
-export const deleteProductController = async (
-  productId: string,
-  user: User
-) => {
-  await deleteProduct(productId);
 };

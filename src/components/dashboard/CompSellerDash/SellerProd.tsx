@@ -1,5 +1,5 @@
 import Loader from '@/components/Loader/Loader';
-import DataTable from '@/components/Table/DataTable';
+import DataTable from '@/components/Table/ProductTable';
 import UploadDrawerDialog from '@/components/comp/UploadDrawerDialog';
 import { trpc } from '@/trpc/client';
 import React from 'react';
