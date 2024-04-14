@@ -1,5 +1,5 @@
 'use client';
-import React, { use, useEffect } from 'react';
+import React from 'react';
 
 import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
 import { trpc } from '@/trpc/client';
@@ -15,7 +15,6 @@ import { File } from 'lucide-react';
 
 import ImageSlider from './ImageSlider';
 import { Separator } from '../ui/separator';
-import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
 const schema = z.object({
@@ -37,7 +36,6 @@ export default function UploadForm({
   const [prodFile, setProdFile] = useState<string[]>([]);
   const [prodFileKeys, setprodFileKeys] = useState<string[]>([]);
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const [value, setValue] = useState<
     | 'imageUploader'
