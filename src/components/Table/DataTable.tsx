@@ -29,6 +29,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 // import {
 //   ColumnDef,
@@ -343,6 +354,22 @@ interface colType {
 }
 
 const DataTable = ({ data }: { data: colType[] | undefined }) => {
+  const [open, setOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState('');
+  const queryClient = useQueryClient();
+  const { mutate: mutateDelete } = trpc.seller.deleteProduct.useMutation({
+    onSuccess: () => {
+      toast.success('Product deleted successfully!');
+      setOpen(false);
+      setDeleteId('');
+      queryClient.invalidateQueries();
+    },
+    onError: (error) => {
+      toast.error('Error deleting product');
+      console.error(error);
+    },
+  });
+
   return (
     <div>
       <Table>
@@ -384,7 +411,6 @@ const DataTable = ({ data }: { data: colType[] | undefined }) => {
                   <Image height={50} width={50} src='/eis.jpg' alt={p.name} />
                 </TableCell>
               )}
-
               <TableCell className='text-right'>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -393,15 +419,18 @@ const DataTable = ({ data }: { data: colType[] | undefined }) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
-                    <DropdownMenuItem
-                      className='bg-red flex justify-between items-center'
-                      onClick={() => {
-                        alert('DELLETE!!');
-                      }}>
-                      <span className='text-red-500 font-semibold '>
-                        Delete
-                      </span>
-                      <Trash2 color='red' className='h-4 w-4' />
+                    <DropdownMenuItem>
+                      <button
+                        onClick={() => {
+                          setOpen(true);
+                          setDeleteId(p.id);
+                        }}
+                        className='flex justify-between items-center w-full'>
+                        <span className='text-red-500 font-semibold '>
+                          Delete
+                        </span>
+                        <Trash2 color='red' className='h-4 w-4' />
+                      </button>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -420,9 +449,69 @@ const DataTable = ({ data }: { data: colType[] | undefined }) => {
             </TableRow>
           ))}
         </TableBody>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className='w-full overflow-y-scroll max-h-screen'>
+            <DialogHeader>
+              <DialogTitle className='font-bold text-red-500'>
+                Product deletion
+              </DialogTitle>
+            </DialogHeader>
+            <DialogDescription className='font-semibold text-stone-700'>
+              <p>
+                Do you really want to delete this product from your inventory?
+              </p>
+            </DialogDescription>
+            <Button
+              variant='destructive'
+              onClick={() => {
+                alert('DELLETTE');
+                mutateDelete(deleteId);
+              }}>
+              <span className='text-white font-semibold mr-2'>Delete</span>
+              <Trash2 color='white' className='h-4 w-4' />
+            </Button>
+          </DialogContent>
+        </Dialog>
       </Table>
     </div>
   );
 };
 
 export default DataTable;
+
+{
+  /* <DropdownMenuItem>
+<Dialog open={open} onOpenChange={setOpen}>
+  <DialogTrigger asChild className='w-full'>
+    <button className='flex justify-between items-center'>
+      <span className='text-red-500 font-semibold '>
+        Delete
+      </span>
+      <Trash2 color='red' className='h-4 w-4' />
+    </button>
+  </DialogTrigger>
+  <DialogContent className='w-full overflow-y-scroll max-h-screen'>
+    <DialogHeader>
+      <DialogTitle className='font-bold text-red-500'>
+        Product deletion
+      </DialogTitle>
+    </DialogHeader>
+    <DialogDescription className='font-semibold text-stone-700'>
+      <p>
+        Do you really want to delete this product from
+        your inventory?
+      </p>
+    </DialogDescription>
+    <Button
+      onClick={() => {
+        alert('DELLETTE');
+      }}>
+      <span className='text-red-500 font-semibold '>
+        Delete
+      </span>
+      <Trash2 color='red' className='h-4 w-4' />
+    </Button>
+  </DialogContent>
+</Dialog>
+</DropdownMenuItem> */
+}

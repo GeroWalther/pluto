@@ -58,11 +58,16 @@ export default function UploadDrawerDialog() {
       </DrawerTrigger>
       <DrawerContent className='w-full overflow-y-scroll max-h-screen'>
         <DrawerHeader className='text-left'>
-          <DrawerTitle>Product listing</DrawerTitle>
-          <DrawerDescription>
-            List a product for sale by filing out this form.
-            <UploadForm />
+          <DrawerTitle className='font-bold text-stone-800'>
+            Product listing
+          </DrawerTitle>
+          <DrawerDescription className='font-semibold text-stone-700'>
+            List a product for sale by filing out this form. <br />
+            <span className='font-semibold text-muted-foreground'>
+              (Once our team approves your upload, it will be listed for sale.)
+            </span>
           </DrawerDescription>
+          <UploadForm />
         </DrawerHeader>
         <DrawerFooter className='pt-2'>
           <DrawerClose asChild>
