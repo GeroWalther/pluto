@@ -464,7 +464,6 @@ const DataTable = ({ data }: { data: colType[] | undefined }) => {
             <Button
               variant='destructive'
               onClick={() => {
-                alert('DELLETTE');
                 mutateDelete(deleteId);
               }}>
               <span className='text-white font-semibold mr-2'>Delete</span>

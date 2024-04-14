@@ -45,7 +45,7 @@ export default function UploadDrawerDialog() {
               (Once our team approves your upload, it will be listed for sale.)
             </span>
           </DialogDescription>
-          <UploadForm />
+          <UploadForm setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     );
@@ -67,7 +67,7 @@ export default function UploadDrawerDialog() {
               (Once our team approves your upload, it will be listed for sale.)
             </span>
           </DrawerDescription>
-          <UploadForm />
+          <UploadForm setOpen={setOpen} />
         </DrawerHeader>
         <DrawerFooter className='pt-2'>
           <DrawerClose asChild>

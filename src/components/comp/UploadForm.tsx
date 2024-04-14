@@ -15,6 +15,8 @@ import { File } from 'lucide-react';
 
 import ImageSlider from './ImageSlider';
 import { Separator } from '../ui/separator';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 const schema = z.object({
   name: z.string(),
@@ -24,12 +26,18 @@ const schema = z.object({
 
 type FormFields = z.infer<typeof schema>;
 
-export default function UploadForm() {
+export default function UploadForm({
+  setOpen,
+}: {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   console.log(imageUrls);
   const [imagefileKeys, setImageFileKeys] = useState<string[]>([]);
   const [prodFile, setProdFile] = useState<string[]>([]);
   const [prodFileKeys, setprodFileKeys] = useState<string[]>([]);
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   const [value, setValue] = useState<
     | 'imageUploader'
@@ -64,7 +72,9 @@ export default function UploadForm() {
       console.log('ERROR: ', err.message);
     },
     onSuccess: (success) => {
-      toast.success(success);
+      toast.success('Product uploaded successfully!');
+      queryClient.invalidateQueries();
+      setOpen(false);
     },
   });
 
@@ -77,7 +87,6 @@ export default function UploadForm() {
   });
 
   const onSubmit = (data: FormFields) => {
-    alert('onSubmit pressed devMode...');
     if (imageUrls.length <= 0) {
       toast.error('Image required. Please upload an image.');
       return;
@@ -114,7 +123,7 @@ export default function UploadForm() {
         </label>
         <input
           type='text'
-          className='border border-stone-300 rounded-sm'
+          className='border border-stone-300 rounded-sm py-1 px-3'
           id='productName'
           {...register('name')}
         />
@@ -129,7 +138,7 @@ export default function UploadForm() {
         <input
           type='number'
           id='price'
-          className='border border-stone-300 rounded-sm'
+          className='border border-stone-300 rounded-sm py-1 px-3'
           {...register('price')}
         />
         {errors.price && (
@@ -143,7 +152,7 @@ export default function UploadForm() {
         </label>
         <textarea
           id='description'
-          className='border border-stone-300 rounded-sm'
+          className='border border-stone-300 rounded-sm py-1 px-3'
           {...register('description')}
         />
         {errors.description && (
@@ -226,8 +235,12 @@ export default function UploadForm() {
       {imageUrls.length > 0 ? (
         <>
           <p className=' text-sm mt-8 text-green-600 font-semibold'>
-            Your shop image has been successfully uploaded.
+            Your shop image has been successfully uploaded. <br />
+            <span className='text-muted-foreground font-semibold'>
+              ( You can upload more files or continue with the next step. )
+            </span>
           </p>
+
           <ImageSlider urls={imageUrls} />
 
           {/* <img className='h-34 w-34' src={imageUrls[0]} alt='product image' /> */}
