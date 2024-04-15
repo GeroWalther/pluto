@@ -49,17 +49,8 @@ interface colType {
 const ProductTable = ({ data }: { data: colType[] | undefined }) => {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState('');
-  const [deleteFiles, setDeleteFiles] = useState<string[]>([]);
-  console.log(data);
 
   const queryClient = useQueryClient();
-
-  //does not delete files from uploadthing
-  const { mutate: deleteFile } = trpc.seller.deleteUploadedFile.useMutation({
-    onSuccess: () => {
-      setDeleteFiles([]);
-    },
-  });
 
   const { mutate: deleteProductInDB } = trpc.seller.deleteProduct.useMutation({
     onSuccess: () => {
@@ -128,7 +119,6 @@ const ProductTable = ({ data }: { data: colType[] | undefined }) => {
                         onClick={() => {
                           setOpen(true);
                           setDeleteId(p.id);
-                          setDeleteFiles(p.productFiles);
                         }}
                         className='flex justify-between items-center w-full'>
                         <span className='text-red-500 font-semibold '>
@@ -169,7 +159,6 @@ const ProductTable = ({ data }: { data: colType[] | undefined }) => {
             <Button
               variant='destructive'
               onClick={() => {
-                deleteFile(deleteFiles);
                 deleteProductInDB(deleteId);
               }}>
               <span className='text-white font-semibold mr-2'>Delete</span>
