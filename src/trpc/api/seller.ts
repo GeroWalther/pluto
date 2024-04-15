@@ -1,18 +1,18 @@
-import { uploadSchema } from '@/lib/validators/account-credentials-validator';
-import { z } from 'zod';
-import { privateProcedure, router } from '../trpc';
+import { deleteProduct } from "@/db/prisma.product";
+import { uploadSchema } from "@/lib/validators/account-credentials-validator";
+import { z } from "zod";
+import { privateProcedure, router } from "../trpc";
 import {
   createProductController,
   deleteFileController,
   getAllProductsController,
-} from './controller/seller';
-import { deleteProduct } from '@/db/prisma.product';
+} from "./controller/seller";
 
 export const sellerRouter = router({
   deleteUploadedFile: privateProcedure
     .input(z.array(z.string()))
     .mutation(async ({ input, ctx }) => {
-      return await deleteFileController(input, ctx.user);
+      return await deleteFileController(input, ctx.user, true);
     }),
   uploadProduct: privateProcedure
     .input(uploadSchema)
@@ -39,7 +39,8 @@ export const sellerRouter = router({
   }),
   deleteProduct: privateProcedure
     .input(z.string())
-    .mutation(async ({ input }) => {
-      return await deleteProduct(input);
+    .mutation(async ({ input, ctx }) => {
+      const response = await deleteFileController([input], ctx.user, false);
+      return response;
     }),
 });
