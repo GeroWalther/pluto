@@ -99,7 +99,7 @@ export default function UploadForm({
       description: data.description,
       imageKeys: imagefileKeys,
       imageUrls,
-      productFiles: prodFile,
+      productFileUrls: prodFile,
       productFileKeys: prodFileKeys,
     });
   };

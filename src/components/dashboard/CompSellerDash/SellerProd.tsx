@@ -1,5 +1,5 @@
 import Loader from '@/components/Loader/Loader';
-import DataTable from '@/components/Table/ProductTable';
+import ProductTable from '@/components/Table/ProductTable';
 import UploadDrawerDialog from '@/components/comp/UploadDrawerDialog';
 import { trpc } from '@/trpc/client';
 import React from 'react';
@@ -29,7 +29,7 @@ export default function SellerProd() {
           </div>
         </div>
       ) : products !== null && products !== undefined ? (
-        <DataTable data={products} />
+        <ProductTable data={products} />
       ) : (
         isLoading && (
           <div className='flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm'>

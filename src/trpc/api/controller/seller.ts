@@ -32,6 +32,8 @@ export async function deleteFileController(
   }
 
   const deletedProduct = await deleteProduct(input[0]);
+  await utapi.deleteFiles(deletedProduct.imageKeys);
+  await utapi.deleteFiles(deletedProduct.productFileKeys);
 
   if (!deletedProduct) {
     throw new TRPCError({
@@ -50,15 +52,23 @@ export type createdProductInput = {
   price: number;
   imageKeys: string[];
   imageUrls: string[];
-  productFiles: string[];
+  productFileUrls: string[];
+  productFileKeys: string[];
 };
 
 export async function createProductController(
   input: createdProductInput,
   ctx: User
 ) {
-  const { description, name, price, imageKeys, imageUrls, productFiles } =
-    input;
+  const {
+    description,
+    name,
+    price,
+    imageKeys,
+    imageUrls,
+    productFileUrls,
+    productFileKeys,
+  } = input;
   // check for possible wrong input and throw error msg
   if (
     !description ||
@@ -67,7 +77,7 @@ export async function createProductController(
     !name ||
     !price ||
     !imageUrls ||
-    !productFiles
+    !productFileUrls
   ) {
     throw new TRPCError({
       code: 'UNPROCESSABLE_CONTENT',
@@ -108,7 +118,8 @@ export async function createProductController(
       imageKeys: [...imageKeys],
       description,
       imageUrls: [...imageUrls],
-      productFiles: [...productFiles],
+      productFileUrls: [...productFileUrls],
+      productFileKeys: [...productFileKeys],
       price,
       user: {
         connect: {

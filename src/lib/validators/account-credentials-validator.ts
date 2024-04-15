@@ -35,7 +35,7 @@ export const uploadSchema = z.object({
   description: z.string().min(10).max(500),
   imageKeys: z.array(z.string()),
   imageUrls: z.array(z.string()),
-  productFiles: z.array(z.string()),
+  productFileUrls: z.array(z.string()),
   productFileKeys: z.array(z.string()),
 });
 

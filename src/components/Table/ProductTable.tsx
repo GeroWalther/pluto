@@ -43,7 +43,8 @@ interface colType {
   updatedAt: string;
   imageKeys: string[];
   imageUrls: string[];
-  productFiles: string[];
+  productFileUrls: string[];
+  productFileKeys: string[];
 }
 
 const ProductTable = ({ data }: { data: colType[] | undefined }) => {
