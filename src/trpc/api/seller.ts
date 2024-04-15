@@ -12,7 +12,7 @@ export const sellerRouter = router({
   deleteUploadedFile: privateProcedure
     .input(z.array(z.string()))
     .mutation(async ({ input, ctx }) => {
-      return await deleteFileController(input, ctx.user);
+      return await deleteFileController(input, true);
     }),
   uploadProduct: privateProcedure
     .input(uploadSchema)

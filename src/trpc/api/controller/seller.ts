@@ -1,19 +1,42 @@
 import prisma from '@/db/db';
-import { countAllProductsFromAUser } from '@/db/prisma.product';
+import { countAllProductsFromAUser, deleteProduct } from '@/db/prisma.product';
 
 import { TRPCError } from '@trpc/server';
 import type { User } from 'next-auth';
 import { UTApi } from 'uploadthing/server';
 
-// delete file from the server
-export async function deleteFileController(file: string[], user: User) {
+// delete file from the server --
+export async function deleteFileController(
+  input: string[],
+  deleteUploaded: boolean
+) {
   const utapi = new UTApi();
-  const deleted = await utapi.deleteFiles(file);
 
-  if (!deleted) {
+  if (deleteUploaded) {
+    const deleted = await utapi.deleteFiles(input);
+
+    if (!deleted) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'File not found',
+      });
+    }
+
+    if (!deleted) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'File not found',
+      });
+    }
+    return 'File deleted';
+  }
+
+  const deletedProduct = await deleteProduct(input[0]);
+
+  if (!deletedProduct) {
     throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'File not found',
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Something went wrong in the server while deleting the product',
     });
   }
 
@@ -105,7 +128,7 @@ export async function createProductController(
   }
 
   //return
-  return `you got these from trpc: ${description}, ${name}, ${price}, ${imageUrls},`;
+  return `you got these from trpc: ${description}, ${name}, ${price}, ${imageUrls}`;
 }
 
 // Get all Products
