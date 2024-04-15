@@ -12,7 +12,7 @@ export const sellerRouter = router({
   deleteUploadedFile: privateProcedure
     .input(z.array(z.string()))
     .mutation(async ({ input, ctx }) => {
-      return await deleteFileController(input, ctx.user, true);
+      return await deleteFileController(input, true);
     }),
   uploadProduct: privateProcedure
     .input(uploadSchema)
@@ -39,8 +39,8 @@ export const sellerRouter = router({
   }),
   deleteProduct: privateProcedure
     .input(z.string())
-    .mutation(async ({ input, ctx }) => {
-      const response = await deleteFileController([input], ctx.user, false);
+    .mutation(async ({ input }) => {
+      const response = await deleteFileController([input], false);
       return response;
     }),
 });
