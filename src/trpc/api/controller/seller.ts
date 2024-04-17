@@ -32,8 +32,18 @@ export async function deleteFileController(
   }
 
   const deletedProduct = await deleteProduct(input[0]);
-  await utapi.deleteFiles(deletedProduct.imageKeys);
-  await utapi.deleteFiles(deletedProduct.productFileKeys);
+
+  const fileKeys = deletedProduct.productFileKeys;
+  const imageKeys = deletedProduct.imageKeys;
+
+  const deleteUTAPI = await utapi.deleteFiles([...fileKeys, ...imageKeys]);
+
+  if (!deleteUTAPI) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: 'File not found',
+    });
+  }
 
   if (!deletedProduct) {
     throw new TRPCError({
