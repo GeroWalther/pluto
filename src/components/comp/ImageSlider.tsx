@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { Pagination } from 'swiper/modules';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 interface ImageSliderProps {
   urls: string[];
@@ -16,6 +17,8 @@ interface ImageSliderProps {
 const ImageSlider = ({ urls }: ImageSliderProps) => {
   const [swiper, setSwiper] = useState<null | SwiperType>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  console.log(urls);
 
   const [slideConfig, setSlideConfig] = useState({
     isBeginning: true,
@@ -34,7 +37,7 @@ const ImageSlider = ({ urls }: ImageSliderProps) => {
 
   const activeStyles =
     'active:scale-[0.97] grid opacity-100 hover:scale-105 absolute top-1/2 -translate-y-1/2 aspect-square h-8 w-8 z-50 place-items-center rounded-full border-2 bg-white border-stone-300';
-  const inactiveStyles = 'hidden text-stone-400';
+  const inactiveStyles = ' text-stone-400';
 
   return (
     <div className='group relative bg-stone-100 aspect-square overflow-hidden rounded-xl'>
@@ -85,7 +88,7 @@ const ImageSlider = ({ urls }: ImageSliderProps) => {
               // loading='eager'
               className='-z-10 h-full w-full object-cover object-center'
               src={url}
-              alt='Product image'
+              alt={`Product image`}
             />
           </SwiperSlide>
         ))}

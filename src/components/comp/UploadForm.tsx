@@ -169,7 +169,7 @@ export default function UploadForm({
             </span>
           </p>
           {prodFile.map((file) => (
-            <div key={file} className='flex gap-2 my-2'>
+            <div key={file} className='flex gap-2 my-4'>
               <File />
               <Link href={file.toString()} target='_blank'>
                 uploaded file
@@ -240,8 +240,6 @@ export default function UploadForm({
           </p>
 
           <ImageSlider urls={imageUrls} />
-
-          {/* <img className='h-34 w-34' src={imageUrls[0]} alt='product image' /> */}
 
           <div>
             <Button type='button' variant='destructive' onClick={deleteImage}>
