@@ -12,9 +12,10 @@ import Image from 'next/image';
 
 interface ImageSliderProps {
   urls: string[];
+  alt: string;
 }
 
-const ImageSlider = ({ urls }: ImageSliderProps) => {
+const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
   const [swiper, setSwiper] = useState<null | SwiperType>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -88,7 +89,7 @@ const ImageSlider = ({ urls }: ImageSliderProps) => {
               // loading='eager'
               className='-z-10 h-full w-full object-cover object-center'
               src={url}
-              alt={`Product image`}
+              alt={alt}
             />
           </SwiperSlide>
         ))}
