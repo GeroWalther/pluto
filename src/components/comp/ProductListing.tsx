@@ -1,12 +1,23 @@
 'use client';
-
-import { Product } from '@/payload-types';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { cn, formatPrice } from '@/lib/utils';
 import { PRODUCT_CATEGORIES } from '@/config';
-import { Skeleton } from '../ui/skeleton';
 import ImageSlider from './ImageSlider';
+import { Skeleton } from '../ui/skeleton';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageKeys: string[];
+  imageUrls: string[];
+  productFileUrls: string[];
+  productFileKeys: string[];
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  category: string;
+}
 
 interface ProductListingProps {
   product: Product | null;
@@ -30,8 +41,8 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
     ({ value }) => value === product.category
   )?.label;
 
-  const validUrls = product.images
-    .map(({ image }) =>
+  const validUrls = product.imageUrls
+    .map(({ image }: any) =>
       typeof image === 'string' ? image : image && image.url ? image.url : null
     )
     .filter(Boolean) as string[];
@@ -44,7 +55,7 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
         })}
         href={`/product/${product.id}`}>
         <div className='flex flex-col w-full'>
-          <ImageSlider urls={validUrls} />
+          <ImageSlider urls={validUrls} alt={`${product.name}'s image`} />
 
           <h3 className='mt-4 font-medium text-sm text-stone-700'>
             {product.name}
