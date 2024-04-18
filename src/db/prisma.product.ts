@@ -80,3 +80,12 @@ export const countAllProductsFromAUser = async (id: string) => {
   });
   return productsCount;
 };
+
+export const getAllPendingProducts = async () => {
+  const pendingProds = await prisma.product.findMany({
+    where: {
+      status: 'PENDING',
+    },
+  });
+  return pendingProds;
+};
