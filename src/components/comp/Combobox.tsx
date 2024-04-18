@@ -2,7 +2,7 @@ import React from "react";
 
 const values = [
   { endPoint: "imageUploader", label: "Image (PGN, JPEG)" },
-  { endPoint: "svnUploader", label: "SVN" },
+  { endPoint: "svgUploader", label: "SVG" },
   { endPoint: "pdfUploader", label: "PDF" },
   { endPoint: "ttfFontUploader", label: "ttf" },
   { endPoint: "otfFontUploader", label: "otf" },
