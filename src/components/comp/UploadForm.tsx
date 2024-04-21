@@ -240,7 +240,11 @@ export default function UploadForm({
             </span>
           </p>
 
+<<<<<<< HEAD
           <ImageSlider urls={imageUrls} alt="uploaded image" />
+=======
+          <ImageSlider urls={imageUrls} alt='uploaded product image' />
+>>>>>>> af62316b6c085750ac9a09e4cd9246b001edfd79
 
           <div>
             <Button type="button" variant="destructive" onClick={deleteImage}>

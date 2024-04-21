@@ -8,13 +8,13 @@ import { Button } from '../ui/button';
 
 export default function TestUploadThing() {
   const [urls, setUrls] = useState<string[]>([]);
-  const [fileKeys, setFileKeys] = useState<string[]>([]);
+  const [fileKeys, setFileKeys] = useState<string>();
 
-  const { mutate: deleteAll } = trpc.seller.deleteAllUploadedFiles.useMutation({
+  const { mutate: deleteAll } = trpc.seller.deleteProduct.useMutation({
     onSuccess: (data) => {
       setUrls([]);
-      setFileKeys([]);
-      toast.success(data);
+      setFileKeys('');
+      toast.success('success');
     },
     onError: () => {
       toast.error('Error deleting file');
@@ -37,7 +37,7 @@ export default function TestUploadThing() {
         endpoint='imageUploader'
         onClientUploadComplete={(res) => {
           setUrls(res.map((r) => r.url));
-          setFileKeys(res.map((r) => r.key));
+          // setFileKeys(res.map((k) => k[0])[0]);
         }}
         onUploadError={(error) => {
           toast.error(error.message);
@@ -46,8 +46,8 @@ export default function TestUploadThing() {
 
       {urls.length >= 0 && (
         <div>
-          <ImageSlider urls={urls} />
-          <Button onClick={() => deleteAll(fileKeys)}>Delete all</Button>
+          {/* <ImageSlider urls={urls} alt='test'/>
+          <Button onClick={() => deleteAll(fileKeys)}>Delete all</Button> */}
         </div>
       )}
     </form>
