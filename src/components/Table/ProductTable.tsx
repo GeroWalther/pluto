@@ -93,7 +93,7 @@ const ProductTable = ({ data }: { data: colType[] | undefined }) => {
                   {p.status}
                 </span>
               </TableCell>
-              <TableCell>{p.price}</TableCell>
+              <TableCell>${p.price}</TableCell>
               {p.imageUrls[0] ? (
                 <TableCell className='text-right'>
                   <img

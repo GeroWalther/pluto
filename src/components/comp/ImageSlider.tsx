@@ -19,8 +19,6 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
   const [swiper, setSwiper] = useState<null | SwiperType>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  console.log(urls);
-
   const [slideConfig, setSlideConfig] = useState({
     isBeginning: true,
     isEnd: activeIndex === (urls.length ?? 0) - 1,

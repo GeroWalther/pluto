@@ -54,7 +54,7 @@ export default function SellerDashboard({ user }: { user: User }) {
                   'flex items-center gap-3 rounded-lg  px-3 py-2 text-primary transition-all hover:text-primary',
                   state.showProducts && 'text-primary bg-muted'
                 )}>
-                <Package className='h-4 w-4' /> Products{' '}
+                <Package className='h-4 w-4' /> <span>Products</span>
               </button>
               <button
                 onClick={() => dispatch({ type: 'SHOW_SALES' })}
@@ -62,7 +62,7 @@ export default function SellerDashboard({ user }: { user: User }) {
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                   state.showSales && 'text-primary bg-muted'
                 )}>
-                <BadgeDollarSign className='h-5 w-5' /> Sales
+                <BadgeDollarSign className='h-4 w-4' /> <span>Sales</span>
               </button>
             </nav>
           </div>
@@ -85,25 +85,30 @@ export default function SellerDashboard({ user }: { user: User }) {
             <SheetContent side='left' className='flex flex-col'>
               <nav className='grid gap-2 text-lg font-medium'>
                 <p className='flex items-center gap-5 text-lg font-semibold mb-4'>
-                  <Package2 />{' '}
+                  <Package2 />
                   <span className=' font-bold text-lg uppercase'>
-                    {' '}
-                    {user.name}{' '}
+                    {user.name}
                   </span>
                 </p>
                 <button
                   onClick={() => dispatch({ type: 'SHOW_PRODUCTS' })}
-                  className='mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground'>
-                  <Package className='h-5 w-5' /> Products
+                  className={cn(
+                    'mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground',
+                    state.showProducts && 'text-primary bg-muted'
+                  )}>
+                  <Package className='h-5 w-5' /> <span>Products</span>
                 </button>
                 <button
                   onClick={() => dispatch({ type: 'SHOW_SALES' })}
-                  className='mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground'>
-                  <BadgeDollarSign className='h-5 w-5' /> Sales
-                  <Badge className='ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full'>
+                  className={cn(
+                    'mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground',
+                    state.showSales && 'text-primary bg-muted'
+                  )}>
+                  <BadgeDollarSign className='h-5 w-5' /> <span>Sales</span>
+                  {/* <Badge className='ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full'>
                     {' '}
                     6{' '}
-                  </Badge>
+                  </Badge> */}
                 </button>
               </nav>
               <IsProAd />
