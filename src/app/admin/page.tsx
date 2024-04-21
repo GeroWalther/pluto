@@ -1,16 +1,13 @@
-import Admindashboard from '@/components/dashboard/Admindashboard';
-import { serverCaller } from '@/trpc';
-import React from 'react';
-import { redirect } from 'next/navigation';
+import Admindashboard from "@/components/dashboard/Admindashboard";
+import { authOptions } from "@/lib/auth";
+import { serverCaller } from "@/trpc";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export default async function page() {
-  const isAdmin = await serverCaller.auth.approvalDashboard();
-  if (!isAdmin) {
-    redirect('/');
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user.role) {
+    return redirect("/");
   }
-  return (
-    <>
-      <Admindashboard />
-    </>
-  );
+  return <Admindashboard />;
 }
