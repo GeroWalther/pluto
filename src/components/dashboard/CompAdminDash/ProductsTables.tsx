@@ -23,6 +23,7 @@ import {
   DialogTrigger,
 } from '../../ui/dialog';
 import { format } from 'date-fns';
+import Loader from '@/components/Loader/Loader';
 
 export default function Admindashboard() {
   const [open, setOpen] = useState(false);
@@ -39,8 +40,18 @@ export default function Admindashboard() {
     },
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError || data == undefined) return <div>Error</div>;
+  if (isLoading)
+    return (
+      <div className='flex justify-center items-center h-full'>
+        <Loader />
+      </div>
+    );
+  if (isError || data == undefined)
+    return (
+      <div>
+        <p className='text-red-400'>Something went wrong...</p>
+      </div>
+    );
 
   return (
     <Table className='m-2'>
