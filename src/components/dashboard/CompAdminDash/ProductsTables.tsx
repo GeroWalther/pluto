@@ -25,7 +25,7 @@ import {
 import { format } from 'date-fns';
 import Loader from '@/components/Loader/Loader';
 
-export default function Admindashboard() {
+export default function ProductsTables() {
   const [open, setOpen] = useState(false);
   const { data, isError, isLoading } = trpc.admin.getPendingProducts.useQuery();
   const q = useQueryClient();
@@ -123,7 +123,10 @@ export default function Admindashboard() {
             <TableCell className='text-left flex gap-2'>
               <Button
                 className='bg-green-500'
-                onClick={() => mutate({ id: p.id, updateString: 'APPROVED' })}>
+                onClick={() => {
+                  console.log({ id: p.id, updateString: 'APPROVED' });
+                  mutate({ id: p.id, updateString: 'APPROVED' });
+                }}>
                 Approve
               </Button>
               <Button
