@@ -1,6 +1,5 @@
 // 'use client';
 
-import { trpc } from '@/trpc/client';
 import { MoreVertical, Pen, Trash2 } from 'lucide-react';
 
 import { Button } from '../ui/button';
@@ -21,16 +20,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
+
 import { useState } from 'react';
-import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import DeleteDialog from './Dialogs/DeleteDialog';
 
 interface colType {
   name: string;
@@ -50,21 +42,6 @@ interface colType {
 const ProductTable = ({ data }: { data: colType[] | undefined }) => {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState('');
-
-  const queryClient = useQueryClient();
-
-  const { mutate: deleteProductInDB } = trpc.seller.deleteProduct.useMutation({
-    onSuccess: () => {
-      toast.success('Product deleted successfully!');
-      setOpen(false);
-      setDeleteId('');
-      queryClient.invalidateQueries();
-    },
-    onError: (error) => {
-      toast.error('Error deleting product');
-      console.error(error);
-    },
-  });
 
   return (
     <div>
@@ -128,7 +105,7 @@ const ProductTable = ({ data }: { data: colType[] | undefined }) => {
                         <Trash2 color='red' className='h-4 w-4' />
                       </button>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {/* <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className='bg-red flex justify-between items-center'
                       onClick={() => {
@@ -138,35 +115,19 @@ const ProductTable = ({ data }: { data: colType[] | undefined }) => {
                         Edit
                       </span>
                       <Pen color='blue' className='h-4 w-4' />
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className='w-full overflow-y-scroll max-h-screen'>
-            <DialogHeader>
-              <DialogTitle className='font-bold text-red-500'>
-                Product deletion
-              </DialogTitle>
-            </DialogHeader>
-            <DialogDescription className='font-semibold text-stone-700'>
-              <p>
-                Do you really want to delete this product from your inventory?
-              </p>
-            </DialogDescription>
-            <Button
-              variant='destructive'
-              onClick={() => {
-                deleteProductInDB(deleteId);
-              }}>
-              <span className='text-white font-semibold mr-2'>Delete</span>
-              <Trash2 color='white' className='h-4 w-4' />
-            </Button>
-          </DialogContent>
-        </Dialog>
+        <DeleteDialog
+          open={open}
+          setOpen={setOpen}
+          deleteId={deleteId}
+          setDeleteId={setDeleteId}
+        />
       </Table>
     </div>
   );

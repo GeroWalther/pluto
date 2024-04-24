@@ -24,6 +24,7 @@ import {
 } from '../ui/dialog';
 import { format } from 'date-fns';
 import Loader from '@/components/Loader/Loader';
+import DeleteDialog from './Dialogs/DeleteDialog';
 
 export interface dataType {
   status: 'APPROVED' | 'PENDING' | 'REJECTED';
@@ -53,7 +54,9 @@ export default function AdminTable({
   isLoading,
   update = false,
 }: propType) {
-  const [o, setOpen] = useState(false);
+  const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState('');
   const q = useQueryClient();
   const { mutate } = trpc.admin.updatePendingProducts.useMutation({
     onSuccess: () => {
@@ -65,8 +68,6 @@ export default function AdminTable({
       console.log(err);
     },
   });
-
-  // trpc delete product from DB and uploadThing
 
   if (isLoading)
     return (
@@ -130,7 +131,9 @@ export default function AdminTable({
               <TableCell className='text-left'>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant='outline' onClick={() => setOpen(true)}>
+                    <Button
+                      variant='outline'
+                      onClick={() => setOpenDescriptionModal(true)}>
                       See Description
                     </Button>
                   </DialogTrigger>
@@ -154,7 +157,7 @@ export default function AdminTable({
                 {update ? (
                   <>
                     <Button
-                      className='bg-green-500'
+                      className='bg-green-600  text-stone-100'
                       onClick={() => {
                         console.log({ id: p.id, updateString: 'APPROVED' });
                         mutate({ id: p.id, updateString: 'APPROVED' });
@@ -162,7 +165,7 @@ export default function AdminTable({
                       Approve
                     </Button>
                     <Button
-                      className='bg-red-500'
+                      className='bg-red-600  text-stone-100'
                       onClick={() =>
                         mutate({ id: p.id, updateString: 'REJECTED' })
                       }>
@@ -173,15 +176,22 @@ export default function AdminTable({
                   <Button
                     className='bg-red-600 py-1 px-3'
                     onClick={() => {
-                      console.log('del clicked!!');
+                      setOpenDeleteModal(true);
+                      setDeleteId(p.id);
                     }}>
-                    <Trash2 className='w-4 h-4' />
+                    <Trash2 className='w-4 h-4 text-stone-100' />
                   </Button>
                 )}
               </TableCell>
             </TableRow>
           ))}
       </TableBody>
+      <DeleteDialog
+        open={openDeleteModal}
+        setOpen={setOpenDeleteModal}
+        deleteId={deleteId}
+        setDeleteId={setDeleteId}
+      />
     </Table>
   );
 }
