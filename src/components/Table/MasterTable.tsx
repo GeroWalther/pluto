@@ -1,7 +1,14 @@
 'use client';
 import { trpc } from '@/trpc/client';
 import React, { useState } from 'react';
-
+import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -11,7 +18,12 @@ import {
   TableRow,
 } from '../ui/table';
 import { Button } from '../ui/button';
-import { FileInput, PictureInPicture2Icon, Trash2 } from 'lucide-react';
+import {
+  FileInput,
+  MoreVertical,
+  PictureInPicture2Icon,
+  Trash2,
+} from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -25,6 +37,7 @@ import {
 import { format } from 'date-fns';
 import Loader from '@/components/Loader/Loader';
 import DeleteDialog from './Dialogs/DeleteDialog';
+import { cn } from '@/lib/utils';
 
 export interface dataType {
   status: 'APPROVED' | 'PENDING' | 'REJECTED';
@@ -43,9 +56,10 @@ export interface dataType {
 
 interface propType {
   data: dataType[] | undefined;
-  isError: boolean;
-  isLoading: boolean;
+  isError?: boolean;
+  isLoading?: boolean;
   update?: boolean;
+  seller?: boolean;
 }
 
 export default function AdminTable({
@@ -53,6 +67,7 @@ export default function AdminTable({
   isError,
   isLoading,
   update = false,
+  seller = false,
 }: propType) {
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -79,6 +94,95 @@ export default function AdminTable({
     return (
       <div>
         <p className='text-red-400'>Something went wrong...</p>
+      </div>
+    );
+  if (seller)
+    return (
+      <div>
+        <Table>
+          <TableHeader>
+            <TableHead>Product Name</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead>Image</TableHead>
+            <TableHead className='w-20'></TableHead>
+          </TableHeader>
+          <TableBody>
+            {data?.map((p) => (
+              <TableRow key={p.id}>
+                <TableCell>{p.name}</TableCell>
+                <TableCell>
+                  <span
+                    className={cn(
+                      p.status === 'APPROVED'
+                        ? 'bg-green-500'
+                        : p.status === 'PENDING'
+                        ? 'bg-stone-400'
+                        : 'bg-red-600',
+                      'p-2 text-stone-50 rounded-full text-[10px]'
+                    )}>
+                    {p.status}
+                  </span>
+                </TableCell>
+                <TableCell>${p.price}</TableCell>
+                {p.imageUrls[0] ? (
+                  <TableCell className='text-right'>
+                    <img
+                      className='h-10 w-10'
+                      src={p.imageUrls[0]}
+                      alt={p.name}
+                    />
+                  </TableCell>
+                ) : (
+                  <TableCell className='text-right'>
+                    <Image height={50} width={50} src='/eis.jpg' alt={p.name} />
+                  </TableCell>
+                )}
+                <TableCell className='text-right'>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant='ghost' className=' ml-auto h-8 w-8 p-0'>
+                        <MoreVertical className='h-4 w-4' />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end'>
+                      <DropdownMenuItem>
+                        <button
+                          onClick={() => {
+                            setOpenDeleteModal(true);
+                            setDeleteId(p.id);
+                          }}
+                          className='flex justify-between items-center w-full'>
+                          <span className='text-red-500 font-semibold '>
+                            Delete
+                          </span>
+                          <Trash2 color='red' className='h-4 w-4' />
+                        </button>
+                      </DropdownMenuItem>
+                      {/* <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className='bg-red flex justify-between items-center'
+                onClick={() => {
+                  alert('Clñickkced!!');
+                }}>
+                <span className='text-stone-600 font-semibold '>
+                  Edit
+                </span>
+                <Pen color='blue' className='h-4 w-4' />
+              </DropdownMenuItem> */}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <DeleteDialog
+            open={openDeleteModal}
+            setOpen={setOpenDeleteModal}
+            deleteId={deleteId}
+            setDeleteId={setDeleteId}
+          />
+        </Table>
       </div>
     );
 

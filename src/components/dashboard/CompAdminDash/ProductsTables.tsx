@@ -1,7 +1,7 @@
 'use client';
 import { trpc } from '@/trpc/client';
 
-import AdminTable from '@/components/Table/AdminTable';
+import AdminTable from '@/components/Table/MasterTable';
 
 export default function ProductsTables() {
   const {
