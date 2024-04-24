@@ -65,6 +65,17 @@ export const updateProduct = async (
   return product;
 };
 
+export const updateProductStatus = async (
+  id: string,
+  updateString: 'APPROVED' | 'REJECTED'
+) =>
+  prisma.product.update({
+    where: { id },
+    data: {
+      status: updateString,
+    },
+  });
+
 // DELETE
 export const deleteProduct = async (id: string) => {
   const product = await prisma.product.delete({
@@ -88,4 +99,20 @@ export const getAllPendingProducts = async () => {
     },
   });
   return pendingProds;
+};
+export const getApprovedProducts = async () => {
+  const approvedProducts = await prisma.product.findMany({
+    where: {
+      status: 'APPROVED',
+    },
+  });
+  return approvedProducts;
+};
+export const getRejectedProducts = async () => {
+  const rejectedProducts = await prisma.product.findMany({
+    where: {
+      status: 'REJECTED',
+    },
+  });
+  return rejectedProducts;
 };

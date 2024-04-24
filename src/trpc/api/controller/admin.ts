@@ -1,5 +1,10 @@
 import prisma from '@/db/db';
-import { getAllPendingProducts, updateProduct } from '@/db/prisma.product';
+import {
+  getAllPendingProducts,
+  getApprovedProducts,
+  getRejectedProducts,
+  updateProductStatus,
+} from '@/db/prisma.product';
 import { TRPCError } from '@trpc/server';
 
 export async function getPendingProductsController() {
@@ -22,6 +27,45 @@ export async function getPendingProductsController() {
   return pendingProds;
 }
 
+export async function getApprovedProductsController() {
+  const approvedProducts = await getApprovedProducts();
+
+  if (!approvedProducts) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Problem getting pending products',
+    });
+  }
+
+  if (approvedProducts.length === 0) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: 'No pending products found',
+    });
+  }
+
+  return approvedProducts;
+}
+export async function getRejectedProductsController() {
+  const rejectedProducts = await getRejectedProducts();
+
+  if (!rejectedProducts) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Problem getting pending products',
+    });
+  }
+
+  if (rejectedProducts.length === 0) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: 'No pending products found',
+    });
+  }
+
+  return rejectedProducts;
+}
+
 export async function updatePendingProductController(
   id: string,
   updateString: string
@@ -40,12 +84,7 @@ export async function updatePendingProductController(
   }
 
   // Update product in DB
-  const updatedProduct = await prisma.product.update({
-    where: { id },
-    data: {
-      status: updateString,
-    },
-  });
+  const updatedProduct = await updateProductStatus(id, updateString);
 
   if (!updatedProduct) {
     throw new TRPCError({

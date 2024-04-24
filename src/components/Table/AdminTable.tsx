@@ -66,6 +66,8 @@ export default function AdminTable({
     },
   });
 
+  // trpc delete product from DB and uploadThing
+
   if (isLoading)
     return (
       <div className='flex justify-center items-center h-full'>

@@ -10,11 +10,45 @@ export default function ProductsTables() {
     isLoading: isLoadingPending,
   } = trpc.admin.getPendingProducts.useQuery();
 
+  const {
+    data: approvedData,
+    isError: approvedErr,
+    isLoading: isLoadingApproved,
+  } = trpc.admin.getApprovedProducts.useQuery();
+
+  const {
+    data: rejectedData,
+    isError: rejectedErr,
+    isLoading: isLoadingRejected,
+  } = trpc.admin.getRejectedProducts.useQuery();
+
   return (
-    <AdminTable
-      data={pendingData}
-      isError={pendingErr}
-      isLoading={isLoadingPending}
-    />
+    <section className='flex-col'>
+      <div className='mb-16'>
+        <h3 className='font-medium text-stone-600 '>Pending Products</h3>
+        <AdminTable
+          data={pendingData}
+          isError={pendingErr}
+          isLoading={isLoadingPending}
+          update={true}
+        />
+      </div>
+      <div className='mb-16'>
+        <h3 className='font-medium text-stone-600 '>Approved Products</h3>
+        <AdminTable
+          data={approvedData}
+          isError={approvedErr}
+          isLoading={isLoadingApproved}
+        />
+      </div>
+      <div>
+        <h3 className='font-medium text-stone-600 '>Rejected Products</h3>
+        <AdminTable
+          data={rejectedData}
+          isError={rejectedErr}
+          isLoading={isLoadingRejected}
+        />
+      </div>
+    </section>
   );
 }
