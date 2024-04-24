@@ -23,7 +23,7 @@ export default function ProductsTables() {
   } = trpc.admin.getRejectedProducts.useQuery();
 
   return (
-    <section className='flex-col'>
+    <section>
       <div className='mb-16'>
         <h3 className='font-medium text-stone-600 '>Pending Products</h3>
         <AdminTable
