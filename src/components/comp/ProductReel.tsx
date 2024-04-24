@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { TQueryValidator } from "@/lib/validators/query-validator";
-import Link from "next/link";
-//import { trpc } from '@/trpc/client';
+import { TQueryValidator } from '@/lib/validators/query-validator';
+import Link from 'next/link';
+import { trpc } from '@/trpc/client';
 //import { Product } from '@/payload-types';
-import ProductListing from "./ProductListing";
+import ProductListing from './ProductListing';
 
 interface ProductReelProps {
   title: string;
@@ -40,30 +40,29 @@ const ProductReel = (props: ProductReelProps) => {
   // }
 
   return (
-    <section className="py-12">
-      <div className="md:flex md:items-center md:justify-between mb-4">
-        <div className="max-w-2xl px-4 lg:max-w-4xl lg:px-0">
+    <section className='py-12'>
+      <div className='md:flex md:items-center md:justify-between mb-4'>
+        <div className='max-w-2xl px-4 lg:max-w-4xl lg:px-0'>
           {title ? (
-            <h1 className="font-bold text-stone-900 sm:text-xl">{title}</h1>
+            <h1 className='font-bold text-stone-900 sm:text-xl'>{title}</h1>
           ) : null}
           {subtitle ? (
-            <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+            <p className='mt-2 text-sm text-muted-foreground'>{subtitle}</p>
           ) : null}
         </div>
 
         {href ? (
           <Link
             href={href}
-            className="hidden text-sm font-medium text-blue-600 hover:text-blue-500 md:block"
-          >
-            Shop the collection <span aria-hidden="true">&rarr;</span>
+            className='hidden text-sm font-medium text-blue-600 hover:text-blue-500 md:block'>
+            Shop the collection <span aria-hidden='true'>&rarr;</span>
           </Link>
         ) : null}
       </div>
 
-      <div className="relative">
-        <div className="mt-6 flex items-center w-full">
-          <div className="w-full grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-10 lg:gap-x-8">
+      <div className='relative'>
+        <div className='mt-6 flex items-center w-full'>
+          <div className='w-full grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-10 lg:gap-x-8'>
             {/* {map.map((product, i) => (
               //@ts-ignore
               <ProductListing
