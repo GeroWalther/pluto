@@ -7,9 +7,9 @@ import { PRODUCT_CATEGORIES } from '@/config';
 import { formatPrice } from '@/lib/utils';
 import { Check, Shield } from 'lucide-react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 
 import prisma from '@/db/db';
+import { ShareLink } from '@/components/comp/ShareLink';
 
 interface PageProps {
   params: {
@@ -23,20 +23,6 @@ const BREADCRUMPS = [
 
 export default async function page({ params }: PageProps) {
   const { productId } = params;
-
-  // const payload = await getPayloadClient();
-  // const { docs: products } = await payload.find({
-  //   collection: 'products',
-  //   limit: 1,
-  //   where: {
-  //     id: {
-  //       equals: productId,
-  //     },
-  //     approvedForSale: {
-  //       equals: 'approved',
-  //     },
-  //   },
-  // });
 
   const product = await prisma.product.findFirst({
     where: {
@@ -127,6 +113,9 @@ export default async function page({ params }: PageProps) {
         {/* add to cart part */}
         <div className='mt-10 lg:col-start-1 lg:row-start-2 lg:max-w-lg lg:self-start'>
           <div>
+            <ShareLink
+              link={`${process.env.NEXT_PUBLIC_SERVER_URL}/product/${productId}`}
+            />
             <div className='mt-10'>
               <AddToCartButton product={product} />
             </div>
@@ -137,7 +126,7 @@ export default async function page({ params }: PageProps) {
                   className='mr-2 h-5 w-5 flex-shrink-0 text-stone-400'
                 />
                 <span className='text-muted-foreground hover:text-stone-700'>
-                  30 Day Return Guarantee
+                  Customer Service available
                 </span>
               </div>
             </div>
