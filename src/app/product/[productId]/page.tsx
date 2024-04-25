@@ -7,6 +7,7 @@ import { PRODUCT_CATEGORIES } from '@/config';
 import { formatPrice } from '@/lib/utils';
 import { Check, Shield } from 'lucide-react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import prisma from '@/db/db';
 import { ShareLink } from '@/components/comp/ShareLink';
