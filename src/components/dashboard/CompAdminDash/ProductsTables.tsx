@@ -7,7 +7,6 @@ export default function ProductsTables() {
   const {
     data: pendingData,
     isError: pendingErr,
-    error: pendingError,
     isLoading: isLoadingPending,
   } = trpc.admin.getPendingProducts.useQuery();
 
