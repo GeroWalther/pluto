@@ -1,26 +1,27 @@
-"use client";
-import React from "react";
+'use client';
+import React from 'react';
 
-import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
-import { trpc } from "@/trpc/client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { File } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { Button, buttonVariants } from "../ui/button";
-import { Combobox } from "./Combobox";
+import { UploadButton, UploadDropzone } from '@/lib/uploadthing';
+import { trpc } from '@/trpc/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { File } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { Button, buttonVariants } from '../ui/button';
+import { Combobox } from './Combobox';
 
-import { useQueryClient } from "@tanstack/react-query";
-import { Separator } from "../ui/separator";
-import ImageSlider from "./ImageSlider";
+import { useQueryClient } from '@tanstack/react-query';
+import { Separator } from '../ui/separator';
+import ImageSlider from './ImageSlider';
 
 const schema = z.object({
   name: z.string(),
   price: z.string(),
   description: z.string(),
+  category: z.string(),
 });
 
 type FormFields = z.infer<typeof schema>;
@@ -38,18 +39,18 @@ export default function UploadForm({
   const queryClient = useQueryClient();
 
   const [value, setValue] = useState<
-    | "imageUploader"
-    | "pdfUploader"
-    | "ttfFontUploader"
-    | "otfFontUploader"
-    | "markdownUploader"
-    | "jsonUploader"
-    | "javascriptUploader"
-    | "svgUploader"
-    | "epubUploader"
-    | "mobiUploader"
-    | "txtUploader"
-  >("imageUploader");
+    | 'imageUploader'
+    | 'pdfUploader'
+    | 'ttfFontUploader'
+    | 'otfFontUploader'
+    | 'markdownUploader'
+    | 'jsonUploader'
+    | 'javascriptUploader'
+    | 'svgUploader'
+    | 'epubUploader'
+    | 'mobiUploader'
+    | 'txtUploader'
+  >('imageUploader');
 
   const { mutate: onDelete } = trpc.seller.deleteUploadedFile.useMutation({
     onSuccess: (data) => {
@@ -67,10 +68,10 @@ export default function UploadForm({
   const { mutate: uploadProduct } = trpc.seller.uploadProduct.useMutation({
     onError: (err) => {
       toast.error(err.message);
-      console.log("ERROR: ", err.message);
+      console.log('ERROR: ', err.message);
     },
     onSuccess: (success) => {
-      toast.success("Product uploaded successfully!");
+      toast.success('Product uploaded successfully!');
       queryClient.invalidateQueries();
       setOpen(false);
     },
@@ -86,11 +87,11 @@ export default function UploadForm({
 
   const onSubmit = (data: FormFields) => {
     if (imageUrls.length <= 0) {
-      toast.error("Image required. Please upload an image.");
+      toast.error('Image required. Please upload an image.');
       return;
     }
     if (prodFile.length <= 0) {
-      toast.error("File required. Please upload a file.");
+      toast.error('File required. Please upload a file.');
       return;
     }
     uploadProduct({
@@ -101,6 +102,7 @@ export default function UploadForm({
       imageUrls,
       productFileUrls: prodFile,
       productFileKeys: prodFileKeys,
+      category: data.category,
     });
   };
 
@@ -113,72 +115,88 @@ export default function UploadForm({
 
   return (
     <form
-      className="grid items-start gap-4 mt-8"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <div className="grid gap-2 ">
-        <label htmlFor="productName" className=" text-sm text-stone-700">
+      className='grid items-start gap-4 mt-8'
+      onSubmit={handleSubmit(onSubmit)}>
+      <div className='grid gap-2 '>
+        <label htmlFor='productName' className=' text-sm text-stone-700'>
           Product name
         </label>
         <input
-          type="text"
-          className="border border-stone-300 rounded-sm py-1 px-3"
-          id="productName"
-          {...register("name")}
+          type='text'
+          className='border border-stone-300 rounded-sm py-1 px-3'
+          id='productName'
+          {...register('name')}
         />
         {errors.name && (
-          <p className="text-sm text-red-500">{errors.name.message}</p>
+          <p className='text-sm text-red-500'>{errors.name.message}</p>
         )}
       </div>
-      <div className="grid gap-2">
-        <label htmlFor="price" className=" text-sm text-stone-700">
+      <div className='grid gap-2'>
+        <label htmlFor='price' className=' text-sm text-stone-700'>
           Price
         </label>
         <input
-          type="number"
-          id="price"
-          className="border border-stone-300 rounded-sm py-1 px-3"
-          {...register("price")}
+          type='number'
+          id='price'
+          className='border border-stone-300 rounded-sm py-1 px-3'
+          {...register('price')}
         />
         {errors.price && (
-          <p className="text-sm text-red-500">{errors.price.message}</p>
+          <p className='text-sm text-red-500'>{errors.price.message}</p>
+        )}
+      </div>
+      <div className='grid gap-2 '>
+        <label htmlFor='productName' className=' text-sm text-stone-700'>
+          Product category
+        </label>
+        <select
+          {...register('category')}
+          className='p-2 border border-stone-300 rounded-xl '>
+          <option value='EBook'>E-Book</option>
+          <option value='Font'>Font</option>
+          <option value='Image'>Image</option>
+          <option value='Icons'>Icons</option>
+          <option value='UiUx'>UI/UX designs</option>
+        </select>
+        {errors.name && (
+          <p className='text-sm text-red-500'>{errors.name.message}</p>
         )}
       </div>
       {/* Add other form fields here */}
-      <div className="grid gap-2">
-        <label htmlFor="description" className=" text-sm text-stone-700">
+      <div className='grid gap-2'>
+        <label htmlFor='description' className=' text-sm text-stone-700'>
           Description
         </label>
         <textarea
-          id="description"
-          className="border border-stone-300 rounded-sm py-1 px-3"
-          {...register("description")}
+          id='description'
+          className='border border-stone-300 rounded-sm py-1 px-3 text-stone-600'
+          {...register('description')}
         />
         {errors.description && (
-          <p className="text-sm text-red-500">{errors.description.message}</p>
+          <p className='text-sm text-red-500'>{errors.description.message}</p>
         )}
-        <Separator className="mt-6" />
+        <Separator className='mt-6' />
       </div>
 
       {prodFile.length > 0 ? (
         <>
-          <p className=" text-sm text-green-600 font-semibold mb-4">
+          <p className=' text-sm text-green-600 font-semibold mb-4'>
             Your File has been uploaded successfully and stored securely.
             <br />
-            <span className="text-muted-foreground font-semibold">
+            <span className='text-muted-foreground font-semibold'>
               ( You can upload more files or continue with the next step. )
             </span>
           </p>
           {prodFile.map((file) => (
-            <div key={file} className="flex gap-2 my-4">
+            <div key={file} className='flex gap-2 my-4'>
               <File />
-              <Link href={file.toString()} target="_blank">
+              <Link href={file.toString()} target='_blank'>
                 uploaded file
               </Link>
             </div>
           ))}
-          <div className="mt-2 mb-4">
-            <Button type="button" variant="destructive" onClick={deleteFile}>
+          <div className='mt-2 mb-4'>
+            <Button type='button' variant='destructive' onClick={deleteFile}>
               Delete
             </Button>
           </div>
@@ -194,7 +212,7 @@ export default function UploadForm({
                 ...res.map((r) => r.key),
               ]);
 
-              toast.success("uploaded successfully");
+              toast.success('uploaded successfully');
             }}
             onUploadError={(error) => {
               toast.error(error.message);
@@ -203,9 +221,9 @@ export default function UploadForm({
         </>
       ) : (
         <>
-          <p className="text-sm mt-8 font-semibold">
+          <p className='text-sm mt-8 font-semibold'>
             Next, please select a format and upload the file you wish to sale.
-            <span className="text-muted-foreground font-semibold">
+            <span className='text-muted-foreground font-semibold'>
               (Press upload after choosing a file.)
             </span>
           </p>
@@ -222,7 +240,7 @@ export default function UploadForm({
                 ...res.map((r) => r.key),
               ]);
 
-              toast.success("uploaded successfully");
+              toast.success('uploaded successfully');
             }}
             onUploadError={(error) => {
               toast.error(error.message);
@@ -230,25 +248,25 @@ export default function UploadForm({
           />
         </>
       )}
-      <Separator className="mt-6" />
+      <Separator className='mt-6' />
       {imageUrls.length > 0 ? (
         <>
-          <p className=" text-sm mt-8 text-green-600 font-semibold">
+          <p className=' text-sm mt-8 text-green-600 font-semibold'>
             Your shop image has been successfully uploaded. <br />
-            <span className="text-muted-foreground font-semibold">
+            <span className='text-muted-foreground font-semibold'>
               ( You can upload more files or continue with the next step. )
             </span>
           </p>
 
-          <ImageSlider urls={imageUrls} alt="uploaded product image" />
+          <ImageSlider urls={imageUrls} alt='uploaded product image' />
 
           <div>
-            <Button type="button" variant="destructive" onClick={deleteImage}>
+            <Button type='button' variant='destructive' onClick={deleteImage}>
               Delete
             </Button>
           </div>
           <UploadButton
-            endpoint="imageUploader"
+            endpoint='imageUploader'
             onClientUploadComplete={(res) => {
               setImageUrls((prevImageUrls) => [
                 ...prevImageUrls,
@@ -258,7 +276,7 @@ export default function UploadForm({
                 ...prevImageFileKeys,
                 ...res.map((r) => r.key),
               ]);
-              toast.success("uploaded successfully");
+              toast.success('uploaded successfully');
             }}
             onUploadError={(error) => {
               toast.error(error.message);
@@ -267,14 +285,14 @@ export default function UploadForm({
         </>
       ) : (
         <>
-          <p className=" text-sm mt-8 font-semibold">
+          <p className=' text-sm mt-8 font-semibold'>
             Finally select an image to display in the shop. <br />
-            <span className="text-muted-foreground font-semibold">
+            <span className='text-muted-foreground font-semibold'>
               (Press upload after choosing a file.)
             </span>
           </p>
           <UploadDropzone
-            endpoint="imageUploader"
+            endpoint='imageUploader'
             onClientUploadComplete={(res) => {
               setImageUrls((prevImageUrls) => [
                 ...prevImageUrls,
@@ -284,7 +302,7 @@ export default function UploadForm({
                 ...prevImageFileKeys,
                 ...res.map((r) => r.key),
               ]);
-              toast.success("uploaded successfully");
+              toast.success('uploaded successfully');
             }}
             onUploadError={(error) => {
               toast.error(error.message);
@@ -292,8 +310,8 @@ export default function UploadForm({
           />
         </>
       )}
-      <Separator className="my-6" />
-      <p className="text-xs text-stone-500">
+      <Separator className='my-6' />
+      <p className='text-xs text-stone-500'>
         * By clicking this submit button below you agree to our privacy policy
         and terms of conditions. <br />
         Check if everything is filled out correctly and submit your digital
@@ -301,13 +319,12 @@ export default function UploadForm({
         approved or rejected for sale.
       </p>
       <button
-        type="submit"
+        type='submit'
         className={buttonVariants({
-          variant: "default",
-          size: "lg",
-          className: "",
-        })}
-      >
+          variant: 'default',
+          size: 'lg',
+          className: '',
+        })}>
         Submit
       </button>
     </form>

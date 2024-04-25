@@ -64,6 +64,7 @@ export type createdProductInput = {
   imageUrls: string[];
   productFileUrls: string[];
   productFileKeys: string[];
+  category: string;
 };
 
 export async function createProductController(
@@ -78,6 +79,7 @@ export async function createProductController(
     imageUrls,
     productFileUrls,
     productFileKeys,
+    category,
   } = input;
   // check for possible wrong input and throw error msg
   if (
@@ -87,12 +89,13 @@ export async function createProductController(
     !name ||
     !price ||
     !imageUrls ||
-    !productFileUrls
+    !productFileUrls ||
+    !category
   ) {
     throw new TRPCError({
       code: 'UNPROCESSABLE_CONTENT',
       message:
-        'Must provide a product name, description, price, and at least one product image and a product file.',
+        'Must provide a product name, description, price, category, at least one product image and a product file.',
     });
   }
 
@@ -131,6 +134,7 @@ export async function createProductController(
       productFileUrls: [...productFileUrls],
       productFileKeys: [...productFileKeys],
       price,
+      category,
       user: {
         connect: {
           id: ctx.id,
@@ -138,8 +142,6 @@ export async function createProductController(
       },
     },
   });
-
-  console.log(newProduct);
 
   if (!newProduct) {
     throw new TRPCError({

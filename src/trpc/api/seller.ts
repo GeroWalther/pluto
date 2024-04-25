@@ -25,6 +25,7 @@ export const sellerRouter = router({
         imageUrls,
         productFileUrls,
         productFileKeys,
+        category,
       } = input;
       const result = await createProductController(
         {
@@ -35,6 +36,7 @@ export const sellerRouter = router({
           imageKeys,
           productFileUrls,
           productFileKeys,
+          category,
         },
         ctx.user
       );

@@ -3,7 +3,6 @@
 import { TQueryValidator } from '@/lib/validators/query-validator';
 import Link from 'next/link';
 import { trpc } from '@/trpc/client';
-//import { Product } from '@/payload-types';
 import ProductListing from './ProductListing';
 
 interface ProductReelProps {
