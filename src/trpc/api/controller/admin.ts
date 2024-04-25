@@ -1,4 +1,3 @@
-import prisma from '@/db/db';
 import {
   getAllPendingProducts,
   getApprovedProducts,
@@ -17,13 +16,6 @@ export async function getPendingProductsController() {
     });
   }
 
-  if (pendingProds.length === 0) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'No pending products found',
-    });
-  }
-
   return pendingProds;
 }
 
@@ -37,13 +29,6 @@ export async function getApprovedProductsController() {
     });
   }
 
-  if (approvedProducts.length === 0) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'No pending products found',
-    });
-  }
-
   return approvedProducts;
 }
 export async function getRejectedProductsController() {
@@ -53,13 +38,6 @@ export async function getRejectedProductsController() {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
       message: 'Problem getting pending products',
-    });
-  }
-
-  if (rejectedProducts.length === 0) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'No pending products found',
     });
   }
 

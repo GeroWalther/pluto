@@ -83,13 +83,19 @@ export default function AdminTable({
       console.log(err);
     },
   });
-
   if (isLoading)
     return (
       <div className='flex justify-center items-center h-full'>
         <Loader />
       </div>
     );
+  if (data?.length === 0) {
+    return (
+      <div>
+        <p className='text-stone-400'>No products left.</p>
+      </div>
+    );
+  }
   if (isError)
     return (
       <div>
