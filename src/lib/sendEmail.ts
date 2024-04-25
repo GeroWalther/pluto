@@ -27,6 +27,5 @@ export async function sendEmail({ userEmail, subject, html }: ResendOptions) {
     html,
   });
 
-  console.log("Message sent: %s", info.messageId);
   return info;
 }
