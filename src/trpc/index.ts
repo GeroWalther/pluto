@@ -1,5 +1,6 @@
 import { adminRouter } from './api/admin';
 import { authRouter } from './api/auth';
+import { paymentRouter } from './api/payment';
 import { sellerRouter } from './api/seller';
 import { createCallerFactory, router } from './trpc';
 
@@ -10,6 +11,7 @@ export const appRouter = router({
   auth: authRouter,
   seller: sellerRouter,
   admin: adminRouter,
+  payment: paymentRouter,
 });
 
 export type TAppRouter = typeof appRouter;

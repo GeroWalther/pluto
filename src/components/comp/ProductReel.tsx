@@ -19,6 +19,7 @@ const FALLBACK_LIMIT = 4;
 const ProductReel = (props: ProductReelProps) => {
   const { title, subtitle, href, query } = props;
 
+  //TODO: make this work
   // const { data: queryResults, isLoading } =
   //   trpc.admin.getApprovedProducts.useInfiniteQuery(
   //     {
@@ -41,6 +42,7 @@ const ProductReel = (props: ProductReelProps) => {
   // } else if (isLoading) {
   //   map = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
   // }
+
   if (queryResults && queryResults.length) {
     map = queryResults;
   }
