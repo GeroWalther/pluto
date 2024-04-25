@@ -162,12 +162,7 @@ export const getAllProductsController = async (userId: string) => {
     },
   });
 
-  if (
-    response.length === 0 ||
-    !response ||
-    response === null ||
-    response === undefined
-  ) {
+  if (!response || response === null || response === undefined) {
     throw new TRPCError({
       code: 'NOT_FOUND',
       message: 'No products found',
