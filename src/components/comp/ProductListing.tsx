@@ -5,22 +5,10 @@ import { cn, formatPrice } from '@/lib/utils';
 import { PRODUCT_CATEGORIES } from '@/config';
 import ImageSlider from './ImageSlider';
 import { Skeleton } from '../ui/skeleton';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageKeys: string[];
-  imageUrls: string[];
-  productFileUrls: string[];
-  productFileKeys: string[];
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  category: string;
-}
+import { ProductType } from '../Table/MasterTable';
 
 interface ProductListingProps {
-  product: Product | null;
+  product: ProductType | null;
   index: number;
 }
 
@@ -41,12 +29,6 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
     ({ value }) => value === product.category
   )?.label;
 
-  const validUrls = product.imageUrls
-    .map(({ image }: any) =>
-      typeof image === 'string' ? image : image && image.url ? image.url : null
-    )
-    .filter(Boolean) as string[];
-
   if (isVisible && product) {
     return (
       <Link
@@ -55,8 +37,10 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
         })}
         href={`/product/${product.id}`}>
         <div className='flex flex-col w-full'>
-          <ImageSlider urls={validUrls} alt={`${product.name}'s image`} />
-
+          <ImageSlider
+            urls={product.imageUrls}
+            alt={`${product.name}'s image`}
+          />
           <h3 className='mt-4 font-medium text-sm text-stone-700'>
             {product.name}
           </h3>

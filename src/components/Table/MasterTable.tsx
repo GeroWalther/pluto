@@ -39,7 +39,7 @@ import Loader from '@/components/Loader/Loader';
 import DeleteDialog from './Dialogs/DeleteDialog';
 import { cn } from '@/lib/utils';
 
-export interface dataType {
+export interface ProductType {
   status: 'APPROVED' | 'PENDING' | 'REJECTED';
   name: string;
   description: string;
@@ -52,10 +52,11 @@ export interface dataType {
   imageUrls: string[];
   productFileUrls: string[];
   productFileKeys: string[];
+  category: string;
 }
 
 interface propType {
-  data: dataType[] | undefined;
+  data: ProductType[] | undefined;
   isError?: boolean;
   isLoading?: boolean;
   update?: boolean;
@@ -208,7 +209,7 @@ export default function AdminTable({
       <TableBody>
         {data &&
           Array.isArray(data) &&
-          data.map((p: dataType) => (
+          data.map((p: ProductType) => (
             <TableRow key={p.id}>
               <TableCell className='text-left'>{p.name}</TableCell>
 

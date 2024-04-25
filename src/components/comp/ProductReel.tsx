@@ -4,6 +4,7 @@ import { TQueryValidator } from '@/lib/validators/query-validator';
 import Link from 'next/link';
 import { trpc } from '@/trpc/client';
 import ProductListing from './ProductListing';
+import { ProductType } from '../Table/MasterTable';
 
 interface ProductReelProps {
   title: string;
@@ -19,7 +20,7 @@ const ProductReel = (props: ProductReelProps) => {
   const { title, subtitle, href, query } = props;
 
   // const { data: queryResults, isLoading } =
-  //   trpc.getInfiniteProducts.useInfiniteQuery(
+  //   trpc.admin.getApprovedProducts.useInfiniteQuery(
   //     {
   //       limit: query.limit ?? FALLBACK_LIMIT,
   //       query,
@@ -29,14 +30,23 @@ const ProductReel = (props: ProductReelProps) => {
   //     }
   //   );
 
+  const { data: queryResults, isLoading } =
+    trpc.admin.getApprovedProducts.useQuery();
+
   // const products = queryResults?.pages.flatMap((page) => page.items);
 
-  // let map: (Product | null)[] = [];
+  let map: (ProductType | null)[] = [];
   // if (products && products.length) {
   //   map = products;
   // } else if (isLoading) {
   //   map = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
   // }
+  if (queryResults && queryResults.length) {
+    map = queryResults;
+  }
+  if (isLoading) {
+    map = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
+  }
 
   return (
     <section className='py-12'>
@@ -54,7 +64,7 @@ const ProductReel = (props: ProductReelProps) => {
           <Link
             href={href}
             className='hidden text-sm font-medium text-blue-600 hover:text-blue-500 md:block'>
-            Shop the collection <span aria-hidden='true'>&rarr;</span>
+            Shop all products<span aria-hidden='true'>&rarr;</span>
           </Link>
         ) : null}
       </div>
@@ -62,14 +72,13 @@ const ProductReel = (props: ProductReelProps) => {
       <div className='relative'>
         <div className='mt-6 flex items-center w-full'>
           <div className='w-full grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-10 lg:gap-x-8'>
-            {/* {map.map((product, i) => (
-              //@ts-ignore
+            {map.map((product: ProductType | null, i: number) => (
               <ProductListing
                 key={`product-${i}`}
                 product={product}
                 index={i}
               />
-            ))} */}
+            ))}
           </div>
         </div>
       </div>
