@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CopyIcon } from 'lucide-react';
 
-export function ShareLink({ defaultLink }: { defaultLink: string }) {
+export function ShareLink({ link }: { link: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -31,7 +31,7 @@ export function ShareLink({ defaultLink }: { defaultLink: string }) {
             <Label htmlFor='link' className='sr-only'>
               Link
             </Label>
-            <Input id='link' defaultValue={defaultLink} readOnly />
+            <Input id='link' defaultValue={link} readOnly />
           </div>
           <Button type='submit' size='sm' className='px-3'>
             <span className='sr-only'>Copy</span>

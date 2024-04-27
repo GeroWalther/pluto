@@ -16,6 +16,7 @@ import { Combobox } from './Combobox';
 import { useQueryClient } from '@tanstack/react-query';
 import { Separator } from '../ui/separator';
 import ImageSlider from './ImageSlider';
+import { PRODUCT_CATEGORIES } from '@/config';
 
 const schema = z.object({
   name: z.string(),
@@ -152,11 +153,13 @@ export default function UploadForm({
         <select
           {...register('category')}
           className='p-2 border border-stone-300 rounded-xl '>
-          <option value='EBook'>E-Book</option>
-          <option value='Font'>Font</option>
-          <option value='Image'>Image</option>
-          <option value='Icons'>Icons</option>
-          <option value='UiUx'>UI/UX designs</option>
+          {PRODUCT_CATEGORIES.map((category) => {
+            return (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            );
+          })}
         </select>
         {errors.name && (
           <p className='text-sm text-red-500'>{errors.name.message}</p>

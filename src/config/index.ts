@@ -2,7 +2,7 @@
 export const PRODUCT_CATEGORIES = [
   {
     label: 'E-books',
-    value: 'e-books' as const,
+    value: 'Ebook' as const,
     featured: [
       {
         name: 'Editor picks',
@@ -13,7 +13,7 @@ export const PRODUCT_CATEGORIES = [
   },
   {
     label: 'Icons',
-    value: 'icons' as const,
+    value: 'Icons' as const,
     featured: [
       {
         name: 'Top Icons',
@@ -23,8 +23,8 @@ export const PRODUCT_CATEGORIES = [
     ],
   },
   {
-    label: 'Figma Designs',
-    value: 'figma' as const,
+    label: 'Ui/Ux Designs',
+    value: 'UiUx' as const,
     featured: [
       {
         name: 'Well designed Figma',
@@ -36,7 +36,18 @@ export const PRODUCT_CATEGORIES = [
   },
   {
     label: 'Fonts',
-    value: 'fonts' as const,
+    value: 'Font' as const,
+    featured: [
+      {
+        name: 'Classics and modern Fonts',
+        href: '#',
+        ImageSrc: process.env.NEXT_PUBLIC_SERVER_URL + '/nav/fonts/new.jpg',
+      },
+    ],
+  },
+  {
+    label: 'Image',
+    value: 'Image' as const,
     featured: [
       {
         name: 'Classics and modern Fonts',

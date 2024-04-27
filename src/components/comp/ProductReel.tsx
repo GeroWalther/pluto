@@ -1,12 +1,10 @@
 "use client";
 
-import { TQueryValidator } from "@/lib/validators/query-validator";
-import { trpc } from "@/trpc/client";
-import Link from "next/link";
-//import { Product } from '@/payload-types';
-import Image from "next/image";
-import Loader from "../Loader/Loader";
-import ProductListing from "./ProductListing";
+import { TQueryValidator } from '@/lib/validators/query-validator';
+import { trpc } from '@/trpc/client';
+import Link from 'next/link';
+import { ProductType } from '../Table/MasterTable';
+import ProductListing from './ProductListing';
 
 interface ProductReelProps {
   title: string;
@@ -19,42 +17,69 @@ const FALLBACK_LIMIT = 4;
 
 const ProductReel = (props: ProductReelProps) => {
   const { title, subtitle, href, query } = props;
-  const { data, error, isLoading } = trpc.admin.getApprovedProducts.useQuery();
 
+  //TODO: make this work
+  // const { data: queryResults, isLoading } =
+  //   trpc.admin.getApprovedProducts.useInfiniteQuery(
+  //     {
+  //       limit: query.limit ?? FALLBACK_LIMIT,
+  //       query,
+  //     },
+  //     {
+  //       getNextPageParam: (lastPage: any) => lastPage.nextPage,
+  //     }
+  //   );
+
+  const { data: queryResults, isLoading } =
+    trpc.admin.getApprovedProducts.useQuery();
+
+  // const products = queryResults?.pages.flatMap((page) => page.items);
+
+  let map: (ProductType | null)[] = [];
+  // if (products && products.length) {
+  //   map = products;
+  // } else if (isLoading) {
+  //   map = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
+  // }
+
+  if (queryResults && queryResults.length) {
+    map = queryResults;
+  }
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-48">
-        <Loader />
-      </div>
-    );
+    map = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
   }
 
-  if (error?.data?.code === "NOT_FOUND") {
-    return (
-      <div className="text-center text-stone-500">
-        <h2>No Product Found</h2>
-        <p>You can add products to sell here</p>
-      </div>
-    );
-  }
-
-  if (data) {
-    return (
-      <section className="py-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-stone-700">{title}</h2>
-          {href && <Link href={href}>View all</Link>}
+  return (
+    <section className='py-12'>
+      <div className='md:flex md:items-center md:justify-between mb-4'>
+        <div className='max-w-2xl px-4 lg:max-w-4xl lg:px-0'>
+          {title ? (
+            <h1 className='font-bold text-stone-900 sm:text-xl'>{title}</h1>
+          ) : null}
+          {subtitle ? (
+            <p className='mt-2 text-sm text-muted-foreground'>{subtitle}</p>
+          ) : null}
         </div>
-        {subtitle && <p className="text-stone-500 mb-4">{subtitle}</p>}
-        {data.map((product) => (
-          // grid of two
-          <div key={product.id} className="grid grid-cols-2">
-            <img
-              src={product.imageUrls[0]}
-              alt={product.name}
-              width="100%"
-              height="100%"
-            />
+
+        {href ? (
+          <Link
+            href={href}
+            className='hidden text-sm font-medium text-blue-600 hover:text-blue-500 md:block'>
+            Shop all products<span aria-hidden='true'>&rarr;</span>
+          </Link>
+        ) : null}
+      </div>
+
+      <div className='relative'>
+        <div className='mt-6 flex items-center w-full'>
+          <div className='w-full grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-10 lg:gap-x-8'>
+            {map.map((product: ProductType | null, i: number) => (
+              <ProductListing
+                key={`product-${i}`}
+                product={product}
+                index={i}
+              />
+            ))}
           </div>
         ))}
       </section>
