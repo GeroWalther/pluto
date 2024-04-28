@@ -7,8 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function generateRandomToken(length: number = 10) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
   let token = "";
 
   for (let i = 0; i < length; i++) {
