@@ -19,14 +19,13 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
     isLoading,
     isError,
   } = trpc.payment.confirmPurchase.useQuery({ orderId });
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
   if (isError) {
     return <div>Error</div>;
   }
-  //   { response &&
-  //response.productFiles.map((file) => (
 
   return (
     <main className='relative lg:min-h-full'>
@@ -48,26 +47,17 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
             <h1 className='mt-2 text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl'>
               Thanks for ordering
             </h1>
-            {order._isPaid ? (
-              <p className='mt-2 text-base text-muted-foreground'>
-                Your order was processed and your assets are available to
-                download below. We&apos;ve sent your receipt and order details
-                to{' '}
-                {typeof order.user !== 'string' ? (
-                  <span className='font-medium text-stone-900'>
-                    {order.user.email}
-                  </span>
-                ) : null}
-                .
-              </p>
-            ) : (
-              <p className='mt-2 text-base text-muted-foreground'>
-                We appreciate your order, and we&apos;re currently processing
-                it. So hang tight and we&apos;ll send you confirmation very
-                soon!
-              </p>
-            )}
-
+            <p className='mt-2 text-base text-muted-foreground'>
+              Your order was processed and your assets are available to download
+              below. We&apos;ve sent your receipt and order details to{' '}
+              <span className='font-medium text-stone-900'>{user.email}</span>.
+            </p>
+            : (
+            <p className='mt-2 text-base text-muted-foreground'>
+              We appreciate your order, and we&apos;re currently processing it.
+              So hang tight and we&apos;ll send you confirmation very soon!
+            </p>
+            )
             <div className='mt-16 text-sm font-medium'>
               <div className='text-muted-foreground'>Order nr.</div>
               <div className='mt-2 text-stone-900'>{order.id}</div>
@@ -103,14 +93,14 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                             <p className='my-1'>Category: {label}</p>
                           </div>
 
-                          {order._isPaid ? (
+                          {product.productFileUrls.map((p) => {
                             <a
                               href={downloadUrl}
-                              download={product.name}
+                              download={p}
                               className='text-blue-600 hover:underline underline-offset-2'>
                               Download asset
-                            </a>
-                          ) : null}
+                            </a>;
+                          })}
                         </div>
 
                         <p className='flex-none font-medium text-stone-900'>

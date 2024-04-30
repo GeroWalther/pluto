@@ -14,11 +14,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
     return <MissingParams />;
   }
 
-  return (
-    <div className='max-w-3xl mx-auto px-4 py-8'>
-      <Thankyou orderId={params.orderId} />
-    </div>
-  );
+  return <Thankyou orderId={params.orderId} />;
 };
 
 export default Page;

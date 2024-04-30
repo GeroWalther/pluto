@@ -134,6 +134,12 @@ export const confirmPurchaseController = async (
       message: `User does not have permission to access this order`,
     });
   }
+  if (!products || products.length === 0 || products === null) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: `User does not have permission to access this order`,
+    });
+  }
 
   // TODO: Send email to the user
   const sendEmailToUser = await sendEmail({
@@ -151,5 +157,12 @@ export const confirmPurchaseController = async (
     });
   }
 
-  return products;
+  return {
+    isPaid: true,
+    name: user.name,
+    email: user.email,
+    orderId: findProduct.orderId,
+    total: findProduct.totalAmount,
+    products,
+  };
 };
