@@ -6,30 +6,34 @@ datasource db {
     provider = "mongodb"
     url      = env("DATABASE_URL")
 }
+
 enum Provider {
     google
     github
     credentials
 }
-model User {
-    id              String  @id @default(auto()) @map("_id") @db.ObjectId
-    name            String?
-    email           String  @unique
-    password        String
-    isEmailVerified Boolean @default(false)
-    image           String?
-    isAdmin         Boolean @default(false)
-    token           String  @unique
-    provider        Provider? 
 
-    sellerPaymentMethod SellerPayment[]
+model User {
+    id              String    @id @default(auto()) @map("_id") @db.ObjectId
+    name            String?
+    email           String    @unique
+    password        String
+    isEmailVerified Boolean   @default(false)
+    image           String?
+    isAdmin         Boolean   @default(false)
+    token           String    @unique
+    provider        Provider?
+
+    stripeId String?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    sellerPaymentMethod SellerPayment[]
+
     // Product list
     listedProducts Product[]
-    orderedProducts Order[]
+    order          Order[]
 }
 
 enum Status {
@@ -40,15 +44,15 @@ enum Status {
 
 // Product Model
 model Product {
-    id          String @id @default(auto()) @map("_id") @db.ObjectId
+    id              String   @id @default(auto()) @map("_id") @db.ObjectId
     // Product details
-    name        String
-    description String
-    price       Float
-    imageKeys    String[]
-    imageUrls    String[]
-    productFileUrls  String[]
-    productFileKeys  String[]
+    name            String
+    description     String
+    price           Float
+    imageKeys       String[]
+    imageUrls       String[]
+    productFileUrls String[]
+    productFileKeys String[]
 
     // product status
     status    Status   @default(PENDING)
@@ -59,39 +63,37 @@ model Product {
     user      User     @relation(fields: [userId], references: [id])
     userId    String   @db.ObjectId
 
-   category String @default("Image")
+    category String @default("Image")
 }
 
 // Order Model
 model Order {
-    id           String @id @default(auto()) @map("_id") @db.ObjectId
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    // Order details
     productNames String[]
     totalAmount  Float
-
-    productIds  String[] 
+    // Other info
+    // product ID array
+    productIds   String[]
     productFiles String[]
     orderId      String   @unique
 
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
     // User who placed the order
-    user         User     @relation(fields: [userId], references: [id])
-    userId       String   @db.ObjectId
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String   @db.ObjectId
 }
-
 
 model SellerPayment {
     id            String @id @default(auto()) @map("_id") @db.ObjectId
-    paymentMethod String @default("Bank Transfer")
+    paymentMethod String
     user          User   @relation(fields: [userId], references: [id])
     userId        String @db.ObjectId
-    bankName      String?
-    paypalAccount String?
-    accountNumber String?
-    accountHolderName   String
-    ibanString    String?
-    bicString     String?
-    storedAmount  Float  @default(0)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+
+    stripeId     String
+    storedAmount Float  @default(0)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }

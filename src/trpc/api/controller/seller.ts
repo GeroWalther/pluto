@@ -1,9 +1,9 @@
-import prisma from '@/db/db';
-import { countAllProductsFromAUser, deleteProduct } from '@/db/prisma.product';
+import prisma from "@/db/db";
+import { countAllProductsFromAUser, deleteProduct } from "@/db/prisma.product";
 
-import { TRPCError } from '@trpc/server';
-import type { User } from 'next-auth';
-import { UTApi } from 'uploadthing/server';
+import { TRPCError } from "@trpc/server";
+import type { User } from "next-auth";
+import { UTApi } from "uploadthing/server";
 
 // delete file from the server --
 export async function deleteFileController(
@@ -17,18 +17,18 @@ export async function deleteFileController(
 
     if (!deleted) {
       throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'File not found',
+        code: "NOT_FOUND",
+        message: "File not found",
       });
     }
 
     if (!deleted) {
       throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'File not found',
+        code: "NOT_FOUND",
+        message: "File not found",
       });
     }
-    return 'File deleted';
+    return "File deleted";
   }
 
   const deletedProduct = await deleteProduct(input[0]);
@@ -40,19 +40,19 @@ export async function deleteFileController(
 
   if (!deleteUTAPI) {
     throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'File not found',
+      code: "NOT_FOUND",
+      message: "File not found",
     });
   }
 
   if (!deletedProduct) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Something went wrong in the server while deleting the product',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong in the server while deleting the product",
     });
   }
 
-  return 'File deleted';
+  return "File deleted";
 }
 
 // create a new product
@@ -93,23 +93,23 @@ export async function createProductController(
     !category
   ) {
     throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
+      code: "UNPROCESSABLE_CONTENT",
       message:
-        'Must provide a product name, description, price, category, at least one product image and a product file.',
+        "Must provide a product name, description, price, category, at least one product image and a product file.",
     });
   }
 
   if (name.length < 3) {
     throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
+      code: "UNPROCESSABLE_CONTENT",
       message:
-        'Must provide a product name that is at least 3 characters long.',
+        "Must provide a product name that is at least 3 characters long.",
     });
   }
   if (!price || isNaN(price) || price <= 0) {
     throw new TRPCError({
-      code: 'UNPROCESSABLE_CONTENT',
-      message: 'Must provide a valid positive product price.',
+      code: "UNPROCESSABLE_CONTENT",
+      message: "Must provide a valid positive product price.",
     });
   }
 
@@ -117,9 +117,9 @@ export async function createProductController(
   const prodCount = await countAllProductsFromAUser(ctx.id);
   if (prodCount >= 5) {
     throw new TRPCError({
-      code: 'FORBIDDEN',
+      code: "FORBIDDEN",
       message:
-        'You have reached the maximum number of products you can list on a free tier. Please upgrade to the Pro Version',
+        "You have reached the maximum number of products you can list on a free tier. Please upgrade to the Pro Version",
     });
   }
 
@@ -145,8 +145,8 @@ export async function createProductController(
 
   if (!newProduct) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Something went wrong creating the product',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong creating the product",
     });
   }
 
@@ -164,8 +164,8 @@ export const getAllProductsController = async (userId: string) => {
 
   if (!response || response === null || response === undefined) {
     throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'No products found',
+      code: "NOT_FOUND",
+      message: "No products found",
     });
   }
 

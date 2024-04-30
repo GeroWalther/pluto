@@ -4,6 +4,7 @@ import {
   confirmPurchaseController,
   createSessionController,
 } from './controller/payment';
+
 export const paymentRouter = router({
   createSession: privateProcedure
     .input(z.object({ productIds: z.array(z.string()) }))

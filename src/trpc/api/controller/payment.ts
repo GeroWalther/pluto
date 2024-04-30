@@ -49,12 +49,12 @@ export const createSessionController = async (
     apiVersion: '2024-04-10',
   });
 
-  const orderId = `orderId${generateRandomToken()}`;
+  const orderId = `order${generateRandomToken()}`;
 
   const successUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}`;
 
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card', 'paypal'],
+    payment_method_types: ['card'],
     line_items: lineItem,
     mode: 'payment',
 
@@ -96,11 +96,8 @@ export const createSessionController = async (
   };
 };
 
-export const confirmPurchaseController = async (
-  orderId: string,
-  user: User
-) => {
-  if (!orderId || typeof orderId !== 'string') {
+export const confirmPurchaseController = async (oderId: string, user: User) => {
+  if (!oderId || typeof oderId !== 'string') {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
       message: `Invalid orderId`,
@@ -109,15 +106,7 @@ export const confirmPurchaseController = async (
 
   const findProduct = await prisma.order.findFirst({
     where: {
-      orderId,
-    },
-  });
-
-  const products = await prisma.product.findMany({
-    where: {
-      id: {
-        in: findProduct?.productIds,
-      },
+      orderId: oderId,
     },
   });
 
@@ -135,21 +124,45 @@ export const confirmPurchaseController = async (
     });
   }
 
-  // TODO: Send email to the user
-  const sendEmailToUser = await sendEmail({
-    userEmail: user.email!,
-    subject: 'Order Confirmation',
-    html: `<h1>Order Confirmation</h1>
-    <p>Thank you for purchasing the following products</p>
-    `,
+  const productIds = findProduct.productIds;
+
+  const getProducts = await prisma.product.findMany({
+    where: {
+      id: {
+        in: productIds,
+      },
+    },
   });
 
-  if (!sendEmailToUser) {
+  if (!getProducts || getProducts.length === 0 || getProducts === null) {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
-      message: `Could not send email to the user`,
+      message: `Could not find products with the given ids`,
     });
   }
 
-  return products;
+  // TODO: Send email to the user add producs details with download link
+  // const sendEmailToUser = await sendEmail({
+  //   userEmail: user.email!,
+  //   subject: "Order Confirmation",
+  //   html: `<h1>Order Confirmation</h1>
+  //   <p>Thank you for purchasing the following products</p>
+  //   `,
+  // });
+
+  // if (!sendEmailToUser) {
+  //   throw new TRPCError({
+  //     code: "INTERNAL_SERVER_ERROR",
+  //     message: `Could not send email to the user`,
+  //   });
+  // }
+
+  return {
+    isPaid: true,
+    name: user.name,
+    email: user.email,
+    orderId: findProduct.orderId,
+    total: findProduct.totalAmount,
+    getProducts,
+  };
 };

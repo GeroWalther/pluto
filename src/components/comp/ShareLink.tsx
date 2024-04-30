@@ -13,8 +13,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CopyIcon } from 'lucide-react';
+import { useState } from 'react'; // Import useState hook
 import { toast } from 'sonner';
-import { useState } from 'react';
 
 export function ShareLink({ link }: { link: string }) {
   const [copied, setCopied] = useState(false);

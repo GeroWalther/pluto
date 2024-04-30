@@ -1,14 +1,14 @@
 'use client';
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import type SwiperType from 'swiper';
-import { useEffect, useState } from 'react';
-import { Pagination } from 'swiper/modules';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import type SwiperType from 'swiper';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import { Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 interface ImageSliderProps {
   urls: string[];
@@ -69,7 +69,7 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
                   !slideConfig.isBeginning,
               })}
               aria-label='previous image'>
-              <ChevronLeft className='h-4 w-4 text-stone-700' />{' '}
+              <ChevronLeft className='h-4 w-4 text-stone-700' />
             </button>
           )}
         </div>
@@ -90,11 +90,11 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
           <SwiperSlide key={i} className='-z-10 relative h-full w-full'>
             {url && url.trim() !== '' && (
               <Image
-                fill
-                loading='eager'
                 className='-z-10 h-full w-full object-cover object-center'
                 src={url}
                 alt={alt}
+                width={200}
+                height={200}
               />
             )}
           </SwiperSlide>
