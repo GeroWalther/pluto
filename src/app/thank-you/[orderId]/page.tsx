@@ -10,7 +10,7 @@ interface PageProps {
 }
 
 const Page: React.FC<PageProps> = ({ params }) => {
-  if (params.orderId) {
+  if (!params.orderId) {
     return <MissingPerams />;
   }
 
