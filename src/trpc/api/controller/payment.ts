@@ -124,21 +124,45 @@ export const confirmPurchaseController = async (oderId: string, user: User) => {
     });
   }
 
-  // TODO: Send email to the user
-  const sendEmailToUser = await sendEmail({
-    userEmail: user.email!,
-    subject: "Order Confirmation",
-    html: `<h1>Order Confirmation</h1>
-    <p>Thank you for purchasing the following products</p>
-    `,
+  const productIds = findProduct.productIds;
+
+  const getProducts = await prisma.product.findMany({
+    where: {
+      id: {
+        in: productIds,
+      },
+    },
   });
 
-  if (!sendEmailToUser) {
+  if (!getProducts || getProducts.length === 0 || getProducts === null) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: `Could not send email to the user`,
+      message: `Could not find products with the given ids`,
     });
   }
 
-  return findProduct;
+  // TODO: Send email to the user add producs details with download link
+  // const sendEmailToUser = await sendEmail({
+  //   userEmail: user.email!,
+  //   subject: "Order Confirmation",
+  //   html: `<h1>Order Confirmation</h1>
+  //   <p>Thank you for purchasing the following products</p>
+  //   `,
+  // });
+
+  // if (!sendEmailToUser) {
+  //   throw new TRPCError({
+  //     code: "INTERNAL_SERVER_ERROR",
+  //     message: `Could not send email to the user`,
+  //   });
+  // }
+
+  return {
+    isPaid: true,
+    name: user.name,
+    email: user.email,
+    orderId: findProduct.orderId,
+    total: findProduct.totalAmount,
+    getProducts,
+  };
 };

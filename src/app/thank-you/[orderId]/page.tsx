@@ -26,7 +26,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div>
       <Thankyou orderId={params.orderId} />
     </div>
   );
