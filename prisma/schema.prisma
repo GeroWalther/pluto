@@ -22,12 +22,14 @@ model User {
     token           String  @unique
     provider        Provider? 
 
+    sellerPaymentMethod SellerPayment[]
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     // Product list
     listedProducts Product[]
-    orderedProduct OrderedProduct[]
+    orderedProducts Order[]
 }
 
 enum Status {
@@ -57,23 +59,39 @@ model Product {
     user      User     @relation(fields: [userId], references: [id])
     userId    String   @db.ObjectId
 
-    category  String   @default("image")
+   category String @default("Image")
 }
 
 // Order Model
-model OrderedProduct {
-    id          String @id @default(auto()) @map("_id") @db.ObjectId
-    // Order details
-    productName String
-    totalAmount Float
-    // Other info
-    // product ID
-    productId   String @db.ObjectId
-    orderId     String @db.ObjectId
+model Order {
+    id           String @id @default(auto()) @map("_id") @db.ObjectId
+    productNames String[]
+    totalAmount  Float
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    productIds  String[] 
+    productFiles String[]
+    orderId      String   @unique
+
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
     // User who placed the order
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String   @db.ObjectId
+    user         User     @relation(fields: [userId], references: [id])
+    userId       String   @db.ObjectId
+}
+
+
+model SellerPayment {
+    id            String @id @default(auto()) @map("_id") @db.ObjectId
+    paymentMethod String @default("Bank Transfer")
+    user          User   @relation(fields: [userId], references: [id])
+    userId        String @db.ObjectId
+    bankName      String?
+    paypalAccount String?
+    accountNumber String?
+    accountHolderName   String
+    ibanString    String?
+    bicString     String?
+    storedAmount  Float  @default(0)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
 }

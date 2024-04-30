@@ -1,3 +1,4 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,10 +13,28 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CopyIcon } from 'lucide-react';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 export function ShareLink({ link }: { link: string }) {
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const copyToClipboard = () => {
+    navigator.clipboard
+      .writeText(link)
+      .then(() => setCopied(true))
+      .then(() => {
+        toast.success('Link copied to clipboard!');
+      })
+      .catch(() => setError('Failed to copy link to clipboard'));
+  };
+
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setCopied(false);
+      }}>
       <DialogTrigger asChild>
         <Button variant='outline'>Share</Button>
       </DialogTrigger>
@@ -33,7 +52,11 @@ export function ShareLink({ link }: { link: string }) {
             </Label>
             <Input id='link' defaultValue={link} readOnly />
           </div>
-          <Button type='submit' size='sm' className='px-3'>
+          <Button
+            type='button'
+            size='sm'
+            className='px-3'
+            onClick={copyToClipboard}>
             <span className='sr-only'>Copy</span>
             <CopyIcon className='h-4 w-4' />
           </Button>
@@ -45,6 +68,10 @@ export function ShareLink({ link }: { link: string }) {
             </Button>
           </DialogClose>
         </DialogFooter>
+        {copied && (
+          <p className='text-sm text-green-500'>Link copied to clipboard!</p>
+        )}
+        {error && <p className='text-sm text-red-500'>{error}</p>}
       </DialogContent>
     </Dialog>
   );

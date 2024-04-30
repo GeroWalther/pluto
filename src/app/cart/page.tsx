@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function Page() {
   const { items, removeItem } = useCart();
@@ -18,8 +19,11 @@ export default function Page() {
 
   const { mutate: createCheckoutSession, isPending } =
     trpc.payment.createSession.useMutation({
-      onSuccess: ({ url }) => {
-        if (url) router.push(url);
+      onSuccess: ({ successUrl }) => {
+        router.push(successUrl!);
+      },
+      onError: (error) => {
+        toast.error(error.message);
       },
     });
 
@@ -91,8 +95,8 @@ export default function Page() {
                       <div className='flex-shrink-0'>
                         <div className='relative h-32 w-32'>
                           {image && (
-                            <img
-                              // fill
+                            <Image
+                              fill
                               src={image}
                               alt='product image'
                               className='h-full w-full rounded-md object-cover object-center'

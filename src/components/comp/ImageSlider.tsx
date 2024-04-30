@@ -40,34 +40,40 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
 
   return (
     <div className='group relative bg-stone-100 aspect-square overflow-hidden rounded-xl'>
-      <div className='absolute z-10 inset-0 opacity-0 group-hover:opacity-100 transition'>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            swiper?.slideNext();
-          }}
-          className={cn(activeStyles, 'right-3 transition', {
-            [inactiveStyles]: slideConfig.isEnd,
-            'hover:bg-primary-300 text-primary-800 opacity-100':
-              !slideConfig.isEnd,
-          })}
-          aria-label='next image'>
-          <ChevronRight className='h-4 w-4 text-stone-700' />{' '}
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            swiper?.slidePrev();
-          }}
-          className={cn(activeStyles, 'left-3 transition', {
-            [inactiveStyles]: slideConfig.isBeginning,
-            'hover:bg-primary-300 text-primary-800 opacity-100':
-              !slideConfig.isBeginning,
-          })}
-          aria-label='previous image'>
-          <ChevronLeft className='h-4 w-4 text-stone-700' />{' '}
-        </button>
-      </div>
+      {urls.length > 1 && (
+        <div className='absolute z-10 inset-0 opacity-0 group-hover:opacity-100 transition'>
+          {activeIndex !== urls.length - 1 && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                swiper?.slideNext();
+              }}
+              className={cn(activeStyles, 'right-3 transition', {
+                [inactiveStyles]: slideConfig.isEnd,
+                'hover:bg-primary-300 text-primary-800 opacity-100':
+                  !slideConfig.isEnd,
+              })}
+              aria-label='next image'>
+              <ChevronRight className='h-4 w-4 text-stone-700' />{' '}
+            </button>
+          )}
+          {activeIndex !== 0 && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                swiper?.slidePrev();
+              }}
+              className={cn(activeStyles, 'left-3 transition', {
+                [inactiveStyles]: slideConfig.isBeginning,
+                'hover:bg-primary-300 text-primary-800 opacity-100':
+                  !slideConfig.isBeginning,
+              })}
+              aria-label='previous image'>
+              <ChevronLeft className='h-4 w-4 text-stone-700' />{' '}
+            </button>
+          )}
+        </div>
+      )}
 
       <Swiper
         pagination={{
@@ -82,13 +88,15 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
         className='h-full w-full'>
         {urls.map((url, i) => (
           <SwiperSlide key={i} className='-z-10 relative h-full w-full'>
-            <img
-              // fill
-              // loading='eager'
-              className='-z-10 h-full w-full object-cover object-center'
-              src={url}
-              alt={alt}
-            />
+            {url && url.trim() !== '' && (
+              <Image
+                fill
+                loading='eager'
+                className='-z-10 h-full w-full object-cover object-center'
+                src={url}
+                alt={alt}
+              />
+            )}
           </SwiperSlide>
         ))}
       </Swiper>

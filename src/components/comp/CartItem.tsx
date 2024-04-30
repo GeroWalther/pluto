@@ -18,10 +18,10 @@ export default function CartItem({ product }: { product: ProductType }) {
         <div className='flex items-center space-x-4'>
           <div className='relative aspect-square h-16 w-16 min-w-fit overflow-hidden rounded'>
             {image ? (
-              <img
+              <Image
                 src={image}
                 alt={product.name}
-                // fill
+                fill
                 className='absolute object-cover'
               />
             ) : (

@@ -1,10 +1,23 @@
 import { z } from 'zod';
-import { publicProcedure, router } from '../trpc';
-
+import { privateProcedure, router } from '../trpc';
+import {
+  confirmPurchaseController,
+  createSessionController,
+} from './controller/payment';
 export const paymentRouter = router({
-  createSession: publicProcedure
-    .input(z.object({ productIds: z.array(z.any()) }))
-    .mutation(async ({ ctx }) => {
-      return { url: 'something.com' };
+  createSession: privateProcedure
+    .input(z.object({ productIds: z.array(z.string()) }))
+    .mutation(async ({ ctx, input }) => {
+      const { productIds } = input;
+      const response = await createSessionController(productIds, ctx.user);
+      return response;
+    }),
+
+  confirmPurchase: privateProcedure
+    .input(z.object({ orderId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { orderId } = input;
+      const response = await confirmPurchaseController(orderId, ctx.user);
+      return response;
     }),
 });
