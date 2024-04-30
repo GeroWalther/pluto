@@ -49,7 +49,7 @@ export const createSessionController = async (
     apiVersion: '2024-04-10',
   });
 
-  const orderId = `order${generateRandomToken()}`;
+  const orderId = `${generateRandomToken()}`;
 
   const successUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}`;
 
