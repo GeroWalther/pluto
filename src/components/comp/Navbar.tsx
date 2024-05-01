@@ -4,17 +4,14 @@ import MaxWidthWrapper from './MaxWidthWrapper';
 
 import { buttonVariants } from '../ui/button';
 import Cart from './Cart';
-import NavItems from './NavItems';
-import { cookies } from 'next/headers';
+
 import { PlutoLogo } from '../svgs/Icons';
 import MobileNav from './MobilNav';
 import { useSession } from 'next-auth/react';
 import UserAccountNav from './UserAccountNav';
-
-// import UserAccountNav from "./UserAccountNav";
+import { ShopNav } from './ShopNav';
 
 const Navbar = () => {
-  // const nextCookies = cookies();
   const { data: session } = useSession();
   const user = session?.user;
   return (
@@ -33,11 +30,11 @@ const Navbar = () => {
               </div>
 
               <div className='hidden z-50 lg:ml-8 lg:block lg:self-stretch'>
-                <NavItems />
+                <ShopNav />
               </div>
 
               <div className='ml-auto flex items-center'>
-                <div className='hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6'>
+                <div className='hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6 pr-8'>
                   {!user && (
                     <span
                       className='h-6 w-px bg-stone-200'
@@ -72,7 +69,7 @@ const Navbar = () => {
                       Create account
                     </Link>
                   )}
-                  <div className='flow-root lg:ml-2'>
+                  <div className='flow-root mr-5'>
                     <Cart />
                   </div>
                 </div>

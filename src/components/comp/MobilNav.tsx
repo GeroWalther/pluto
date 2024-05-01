@@ -1,4 +1,4 @@
-// "use client";
+'use client';
 
 // import { PRODUCT_CATEGORIES } from '@/config';
 // import { Menu, X } from "lucide-react";
@@ -136,7 +136,7 @@
 
 // export default MobileNav;
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PRODUCT_CATEGORIES } from '@/config';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { Button, buttonVariants } from '../ui/button';
@@ -147,17 +147,23 @@ import { useSession } from 'next-auth/react';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { PlutoLogo } from '../svgs/Icons';
 import IsProAd from './IsProAd';
+import Cart from './Cart';
 
 export default function MobilNav() {
   const { data: session } = useSession();
   const user = session?.user;
   const { plutoSignOut } = useSignOut();
+  const [open, setOpen] = useState(false);
 
   return (
     <div className='mt-3'>
-      <Sheet>
+      <Sheet open={open}>
         <SheetTrigger asChild>
-          <Button variant='outline' size='icon' className='shrink-0 lg:hidden'>
+          <Button
+            onClick={() => setOpen((p) => !p)}
+            variant='outline'
+            size='icon'
+            className='shrink-0 lg:hidden'>
             <Menu className='h-5 w-5' />
             <span className='sr-only'>Toggle mobile navigation menu</span>
           </Button>
@@ -165,7 +171,12 @@ export default function MobilNav() {
         <SheetContent side='left' className='flex flex-col'>
           <ScrollArea>
             <nav className='grid gap-8 text-lg font-medium'>
-              <PlutoLogo />
+              <div className='flex justify-between items-center'>
+                <PlutoLogo />
+                <div className='mr-10'>
+                  <Cart />
+                </div>
+              </div>
               {user && (
                 <Link
                   href='#'
@@ -183,10 +194,11 @@ export default function MobilNav() {
                   <li key={cat.label}>
                     {cat.featured.map((f) => (
                       <Link
+                        onClick={() => setOpen(false)}
                         key={f.name}
-                        href={f.href}
+                        href={`/products?category=${cat.value}`}
                         className='mx-[-0.65rem] mb-4 flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground'>
-                        {cat.label}
+                        <span>{cat.label}</span>
                       </Link>
                     ))}
                   </li>

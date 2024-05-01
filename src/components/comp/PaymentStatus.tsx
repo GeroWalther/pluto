@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
 //import { trpc } from '@/trpc/client';
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 interface PaymentStatusProps {
   orderEmail: string;
@@ -25,18 +25,18 @@ export default function PaymentStatus({
   //   if (data?.isPaid) router.refresh();
   // }, [data?.isPaid, router]);
 
-  const ptagstyles = isPaid ? "text-green-500" : "text-stone-400";
+  const ptagstyles = isPaid ? 'text-green-500' : 'text-stone-400';
   return (
-    <div className="mt-16 grid grid-cols-2 gap-x-4 text-sm text-stone-600">
+    <div className='mt-8 grid grid-cols-2 gap-x-4 text-sm text-stone-600'>
       <div>
-        <p className="font-medium text-stone-900">Shipping To</p>
+        <p className='font-medium text-stone-900'>Shipping To</p>
         <p>{orderEmail}</p>
       </div>
 
       <div>
-        <p className="font-medium text-stone-900">Order Status</p>
+        <p className='font-medium text-stone-900'>Order Status</p>
         <p className={ptagstyles}>
-          {isPaid ? "Payment successful" : "Payment pending..."}
+          {isPaid ? 'Payment successful' : 'Payment pending...'}
         </p>
       </div>
     </div>

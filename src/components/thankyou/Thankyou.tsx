@@ -7,6 +7,7 @@ import { FC } from 'react';
 import PaymentStatus from '../comp/PaymentStatus';
 import Loader from '../Loader/Loader';
 import ErrorPageComp from '../comp/ErrorPageComp';
+import { File } from 'lucide-react';
 
 interface ThankyouProps {
   orderId: string;
@@ -20,6 +21,20 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
   } = trpc.payment.confirmPurchase.useQuery({
     orderId,
   });
+
+  const downloadAllFiles = () => {
+    const fileContent = response?.getProducts
+      .map((product) => product.productFileUrls.join('\n'))
+      .join('\n');
+    const fileType = response?.getProducts.map((pType) => pType.category);
+
+    const blob = new Blob([fileContent!], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pluto_files.pdf';
+    link.click();
+  };
 
   return (
     <main className='relative lg:min-h-full'>
@@ -79,7 +94,7 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                             </div>
 
                             <div className='flex-auto flex flex-col justify-between'>
-                              <div className='space-y-1'>
+                              <div className='space-y-1 mb-4'>
                                 <h3 className='text-stone-900'>
                                   {product.name}
                                 </h3>
@@ -96,9 +111,16 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                                     <a
                                       href={url}
                                       download={product.name}
-                                      className='text-blue-600 hover:underline underline-offset-2 p-2'
+                                      className='text-blue-600 hover:underline underline-offset-2'
                                       key={index}>
-                                      File {index + 1}
+                                      <div className='flex py-2'>
+                                        <File className='w-5 h-5' /> -{' '}
+                                        <span>
+                                          {product.name}{' '}
+                                          {product.imageUrls.length > 1 &&
+                                            index + 1}
+                                        </span>
+                                      </div>
                                     </a>
                                   );
                                 })}
@@ -113,7 +135,7 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                       })}
                   </ul>
 
-                  <div className='space-y-6 border-t border-stone-200 pt-6 text-sm font-medium text-muted-foreground'>
+                  <div className=' border-t border-stone-200 pt-6 text-sm font-medium text-muted-foreground'>
                     <div className='flex justify-between'>
                       <p>Total</p>
                       <p className='text-stone-900'>
@@ -121,7 +143,15 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                       </p>
                     </div>
                   </div>
-                  {/* TODO : add all download links into 1 zip file and show a download a tag */}
+
+                  <div className='mt-5'>
+                    <button
+                      onClick={downloadAllFiles}
+                      className='text-blue-600 hover:underline underline-offset-2 text-lg'>
+                      Download All Files
+                    </button>
+                  </div>
+
                   <PaymentStatus
                     isPaid={response?.isPaid!}
                     orderEmail={response?.email!}
