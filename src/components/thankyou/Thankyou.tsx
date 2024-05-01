@@ -21,7 +21,7 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
   } = trpc.payment.confirmPurchase.useQuery({
     orderId,
   });
-
+  //TODO: make this work
   const downloadAllFiles = () => {
     const fileContent = response?.getProducts
       .map((product) => product.productFileUrls.join('\n'))
