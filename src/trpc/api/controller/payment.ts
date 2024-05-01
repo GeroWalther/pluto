@@ -1,3 +1,7 @@
+import {
+  ReceiptEmail,
+  ReceiptEmailHtml,
+} from '@/components/emails/ReceiptEmail';
 import prisma from '@/db/db';
 import { sendEmail } from '@/lib/sendEmail';
 import { generateRandomToken } from '@/lib/utils';
@@ -96,8 +100,11 @@ export const createSessionController = async (
   };
 };
 
-export const confirmPurchaseController = async (oderId: string, user: User) => {
-  if (!oderId || typeof oderId !== 'string') {
+export const confirmPurchaseController = async (
+  orderId: string,
+  user: User
+) => {
+  if (!orderId || typeof orderId !== 'string') {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
       message: `Invalid orderId`,
@@ -106,7 +113,7 @@ export const confirmPurchaseController = async (oderId: string, user: User) => {
 
   const findProduct = await prisma.order.findFirst({
     where: {
-      orderId: oderId,
+      orderId,
     },
   });
 
@@ -141,21 +148,25 @@ export const confirmPurchaseController = async (oderId: string, user: User) => {
     });
   }
 
-  // TODO: Send email to the user add producs details with download link
-  // const sendEmailToUser = await sendEmail({
-  //   userEmail: user.email!,
-  //   subject: "Order Confirmation",
-  //   html: `<h1>Order Confirmation</h1>
-  //   <p>Thank you for purchasing the following products</p>
-  //   `,
-  // });
-
-  // if (!sendEmailToUser) {
-  //   throw new TRPCError({
-  //     code: "INTERNAL_SERVER_ERROR",
-  //     message: `Could not send email to the user`,
-  //   });
-  // }
+  // TODO: Send email to seller, add product details and the receipt
+  try {
+    await sendEmail({
+      userEmail: user.email!,
+      subject: 'Thanks for your order! This is your receipt.',
+      html: ReceiptEmailHtml({
+        email: user.email!,
+        date: new Date(),
+        orderId,
+        products: getProducts,
+      }),
+    });
+  } catch (error) {
+    console.log('Email failed to sent! ERROR: ', error);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Email failed to sent!',
+    });
+  }
 
   return {
     isPaid: true,

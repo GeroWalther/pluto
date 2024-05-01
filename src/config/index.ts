@@ -58,4 +58,4 @@ export const PRODUCT_CATEGORIES = [
   },
 ];
 
-export const FEE = 1;
+export const FEEINPROCENT = 5 / 100;

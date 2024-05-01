@@ -1,4 +1,3 @@
-// import { Product } from '../../payload-types';
 import {
   Body,
   Container,
@@ -16,16 +15,33 @@ import {
 } from '@react-email/components';
 
 import * as React from 'react';
-import { formatPrice } from '../../../lib/utils';
 
 import { format } from 'date-fns';
-import { FEE } from '../../../config';
+
+import { FEEINPROCENT } from '@/config';
+import { formatPrice } from '@/lib/utils';
 
 interface ReceiptEmailProps {
   email: string;
   date: Date;
   orderId: string;
-  products: Product[];
+  products: ProdType[];
+}
+
+interface ProdType {
+  status: 'APPROVED' | 'PENDING' | 'REJECTED';
+  name: string;
+  description: string;
+  userId: string;
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  price: number;
+  imageKeys: string[];
+  imageUrls: string[];
+  productFileUrls: string[];
+  productFileKeys: string[];
+  category: string;
 }
 
 export const ReceiptEmail = ({
@@ -34,9 +50,15 @@ export const ReceiptEmail = ({
   orderId,
   products,
 }: ReceiptEmailProps) => {
-  const transactionFee = products.length * FEE;
-  const total =
-    products.reduce((acc, curr) => acc + curr.price, 0) + transactionFee;
+  const transactionFee = products.reduce(
+    (acc, curr) => acc + curr.price * FEEINPROCENT,
+    0
+  );
+
+  const total = products.reduce(
+    (acc, curr) => acc + curr.price + curr.price * FEEINPROCENT,
+    0
+  );
 
   return (
     <Html>
@@ -93,20 +115,18 @@ export const ReceiptEmail = ({
             <Text style={productsTitle}>Order Summary</Text>
           </Section>
           {products.map((product) => {
-            const { image } = product.images[0];
+            const image = product.imageUrls[0];
 
             return (
               <Section key={product.id}>
                 <Column style={{ width: '64px' }}>
-                  {typeof image !== 'string' && image.url ? (
-                    <Img
-                      src={image.url}
-                      width='64'
-                      height='64'
-                      alt='Product Image'
-                      style={productIcon}
-                    />
-                  ) : null}
+                  <Img
+                    src={image}
+                    width='64'
+                    height='64'
+                    alt='Product Image'
+                    style={productIcon}
+                  />
                 </Column>
                 <Column style={{ paddingLeft: '22px' }}>
                   <Text style={productTitle}>{product.name}</Text>
@@ -118,7 +138,7 @@ export const ReceiptEmail = ({
                     </Text>
                   ) : null}
                   <Link
-                    href={`${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${orderId}`}
+                    href={`${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}`}
                     style={productLink}>
                     Download Asset
                   </Link>
@@ -159,7 +179,7 @@ export const ReceiptEmail = ({
           <Hr style={productPriceLineBottom} />
 
           <Text style={footerLinksWrapper}>
-            <Link href='#'>Account Settings</Link> •{' '}
+            <Link href='/dashboard'>Account Settings</Link> •{' '}
             <Link href='#'>Terms of Sale</Link> •{' '}
             <Link href='#'>Privacy Policy </Link>
           </Text>
