@@ -140,7 +140,7 @@ import React, { useState } from 'react';
 import { PRODUCT_CATEGORIES } from '@/config';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { Button, buttonVariants } from '../ui/button';
-import { Menu, Package2, Users } from 'lucide-react';
+import { Menu, Package2 } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollArea } from '../ui/scroll-area';
 import { useSession } from 'next-auth/react';
@@ -168,7 +168,7 @@ export default function MobilNav() {
             <span className='sr-only'>Toggle mobile navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side='left' className='flex flex-col'>
+        <SheetContent setOpen={setOpen} side='left' className='flex flex-col'>
           <ScrollArea>
             <nav className='grid gap-8 text-lg font-medium'>
               <div className='flex justify-between items-center'>
