@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import MaxWidthWrapper from './MaxWidthWrapper';
 
-const MissingPerams = () => {
+const ErrorPageComp = ({ paramsMissing = true }) => {
   return (
     <MaxWidthWrapper>
       <div className='flex-col justify-center items-center h-96 mt-10 '>
-        <h1 className='text-3xl font-bold text-center text-red-500'>
+        <h1 className='text-3xl font-bold text-center text-red-600'>
           Something went wrong. <br />
-          Missing required parameters!
+          {paramsMissing && 'Missing required parameters!'}
         </h1>
         <p className='mt-4 text-lg text-center text-muted-foreground'>
           Please contact support for further assistance. Tell us this url, your
@@ -25,4 +25,4 @@ const MissingPerams = () => {
   );
 };
 
-export default MissingPerams;
+export default ErrorPageComp;

@@ -1,5 +1,5 @@
 'use client';
-import MissingPerams from '@/components/comp/MissingPerams';
+import ErrorPageComp from '@/components/comp/ErrorPageComp';
 import Thankyou from '@/components/thankyou/Thankyou';
 import React from 'react';
 
@@ -11,7 +11,7 @@ interface PageProps {
 
 const Page: React.FC<PageProps> = ({ params }) => {
   if (!params.orderId) {
-    return <MissingPerams />;
+    return <ErrorPageComp />;
   }
 
   return <Thankyou orderId={params.orderId} />;
