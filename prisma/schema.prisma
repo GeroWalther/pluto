@@ -41,13 +41,7 @@ enum Status {
     APPROVED
     REJECTED
 }
-model Seller {
-    id        String @id @default(auto()) @map("_id") @db.ObjectId
-    name      String
-    email     String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
+
 // Product Model
 model Product {
     id              String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -59,7 +53,6 @@ model Product {
     imageUrls       String[]
     productFileUrls String[]
     productFileKeys String[]
-    seller Seller
 
     // product status
     status    Status   @default(PENDING)

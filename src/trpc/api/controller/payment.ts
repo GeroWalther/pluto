@@ -3,6 +3,7 @@ import {
   ReceiptEmailHtml,
 } from '@/components/emails/ReceiptEmail';
 import prisma from '@/db/db';
+import { getEmailbyUserId } from '@/db/prisma.user';
 import { sendEmail } from '@/lib/sendEmail';
 import { generateRandomToken } from '@/lib/utils';
 
@@ -148,7 +149,36 @@ export const confirmPurchaseController = async (
     });
   }
 
-  // TODO: Send email to seller, add product details and the receipt
+  const sellerEmailList = getProducts.map(
+    async (p) => await getEmailbyUserId(p.userId)
+  );
+  const sellerEmailsRes = await Promise.all(sellerEmailList);
+  const sellerEmails = sellerEmailsRes.map((u) => u?.email);
+
+  // TODO: check these emails are working
+  try {
+    if (sellerEmails.length > 0 && sellerEmails !== undefined) {
+      sellerEmails.map(
+        async (mail) =>
+          await sendEmail({
+            userEmail: mail!,
+            subject: 'Your product has been sold! This is your receipt.',
+            html: ReceiptEmailHtml({
+              email: mail!,
+              date: new Date(),
+              orderId,
+              products: getProducts,
+            }),
+          })
+      );
+    }
+  } catch (error) {
+    console.log('Email failed to sent! ERROR: ', error);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Email failed to sent!',
+    });
+  }
   try {
     await sendEmail({
       userEmail: user.email!,
