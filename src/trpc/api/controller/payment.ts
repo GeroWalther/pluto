@@ -1,7 +1,4 @@
-import {
-  ReceiptEmail,
-  ReceiptEmailHtml,
-} from '@/components/emails/ReceiptEmail';
+import { ReceiptEmailHtml } from '@/components/emails/ReceiptEmail';
 import prisma from '@/db/db';
 import { getEmailbyUserId } from '@/db/prisma.user';
 import { sendEmail } from '@/lib/sendEmail';
