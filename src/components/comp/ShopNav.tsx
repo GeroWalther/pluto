@@ -43,7 +43,9 @@ export const ShopNav = () => {
           {PRODUCT_CATEGORIES.map((cat) => {
             return (
               <DropdownMenuItem key={cat.value}>
-                <Link href={`/products?category=${cat.value}`}>
+                <Link
+                  onClick={() => setOpen(false)}
+                  href={`/products?category=${cat.value}`}>
                   <span>{cat.label}</span>
                 </Link>
               </DropdownMenuItem>

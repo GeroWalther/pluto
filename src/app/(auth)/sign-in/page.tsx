@@ -53,7 +53,7 @@ const Page = () => {
     }
     if (response?.ok) {
       toast.success('You have been signed in!');
-      router.push('/sign-in'); //todo change callbackUrl
+      router.push('/'); //todo change callbackUrl
     }
   };
 
@@ -83,7 +83,7 @@ const Page = () => {
               Don&apos;t have an account? &rarr;
             </Link>
           </div>
-
+          {/* TODO: Add forgot password functionality */}
           <div className='grid gap-6 pb-16'>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className='grid gap-6'>

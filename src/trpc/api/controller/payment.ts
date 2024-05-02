@@ -146,17 +146,17 @@ export const confirmPurchaseController = async (
       message: `Could not find products with the given ids`,
     });
   }
-
-  if (findProduct.sendEmailToSeller) {
-    return {
-      isPaid: false,
-      name: user.name,
-      email: user.email,
-      orderId: findProduct.orderId,
-      total: findProduct.totalAmount,
-      getProducts,
-    };
-  }
+  //for testing
+  // if (findProduct.sendEmailToSeller) {
+  //   return {
+  //     isPaid: false,
+  //     name: user.name,
+  //     email: user.email,
+  //     orderId: findProduct.orderId,
+  //     total: findProduct.totalAmount,
+  //     getProducts,
+  //   };
+  // }
 
   const sellers = await prisma.user.findMany({
     where: {
@@ -174,21 +174,22 @@ export const confirmPurchaseController = async (
   }
 
   const se = sellers.map((seller) => {
-    const product = getProducts.find((product) => product.userId === seller.id);
-    if (!product || product.name === null || product.price === null)
+    const sellerProducts = getProducts.filter(
+      (product) => product.userId === seller.id
+    );
+    if (sellerProducts.length === 0) {
       return {
         sellerName: 'Nosellername',
         email: seller.email,
-        productName: 'No name',
-        productPrice: 0,
+        sellerLink: `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation/${orderId}`,
       };
+    }
 
     return {
       sellerName: seller.name || 'No seller name',
       email: seller.email,
-      productName: product.name,
-      productPrice: product.price,
       sellerLink: `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation/${orderId}`,
+      sellerProducts,
     };
   });
 
@@ -200,12 +201,7 @@ export const confirmPurchaseController = async (
       return {
         email: seller.email,
         sellerName: seller.sellerName,
-        productNames: se
-          .filter((s) => s.email === seller.email)
-          .map((s) => s.productName),
-        productPrices: se
-          .filter((s) => s.email === seller.email)
-          .map((s) => s.productPrice),
+        sellerProducts: seller.sellerProducts,
         sellerLink:
           seller.sellerLink ||
           `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation`,
@@ -218,12 +214,12 @@ export const confirmPurchaseController = async (
     async (seller) =>
       await sendEmail({
         userEmail: seller.email,
-        subject: 'You have a new order! Confirm your sale.',
+        subject: 'You just sold products! Collect your payment.',
         html: ReceiptEmailHtml({
           email: seller.email,
           date: new Date(),
           orderId,
-          products: getProducts,
+          products: seller.sellerProducts!,
           collectPaymentLink: seller.sellerLink,
         }),
       })
