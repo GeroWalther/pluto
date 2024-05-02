@@ -15,7 +15,6 @@ import { cn } from '@/lib/utils';
 
 export const ShopNav = () => {
   const [open, setOpen] = useState(false);
-  console.log(open);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className='overflow-visible'>
