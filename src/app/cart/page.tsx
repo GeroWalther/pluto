@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { FEE, PRODUCT_CATEGORIES } from '@/config';
+import { FEEINPROCENT, PRODUCT_CATEGORIES } from '@/config';
 import { useCart } from '@/hooks/use-cart';
 import { cn, formatPrice } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
@@ -34,8 +34,11 @@ export default function Page() {
     setIsMounted(true);
   }, []);
 
-  const itemCount = items.length;
-  const totalTransFee = FEE * itemCount;
+  const transactionFee = items.reduce(
+    (acc, { product }) => acc + product.price * FEEINPROCENT,
+    0
+  );
+
   const cartTotal = items.reduce(
     (total, { product }) => total + product.price,
     0
@@ -176,7 +179,7 @@ export default function Page() {
                 </div>
                 <div className='text-sm font-medium text-stone-900'>
                   {isMounted ? (
-                    formatPrice(totalTransFee)
+                    formatPrice(transactionFee)
                   ) : (
                     <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
                   )}
@@ -189,7 +192,7 @@ export default function Page() {
                 </div>
                 <div className='text-base font-medium text-stone-900'>
                   {isMounted ? (
-                    formatPrice(cartTotal + totalTransFee)
+                    formatPrice(cartTotal + transactionFee)
                   ) : (
                     <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
                   )}

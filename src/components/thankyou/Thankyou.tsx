@@ -32,7 +32,7 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'pluto_files.pdf';
+    link.download = 'pluto_files.txt';
     link.click();
   };
 
