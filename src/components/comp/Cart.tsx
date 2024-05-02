@@ -17,7 +17,7 @@ import { useCart } from '@/hooks/use-cart';
 
 import CartItem from './CartItem';
 import { useEffect, useState } from 'react';
-import { FEE } from '@/config';
+import { FEEINPROCENT } from '@/config';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { formatPrice } from '@/lib/utils';
@@ -54,7 +54,9 @@ export default function Cart() {
         </span>
       </SheetTrigger>
 
-      <SheetContent className='flex w-full flex-col pr-0 sm:max-w-lg'>
+      <SheetContent
+        setOpen={setOpen}
+        className='flex w-full flex-col pr-0 sm:max-w-lg'>
         <SheetHeader className='space-y-2.5 pr-6'>
           <SheetTitle>Cart ({itemCount})</SheetTitle>
         </SheetHeader>
