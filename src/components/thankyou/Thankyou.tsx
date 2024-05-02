@@ -73,19 +73,18 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                           </div>
 
                           <div className="space-y-1">
-                            {product.imageUrls.map((url, index) => {
-                              return (
-                                <a
-                                  href={url}
-                                  download={product.name}
-                                  className="text-blue-600 hover:underline underline-offset-2"
-                                  key={index}
-                                  target="_blank"
-                                >
-                                  Download {index}
-                                </a>
-                              );
-                            })}
+                            {product.productFileUrls.map((url, index) => (
+                              <a
+                                href={url}
+                                download={`${product.name}_${index}`}
+                                className="text-blue-600 hover:underline underline-offset-2"
+                                key={index}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {index}
+                              </a>
+                            ))}
                           </div>
                         </div>
 
