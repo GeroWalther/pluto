@@ -1,9 +1,9 @@
-import { z } from "zod";
-import { privateProcedure, router } from "../trpc";
+import { z } from 'zod';
+import { privateProcedure, router } from '../trpc';
 import {
   confirmPurchaseController,
   createSessionController,
-} from "./controller/payment";
+} from './controller/payment';
 
 export const paymentRouter = router({
   createSession: privateProcedure

@@ -134,10 +134,12 @@ export default function AdminTable({
                 <TableCell>${p.price}</TableCell>
                 {p.imageUrls[0] ? (
                   <TableCell className='text-right'>
-                    <img
-                      className='h-10 w-10'
+                    <Image
+                      className='h-12 w-12 object-cover'
                       src={p.imageUrls[0]}
                       alt={p.name}
+                      width={50}
+                      height={50}
                     />
                   </TableCell>
                 ) : (

@@ -13,6 +13,12 @@ export const findUserbyEmail = async (email: string) => {
   });
   return user;
 };
+export const getEmailbyUserId = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+  });
+  return user;
+};
 export const findUserbyToken = async (token: string) => {
   const user = await prisma.user.findUnique({
     where: { token },

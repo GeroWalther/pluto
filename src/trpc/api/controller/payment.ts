@@ -1,10 +1,12 @@
-import prisma from "@/db/db";
-import { sendEmail } from "@/lib/sendEmail";
-import { generateRandomToken } from "@/lib/utils";
+import { ReceiptEmailHtml } from '@/components/emails/ReceiptEmail';
+import prisma from '@/db/db';
+import { getEmailbyUserId } from '@/db/prisma.user';
+import { sendEmail } from '@/lib/sendEmail';
+import { generateRandomToken } from '@/lib/utils';
 
-import { TRPCError } from "@trpc/server";
-import { User } from "next-auth";
-import Stripe from "stripe";
+import { TRPCError } from '@trpc/server';
+import { User } from 'next-auth';
+import Stripe from 'stripe';
 
 export const createSessionController = async (
   productId: string[],
@@ -20,16 +22,16 @@ export const createSessionController = async (
 
   if (!getPrices || getPrices.length === 0 || getPrices === null) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Could not find products with the given ids`,
     });
   }
 
   const lineItem = getPrices.map((product) => ({
     price_data: {
-      currency: "usd",
+      currency: 'usd',
       product_data: {
-        name: product?.name || "Default Product Name",
+        name: product?.name || 'Default Product Name',
       },
       unit_amount: (product?.price || 0) * 100,
     },
@@ -44,31 +46,31 @@ export const createSessionController = async (
   const productNames = getPrices.map((product) => product.name);
   const productFiles = getPrices.map((product) => product.imageUrls).flat();
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
     typescript: true,
-    apiVersion: "2024-04-10",
+    apiVersion: '2024-04-10',
   });
 
-  const orderId = `order${generateRandomToken()}`;
+  const orderId = `${generateRandomToken()}`;
 
   const successUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}`;
 
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
+    payment_method_types: ['card'],
     line_items: lineItem,
-    mode: "payment",
+    mode: 'payment',
 
     success_url: successUrl,
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
     metadata: {
       userId: user.id,
-      productIds: productId.join(","),
+      productIds: productId.join(','),
     },
   });
 
   if (!session) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Could not create a session for products`,
     });
   }
@@ -86,7 +88,7 @@ export const createSessionController = async (
 
   if (!createOrder) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Could not create order for products`,
     });
   }
@@ -96,30 +98,33 @@ export const createSessionController = async (
   };
 };
 
-export const confirmPurchaseController = async (oderId: string, user: User) => {
-  if (!oderId || typeof oderId !== "string") {
+export const confirmPurchaseController = async (
+  orderId: string,
+  user: User
+) => {
+  if (!orderId || typeof orderId !== 'string') {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Invalid orderId`,
     });
   }
 
   const findProduct = await prisma.order.findFirst({
     where: {
-      orderId: oderId,
+      orderId,
     },
   });
 
   if (!findProduct) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Could not find order with the given orderId`,
     });
   }
 
   if (findProduct.userId !== user.id) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `User does not have permission to access this order`,
     });
   }
@@ -136,26 +141,59 @@ export const confirmPurchaseController = async (oderId: string, user: User) => {
 
   if (!getProducts || getProducts.length === 0 || getProducts === null) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Could not find products with the given ids`,
     });
   }
 
-  // TODO: Send email to the user add producs details with download link
-  // const sendEmailToUser = await sendEmail({
-  //   userEmail: user.email!,
-  //   subject: "Order Confirmation",
-  //   html: `<h1>Order Confirmation</h1>
-  //   <p>Thank you for purchasing the following products</p>
-  //   `,
-  // });
+  const sellerEmailList = getProducts.map(
+    async (p) => await getEmailbyUserId(p.userId)
+  );
+  const sellerEmailsRes = await Promise.all(sellerEmailList);
+  const sellerEmails = sellerEmailsRes.map((u) => u?.email);
 
-  // if (!sendEmailToUser) {
-  //   throw new TRPCError({
-  //     code: "INTERNAL_SERVER_ERROR",
-  //     message: `Could not send email to the user`,
-  //   });
-  // }
+  // TODO: check these emails are working
+  try {
+    if (sellerEmails.length > 0 && sellerEmails !== undefined) {
+      sellerEmails.map(
+        async (mail) =>
+          await sendEmail({
+            userEmail: mail!,
+            subject: 'Your product has been sold! This is your receipt.',
+            html: ReceiptEmailHtml({
+              email: mail!,
+              date: new Date(),
+              orderId,
+              products: getProducts,
+            }),
+          })
+      );
+    }
+  } catch (error) {
+    console.log('Email failed to sent! ERROR: ', error);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Email failed to sent!',
+    });
+  }
+  try {
+    await sendEmail({
+      userEmail: user.email!,
+      subject: 'Thanks for your order! This is your receipt.',
+      html: ReceiptEmailHtml({
+        email: user.email!,
+        date: new Date(),
+        orderId,
+        products: getProducts,
+      }),
+    });
+  } catch (error) {
+    console.log('Email failed to sent! ERROR: ', error);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Email failed to sent!',
+    });
+  }
 
   return {
     isPaid: true,

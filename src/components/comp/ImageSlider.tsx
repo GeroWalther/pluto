@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import type SwiperType from "swiper";
-import "swiper/css";
-import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import type SwiperType from 'swiper';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import { Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 interface ImageSliderProps {
   urls: string[];
@@ -25,7 +25,7 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
   });
 
   useEffect(() => {
-    swiper?.on("slideChange", ({ activeIndex }: any) => {
+    swiper?.on('slideChange', ({ activeIndex }: any) => {
       setActiveIndex(activeIndex);
       setSlideConfig({
         isBeginning: activeIndex === 0,
@@ -35,27 +35,26 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
   }, [swiper, urls]);
 
   const activeStyles =
-    "active:scale-[0.97] grid opacity-100 hover:scale-105 absolute top-1/2 -translate-y-1/2 aspect-square h-8 w-8 z-50 place-items-center rounded-full border-2 bg-white border-stone-300";
-  const inactiveStyles = " text-stone-400";
+    'active:scale-[0.97] grid opacity-100 hover:scale-105 absolute top-1/2 -translate-y-1/2 aspect-square h-8 w-8 z-50 place-items-center rounded-full border-2 bg-white border-stone-300';
+  const inactiveStyles = ' text-stone-400';
 
   return (
-    <div className="group relative bg-stone-100 aspect-square overflow-hidden rounded-xl">
+    <div className='group relative bg-stone-100 aspect-square overflow-hidden rounded-xl'>
       {urls.length > 1 && (
-        <div className="absolute z-10 inset-0 opacity-0 group-hover:opacity-100 transition">
+        <div className='absolute z-10 inset-0 opacity-0 group-hover:opacity-100 transition'>
           {activeIndex !== urls.length - 1 && (
             <button
               onClick={(e) => {
                 e.preventDefault();
                 swiper?.slideNext();
               }}
-              className={cn(activeStyles, "right-3 transition", {
+              className={cn(activeStyles, 'right-3 transition', {
                 [inactiveStyles]: slideConfig.isEnd,
-                "hover:bg-primary-300 text-primary-800 opacity-100":
+                'hover:bg-primary-300 text-primary-800 opacity-100':
                   !slideConfig.isEnd,
               })}
-              aria-label="next image"
-            >
-              <ChevronRight className="h-4 w-4 text-stone-700" />{" "}
+              aria-label='next image'>
+              <ChevronRight className='h-4 w-4 text-stone-700' />{' '}
             </button>
           )}
           {activeIndex !== 0 && (
@@ -64,14 +63,13 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
                 e.preventDefault();
                 swiper?.slidePrev();
               }}
-              className={cn(activeStyles, "left-3 transition", {
+              className={cn(activeStyles, 'left-3 transition', {
                 [inactiveStyles]: slideConfig.isBeginning,
-                "hover:bg-primary-300 text-primary-800 opacity-100":
+                'hover:bg-primary-300 text-primary-800 opacity-100':
                   !slideConfig.isBeginning,
               })}
-              aria-label="previous image"
-            >
-              <ChevronLeft className="h-4 w-4 text-stone-700" />
+              aria-label='previous image'>
+              <ChevronLeft className='h-4 w-4 text-stone-700' />
             </button>
           )}
         </div>
@@ -87,13 +85,12 @@ const ImageSlider = ({ urls, alt }: ImageSliderProps) => {
         spaceBetween={50}
         modules={[Pagination]}
         slidesPerView={1}
-        className="h-full w-full"
-      >
+        className='h-full w-full'>
         {urls.map((url, i) => (
-          <SwiperSlide key={i} className="-z-10 relative h-full w-full">
-            {url && url.trim() !== "" && (
+          <SwiperSlide key={i} className='-z-10 relative h-full w-full'>
+            {url && url.trim() !== '' && (
               <Image
-                className="-z-10 h-full w-full object-cover object-center"
+                className='-z-10 h-full w-full object-cover object-center'
                 src={url}
                 alt={alt}
                 width={200}

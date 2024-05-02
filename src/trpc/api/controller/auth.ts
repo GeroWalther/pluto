@@ -65,7 +65,7 @@ export const signUpUserController = async (newUser: TuserSignUp) => {
   try {
     const info = await sendEmail({
       userEmail: newUser.email,
-      subject: 'Thanks for your order! This is your receipt.',
+      subject: 'Welcome to Pluto Market! Verify your account.',
       html: PrimaryActionEmailHtml({
         actionLabel: 'verify your account',
         buttonText: 'Verify Account',

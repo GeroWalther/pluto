@@ -6,12 +6,13 @@ const t = initTRPC.context<{}>().create();
 
 //add middleware to check if user is logged in and added extra info for private procedures
 const middleware = t.middleware;
+
 const isAuthorized = middleware(async (opts) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
-      message: 'This user is unauthorized.',
+      message: 'User unauthorized. Please login or create a new account.',
     });
   }
   return opts.next({
