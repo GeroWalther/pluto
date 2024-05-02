@@ -6,6 +6,7 @@ import { PRODUCT_CATEGORIES } from '@/config';
 import ImageSlider from './ImageSlider';
 import { Skeleton } from '../ui/skeleton';
 import { ProductType } from '../Table/MasterTable';
+import { trpc } from '@/trpc/client';
 
 interface ProductListingProps {
   product: ProductType | null;
@@ -14,6 +15,9 @@ interface ProductListingProps {
 
 const ProductListing = ({ product, index }: ProductListingProps) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const { data: sellerInfo } = trpc.admin.getSellerInfo.useQuery({
+    id: product?.userId!,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -44,7 +48,16 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
           <h3 className='mt-4 font-medium text-sm text-stone-700'>
             {product.name}
           </h3>
-          <p className='mt-1 text-sm text-stone-500'>{label}</p>
+          {/* <p className='mt-1 text-sm text-stone-500'>{label}</p> */}
+          {sellerInfo && (
+            <p className='mt-1 text-sm text-stone-500'>
+              By{' '}
+              <span className=' text-muted-foreground font-semibold'>
+                {' '}
+                {sellerInfo?.name}
+              </span>
+            </p>
+          )}
           <p className='mt-1 font-medium text-sm text-stone-900'>
             {formatPrice(product.price)}
           </p>

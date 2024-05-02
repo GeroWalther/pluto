@@ -6,6 +6,7 @@ import {
   getRejectedProductsController,
   updatePendingProductController,
 } from './controller/admin';
+import { getSellerInfobyId } from '@/db/prisma.user';
 
 export const adminRouter = router({
   getPendingProducts: adminProcedure.query(async () => {
@@ -17,6 +18,11 @@ export const adminRouter = router({
   getRejectedProducts: publicProcedure.query(async () => {
     return await getRejectedProductsController();
   }),
+  getSellerInfo: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      return await getSellerInfobyId(input.id);
+    }),
   updatePendingProducts: adminProcedure
     .input(z.object({ id: z.string(), updateString: z.string() }))
     .mutation(async ({ input }) => {

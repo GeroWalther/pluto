@@ -15,17 +15,22 @@ import { cn } from '@/lib/utils';
 
 export const ShopNav = () => {
   const [open, setOpen] = useState(false);
+  console.log(open);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className='overflow-visible'>
         <Button
           className='mt-3'
           onClick={() => setOpen((p) => !p)}
-          variant={open ? 'secondary' : 'ghost'}>
+          variant={
+            'ghost'
+            // open ?
+            // 'secondary' : 'ghost'
+          }>
           Shop Products
           <ChevronDown
             className={cn('h-4 w-4 transition-all text-muted-foreground', {
-              '-rotate-180': open,
+              // '-rotate-180': open,
             })}
           />
         </Button>

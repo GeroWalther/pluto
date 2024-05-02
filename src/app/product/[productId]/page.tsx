@@ -32,6 +32,12 @@ export default async function page({ params }: PageProps) {
     },
   });
 
+  const seller = await prisma.user.findUnique({
+    where: {
+      id: product?.userId,
+    },
+  });
+
   if (!product) return notFound();
 
   const label = PRODUCT_CATEGORIES.find(
@@ -70,6 +76,12 @@ export default async function page({ params }: PageProps) {
             <h1 className='text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl'>
               {product.name}
             </h1>
+            <div className='flex gap-3 mt-6 items-center'>
+              <p className='text-sm text-muted-foreground'>Sold by: </p>
+              <span className='text-lg text-muted-foreground font-semibold'>
+                {seller?.name}
+              </span>
+            </div>
           </div>
 
           <section className='mt-4'>

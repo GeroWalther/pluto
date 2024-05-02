@@ -7,6 +7,13 @@ export const getAllUsers = async () => {
   return users;
 };
 
+export const getSellerInfobyId = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+  });
+  return user;
+};
+
 export const findUserbyEmail = async (email: string) => {
   const user = await prisma.user.findUnique({
     where: { email },

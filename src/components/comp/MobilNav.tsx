@@ -208,7 +208,10 @@ export default function MobilNav() {
               {/* Log out/ Log in */}
               {user && (
                 <Button
-                  onClick={plutoSignOut}
+                  onClick={() => {
+                    setOpen(false);
+                    plutoSignOut();
+                  }}
                   className={buttonVariants({
                     size: 'sm',
                     className: 'w-[40%] ',
@@ -218,10 +221,10 @@ export default function MobilNav() {
               )}
 
               {!user && (
-                //  todo: does not close when link clicked
                 <div className='space-x-6 '>
                   <Link
                     href='/sign-in'
+                    onClick={() => setOpen(false)}
                     className={buttonVariants({
                       variant: 'default',
                     })}>
@@ -230,6 +233,7 @@ export default function MobilNav() {
 
                   <Link
                     href='/sign-up'
+                    onClick={() => setOpen(false)}
                     className={buttonVariants({
                       variant: 'default',
                     })}>
