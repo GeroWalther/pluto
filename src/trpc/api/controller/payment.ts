@@ -55,7 +55,7 @@ export const createSessionController = async (
   const successUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}`;
 
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
+    payment_method_types: ['card', 'paypal', 'wechat_pay', 'klarna'],
     line_items: lineItem,
     mode: 'payment',
 
@@ -146,17 +146,17 @@ export const confirmPurchaseController = async (
       message: `Could not find products with the given ids`,
     });
   }
-  //for testing
-  // if (findProduct.sendEmailToSeller) {
-  //   return {
-  //     isPaid: false,
-  //     name: user.name,
-  //     email: user.email,
-  //     orderId: findProduct.orderId,
-  //     total: findProduct.totalAmount,
-  //     getProducts,
-  //   };
-  // }
+
+  if (findProduct.sendEmailToSeller) {
+    return {
+      isPaid: false,
+      name: user.name,
+      email: user.email,
+      orderId: findProduct.orderId,
+      total: findProduct.totalAmount,
+      getProducts,
+    };
+  }
 
   const sellers = await prisma.user.findMany({
     where: {
