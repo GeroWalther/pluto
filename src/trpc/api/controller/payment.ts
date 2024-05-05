@@ -102,8 +102,6 @@ export const confirmPurchaseController = async (
   orderId: string,
   user: User
 ) => {
-  console.log("orderId", orderId);
-
   if (!orderId || typeof orderId !== "string") {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
@@ -150,7 +148,7 @@ export const confirmPurchaseController = async (
 
   if (findProduct.sendEmailToSeller) {
     return {
-      isPaid: false,
+      isPaid: true,
       name: user.name,
       email: user.email,
       orderId: findProduct.orderId,
@@ -266,31 +264,6 @@ export const confirmPurchaseController = async (
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Could not update order`,
-    });
-  }
-
-  const stripe = new Stripe(process.env.STRIPE_SECRET ?? "", {
-    typescript: true,
-    apiVersion: "2024-04-10",
-  });
-
-  const payout = checkStripeInfo.map((seller, index) => {
-    if (seller.stripeId) {
-      return stripe.transfers.create({
-        amount: sellerDetails[index].sellerProducts!.reduce(
-          (acc, product) => acc + product.price,
-          0
-        ),
-        currency: "usd",
-        destination: seller.stripeId,
-      });
-    }
-  });
-
-  if (!payout) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Could not create payout`,
     });
   }
 

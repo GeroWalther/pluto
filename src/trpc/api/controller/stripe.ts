@@ -10,6 +10,19 @@ export const createStripeController = async (input: FormType, user: User) => {
     });
   }
 
+  const checkStripe = await prisma.sellerPayment.findFirst({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  if (checkStripe) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `You already have a stripe account`,
+    });
+  }
+
   const createStripe = await prisma.sellerPayment.create({
     data: {
       stripeId: input.stripeId,
