@@ -151,6 +151,26 @@ export const confirmPurchaseController = async (
     return productData;
   });
 
+  sellerInfo.map(async (seller) => {
+    const updateSellerBalance = await prisma.sellerPayment.update({
+      where: {
+        id: seller.id,
+      },
+      data: {
+        storedAmount: {
+          increment: orderInfo.totalAmount,
+        },
+      },
+    });
+
+    if (!updateSellerBalance) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Could not update seller balance`,
+      });
+    }
+  });
+
   // if email is already sent to seller the retun this
   if (orderInfo.sendEmailToSeller) {
     return {
@@ -162,6 +182,8 @@ export const confirmPurchaseController = async (
       getProducts: productInfo,
     };
   }
+
+  // TODO: update the specific sellers balance with the total amount
 
   // send email to buyer
   const sendEmailToBuyer = await sendEmail({
@@ -250,7 +272,7 @@ export const collectPaymentController = async (orderId: string, user: User) => {
     },
   });
 
-  if (!sripeInfo) {
+  if (!sripeInfo || !sripeInfo.stripeId) {
     return {
       message: `Please add your stripe account details`,
     };

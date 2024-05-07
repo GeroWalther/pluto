@@ -1,31 +1,19 @@
-'use client';
-import { trpc } from '@/trpc/client';
-import React, { useState } from 'react';
-import Image from 'next/image';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../ui/table';
-import { Button } from '../ui/button';
+"use client";
+import Loader from "@/components/Loader/Loader";
+import { cn } from "@/lib/utils";
+import { trpc } from "@/trpc/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import {
   FileInput,
   MoreVertical,
   PictureInPicture2Icon,
   Trash2,
-} from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+} from "lucide-react";
+import Image from "next/image";
+import React, { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -33,14 +21,26 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
-import { format } from 'date-fns';
-import Loader from '@/components/Loader/Loader';
-import DeleteDialog from './Dialogs/DeleteDialog';
-import { cn } from '@/lib/utils';
+} from "../ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import DeleteDialog from "./Dialogs/DeleteDialog";
 
 export interface ProductType {
-  status: 'APPROVED' | 'PENDING' | 'REJECTED';
+  status: "APPROVED" | "PENDING" | "REJECTED";
   name: string;
   description: string;
   userId: string;
@@ -72,11 +72,11 @@ export default function AdminTable({
 }: propType) {
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [deleteId, setDeleteId] = useState('');
+  const [deleteId, setDeleteId] = useState("");
   const q = useQueryClient();
   const { mutate } = trpc.admin.updatePendingProducts.useMutation({
     onSuccess: () => {
-      toast.success('Product updated successfully!');
+      toast.success("Product updated successfully!");
       q.invalidateQueries();
     },
     onError: (err: any) => {
@@ -86,21 +86,21 @@ export default function AdminTable({
   });
   if (isLoading)
     return (
-      <div className='flex justify-center items-center h-full'>
+      <div className="flex justify-center items-center h-full">
         <Loader />
       </div>
     );
   if (data?.length === 0) {
     return (
       <div>
-        <p className='text-stone-400'>No products left.</p>
+        <p className="text-stone-400">No products left.</p>
       </div>
     );
   }
   if (isError)
     return (
       <div>
-        <p className='text-red-400'>Something went wrong...</p>
+        <p className="text-red-400">Something went wrong...</p>
       </div>
     );
   if (seller)
@@ -108,11 +108,13 @@ export default function AdminTable({
       <div>
         <Table>
           <TableHeader>
-            <TableHead>Product Name</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Image</TableHead>
-            <TableHead className='w-20'></TableHead>
+            <TableRow>
+              <TableHead>Product Name</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Image</TableHead>
+              <TableHead className="w-20"></TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
             {data?.map((p) => (
@@ -121,21 +123,22 @@ export default function AdminTable({
                 <TableCell>
                   <span
                     className={cn(
-                      p.status === 'APPROVED'
-                        ? 'bg-green-500'
-                        : p.status === 'PENDING'
-                        ? 'bg-stone-400'
-                        : 'bg-red-600',
-                      'p-2 text-stone-50 rounded-full text-[10px]'
-                    )}>
+                      p.status === "APPROVED"
+                        ? "bg-green-500"
+                        : p.status === "PENDING"
+                        ? "bg-stone-400"
+                        : "bg-red-600",
+                      "p-2 text-stone-50 rounded-full text-[10px]"
+                    )}
+                  >
                     {p.status}
                   </span>
                 </TableCell>
                 <TableCell>${p.price}</TableCell>
                 {p.imageUrls[0] ? (
-                  <TableCell className='text-right'>
+                  <TableCell className="text-right">
                     <Image
-                      className='h-12 w-12 object-cover'
+                      className="h-12 w-12 object-cover"
                       src={p.imageUrls[0]}
                       alt={p.name}
                       width={50}
@@ -143,29 +146,30 @@ export default function AdminTable({
                     />
                   </TableCell>
                 ) : (
-                  <TableCell className='text-right'>
-                    <Image height={50} width={50} src='/eis.jpg' alt={p.name} />
+                  <TableCell className="text-right">
+                    <Image height={50} width={50} src="/eis.jpg" alt={p.name} />
                   </TableCell>
                 )}
-                <TableCell className='text-right'>
+                <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant='ghost' className=' ml-auto h-8 w-8 p-0'>
-                        <MoreVertical className='h-4 w-4' />
+                      <Button variant="ghost" className=" ml-auto h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align='end'>
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem>
                         <button
                           onClick={() => {
                             setOpenDeleteModal(true);
                             setDeleteId(p.id);
                           }}
-                          className='flex justify-between items-center w-full'>
-                          <span className='text-red-500 font-semibold '>
+                          className="flex justify-between items-center w-full"
+                        >
+                          <span className="text-red-500 font-semibold ">
                             Delete
                           </span>
-                          <Trash2 color='red' className='h-4 w-4' />
+                          <Trash2 color="red" className="h-4 w-4" />
                         </button>
                       </DropdownMenuItem>
                       {/* <DropdownMenuSeparator />
@@ -196,7 +200,7 @@ export default function AdminTable({
     );
 
   return (
-    <Table className='m-2'>
+    <Table className="m-2">
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
@@ -213,15 +217,15 @@ export default function AdminTable({
           Array.isArray(data) &&
           data.map((p: ProductType) => (
             <TableRow key={p.id}>
-              <TableCell className='text-left'>{p.name}</TableCell>
+              <TableCell className="text-left">{p.name}</TableCell>
 
-              <TableCell className='text-left'>
-                {format(new Date(p.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+              <TableCell className="text-left">
+                {format(new Date(p.createdAt), "yyyy-MM-dd HH:mm:ss")}
               </TableCell>
 
-              <TableCell className='text-left'>
+              <TableCell className="text-left">
                 {p.productFileUrls.map((file: string, index: number) => (
-                  <ul key={index} className='mb-3'>
+                  <ul key={index} className="mb-3">
                     <li>
                       <a href={file} download>
                         <FileInput />
@@ -230,9 +234,9 @@ export default function AdminTable({
                   </ul>
                 ))}
               </TableCell>
-              <TableCell className='text-left'>
+              <TableCell className="text-left">
                 {p.imageUrls.map((file: string, index: number) => (
-                  <ul key={index} className='mb-3'>
+                  <ul key={index} className="mb-3">
                     <li>
                       <a href={file} download>
                         <PictureInPicture2Icon />
@@ -241,12 +245,13 @@ export default function AdminTable({
                   </ul>
                 ))}
               </TableCell>
-              <TableCell className='text-left'>
+              <TableCell className="text-left">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button
-                      variant='outline'
-                      onClick={() => setOpenDescriptionModal(true)}>
+                      variant="outline"
+                      onClick={() => setOpenDescriptionModal(true)}
+                    >
                       See Description
                     </Button>
                   </DialogTrigger>
@@ -257,42 +262,45 @@ export default function AdminTable({
                         The description that has been uploaded by the seller.
                       </DialogDescription>
                     </DialogHeader>
-                    <div className='p-4 bg-stone-200 rounded-sm'>
+                    <div className="p-4 bg-stone-200 rounded-sm">
                       <p>{p.description}</p>
                     </div>
                   </DialogContent>
                 </Dialog>
               </TableCell>
 
-              <TableCell className='text-left'>${p.price}</TableCell>
+              <TableCell className="text-left">${p.price}</TableCell>
 
-              <TableCell className='text-left flex gap-2'>
+              <TableCell className="text-left flex gap-2">
                 {update ? (
                   <>
                     <Button
-                      className='bg-green-600  text-stone-100'
+                      className="bg-green-600  text-stone-100"
                       onClick={() => {
-                        console.log({ id: p.id, updateString: 'APPROVED' });
-                        mutate({ id: p.id, updateString: 'APPROVED' });
-                      }}>
+                        console.log({ id: p.id, updateString: "APPROVED" });
+                        mutate({ id: p.id, updateString: "APPROVED" });
+                      }}
+                    >
                       Approve
                     </Button>
                     <Button
-                      className='bg-red-600  text-stone-100'
+                      className="bg-red-600  text-stone-100"
                       onClick={() =>
-                        mutate({ id: p.id, updateString: 'REJECTED' })
-                      }>
+                        mutate({ id: p.id, updateString: "REJECTED" })
+                      }
+                    >
                       Reject
                     </Button>
                   </>
                 ) : (
                   <Button
-                    className='bg-red-600 py-1 px-3'
+                    className="bg-red-600 py-1 px-3"
                     onClick={() => {
                       setOpenDeleteModal(true);
                       setDeleteId(p.id);
-                    }}>
-                    <Trash2 className='w-4 h-4 text-stone-100' />
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 text-stone-100" />
                   </Button>
                 )}
               </TableCell>
