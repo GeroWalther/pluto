@@ -28,6 +28,7 @@ interface ReceiptEmailProps {
   products: ProdType[];
   collectPaymentLink?: string;
   stripeAccount?: boolean;
+  mainUrl?: string;
 }
 
 interface ProdType {
@@ -53,6 +54,7 @@ export const ReceiptEmail = ({
   products,
   collectPaymentLink,
   stripeAccount,
+  mainUrl,
 }: ReceiptEmailProps) => {
   const transactionFee = products.reduce(
     (acc, curr) => acc + curr.price * FEEINPROCENT,
@@ -187,6 +189,7 @@ export const ReceiptEmail = ({
           </Section>
 
           <Hr style={productPriceLineBottom} />
+          {/* TODO: add the seller dashboard link to the email */}
           {stripeAccount ? (
             <Section style={{ textAlign: "center" }}>
               <Column style={{ width: "64px" }}></Column>
@@ -211,6 +214,13 @@ export const ReceiptEmail = ({
               >
                 <Link href="https://dashboard.stripe.com/register">
                   Please create a stripe account.
+                </Link>
+                <Text style={{ fontSize: "14px", marginLeft: "25px" }}>
+                  Or if you have already a stripe account, connect it to Pluto
+                  Market dashboard.
+                </Text>
+                <Link href={`${mainUrl}/dashboard`}>
+                  Connect your stripe account
                 </Link>
               </Text>
             </Section>

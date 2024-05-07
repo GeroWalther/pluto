@@ -124,7 +124,7 @@ export const confirmPurchaseController = async (
 
   const getProductIds = orderInfo.productIds;
 
-  const getProductsofSeller = await prisma.product.findMany({
+  const getProductsofSellerandSellerInfo = await prisma.product.findMany({
     where: {
       id: {
         in: getProductIds,
@@ -135,18 +135,23 @@ export const confirmPurchaseController = async (
     },
   });
 
-  if (!getProductsofSeller || getProductsofSeller.length === 0) {
+  if (!getProductsofSellerandSellerInfo) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Could not find products with the given ids`,
     });
   }
 
-  const productInfo = getProductsofSeller.map((info) => {
+  // separate seller info and product info
+  const sellerInfo = getProductsofSellerandSellerInfo.map(
+    (product) => product.user
+  );
+  const productInfo = getProductsofSellerandSellerInfo.map((info) => {
     const { user, ...productData } = info;
     return productData;
   });
 
+  // if email is already sent to seller the retun this
   if (orderInfo.sendEmailToSeller) {
     return {
       isPaid: true,
@@ -158,6 +163,7 @@ export const confirmPurchaseController = async (
     };
   }
 
+  // send email to buyer
   const sendEmailToBuyer = await sendEmail({
     userEmail: user.email!,
     subject: "Thanks for your order! This is your receipt.",
@@ -176,6 +182,34 @@ export const confirmPurchaseController = async (
     });
   }
 
+  // send email to seller
+  const sendEmailsToSellers = sellerInfo.map(
+    async (seller, index) =>
+      await sendEmail({
+        userEmail: seller.email,
+        subject: "You just sold products! Collect your payment.",
+        html: ReceiptEmailHtml({
+          email: seller.email,
+          date: new Date(),
+          orderId,
+          products: productInfo.filter(
+            (product) => product.userId === seller.id
+          ),
+          collectPaymentLink: `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation/${orderId}`,
+          stripeAccount: seller.stripeId ? true : false,
+          mainUrl: process.env.NEXT_PUBLIC_SERVER_URL,
+        }),
+      })
+  );
+
+  if (!sendEmailsToSellers) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Could not send email to sellers`,
+    });
+  }
+
+  // update order with email sent to seller
   const updateProduct = await prisma.order.update({
     where: {
       orderId,
