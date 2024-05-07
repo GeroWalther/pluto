@@ -109,128 +109,53 @@ export const confirmPurchaseController = async (
     });
   }
 
-  const findProduct = await prisma.order.findFirst({
+  const orderInfo = await prisma.order.findFirst({
     where: {
       orderId,
     },
   });
 
-  if (!findProduct) {
+  if (!orderInfo) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Could not find order with the given orderId`,
     });
   }
 
-  if (findProduct.userId !== user.id) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `User does not have permission to access this order`,
-    });
-  }
+  const getProductIds = orderInfo.productIds;
 
-  const productIds = findProduct.productIds;
-
-  const getProducts = await prisma.product.findMany({
+  const getProductsofSeller = await prisma.product.findMany({
     where: {
       id: {
-        in: productIds,
+        in: getProductIds,
       },
+    },
+    include: {
+      user: true,
     },
   });
 
-  if (!getProducts || getProducts.length === 0 || getProducts === null) {
+  if (!getProductsofSeller || getProductsofSeller.length === 0) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Could not find products with the given ids`,
     });
   }
 
-  if (findProduct.sendEmailToSeller) {
+  const productInfo = getProductsofSeller.map((info) => {
+    const { user, ...productData } = info;
+    return productData;
+  });
+
+  if (orderInfo.sendEmailToSeller) {
     return {
       isPaid: true,
       name: user.name,
       email: user.email,
-      orderId: findProduct.orderId,
-      total: findProduct.totalAmount,
-      getProducts,
+      orderId: orderId,
+      total: orderInfo.totalAmount,
+      getProducts: productInfo,
     };
-  }
-
-  const sellers = await prisma.user.findMany({
-    where: {
-      id: {
-        in: getProducts.map((product) => product.userId),
-      },
-    },
-  });
-
-  if (!sellers || sellers.length === 0 || sellers === null) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Could not find sellers with the given ids`,
-    });
-  }
-
-  const checkStripeInfo = await prisma.sellerPayment.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
-
-  const se = sellers.map((seller, index) => {
-    const sellerProducts = getProducts.filter(
-      (product) => product.userId === seller.id
-    );
-    if (sellerProducts.length === 0) {
-      return {
-        sellerName: "Nosellername",
-        email: seller.email,
-        sellerLink: `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation/${orderId}`,
-        sellerProducts: null,
-        stripeAccount: false,
-      };
-    }
-
-    return {
-      sellerName: seller.name || "No seller name",
-      email: seller.email,
-      sellerLink: `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation/${orderId}`,
-      sellerProducts,
-      stripeAccount: checkStripeInfo[index].stripeId ? true : false,
-    };
-  });
-
-  const sellerDetails = se.filter((seller) => seller.sellerProducts);
-
-  if (!sellerDetails || sellerDetails.length === 0) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Could not find seller details`,
-    });
-  }
-
-  const sendEmails = sellerDetails.map(
-    async (seller, index) =>
-      await sendEmail({
-        userEmail: seller.email,
-        subject: "You just sold products! Collect your payment.",
-        html: ReceiptEmailHtml({
-          email: seller.email,
-          date: new Date(),
-          orderId,
-          products: seller.sellerProducts!,
-          collectPaymentLink: seller.sellerLink,
-          stripeAccount: seller.stripeAccount,
-        }),
-      })
-  );
-
-  if (!sendEmails) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Could not send email to sellers`,
-    });
   }
 
   const sendEmailToBuyer = await sendEmail({
@@ -240,14 +165,14 @@ export const confirmPurchaseController = async (
       email: user.email!,
       date: new Date(),
       orderId,
-      products: getProducts,
+      products: productInfo,
     }),
   });
 
   if (!sendEmailToBuyer) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: `Could not send email to buyer`,
+      message: `Could not send email to seller`,
     });
   }
 
@@ -271,9 +196,9 @@ export const confirmPurchaseController = async (
     isPaid: true,
     name: user.name,
     email: user.email,
-    orderId: findProduct.orderId,
-    total: findProduct.totalAmount,
-    getProducts,
+    orderId: orderId,
+    total: orderInfo.totalAmount,
+    getProducts: productInfo,
   };
 };
 
