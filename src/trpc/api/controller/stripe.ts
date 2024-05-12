@@ -3,6 +3,11 @@ import { TRPCError } from '@trpc/server';
 import { User } from 'next-auth';
 import Stripe from 'stripe';
 
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
+  typescript: true,
+  apiVersion: '2024-04-10',
+});
+
 export const createStripeController = async (input: string, user: User) => {
   if (!input) {
     throw new TRPCError({
@@ -23,11 +28,6 @@ export const createStripeController = async (input: string, user: User) => {
       message: `You already have a stripe account`,
     });
   }
-
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
-    typescript: true,
-    apiVersion: '2024-04-10',
-  });
 
   // check if stripe account exists
   const account = await stripe.accounts.retrieve({

@@ -19,6 +19,7 @@ import {
   AddStripeAccountButton,
   TransferMoneyButton,
 } from '../StripeInteraction';
+import { User } from 'next-auth';
 
 const data = [
   { name: 'Jan', sold: 300 },
@@ -86,8 +87,10 @@ const HistoryComponent = ({ balance }: any) => {
     </Table>
   );
 };
-
-export default function SellerSales() {
+interface Props {
+  user: User;
+}
+export default function SellerSales({ user }: Props) {
   const handleTransfer = () => {
     // Code to transfer money to Stripe
   };
@@ -114,7 +117,7 @@ export default function SellerSales() {
         </h4>
         <div className='flex justify-between'>
           <TransferMoneyButton balance={balance} />
-          <AddStripeAccountButton />
+          <AddStripeAccountButton user={user} />
         </div>
       </div>
       <div>

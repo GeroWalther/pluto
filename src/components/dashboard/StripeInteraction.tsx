@@ -18,6 +18,11 @@ import { Input } from '../ui/input';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Loader from '../Loader/Loader';
+import Link from 'next/link';
+import { User } from 'next-auth';
+import { CheckCircle2 } from 'lucide-react';
+import { Separator } from '../ui/separator';
+import { useQueryClient } from '@tanstack/react-query';
 
 const schemaStripe = z.object({
   stripeId: z.string(),
@@ -109,15 +114,29 @@ const TransferMoneyButton = ({ balance }: { balance: number }) => {
   );
 };
 
-const AddStripeAccountButton = () => {
+const AddStripeAccountButton = ({ user }: { user: User }) => {
+  const queryClient = useQueryClient();
   const { mutate } = trpc.stripe.createStripe.useMutation({
     onSuccess: () => {
-      toast.success('Stripe account added');
+      toast.success('Stripe account connected successfully!');
+      queryClient.invalidateQueries();
     },
     onError: (error) => {
       toast.error(error.message);
     },
   });
+  const { mutate: updateStripeId } = trpc.stripe.updateStripeId.useMutation({
+    onSuccess: () => {
+      toast.success('Changed Stripe Id successfully!');
+      queryClient.invalidateQueries();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { data: user1 } = trpc.auth.getUserFromEmail.useQuery(user.email!);
+
   const {
     register,
     handleSubmit,
@@ -127,26 +146,68 @@ const AddStripeAccountButton = () => {
   });
 
   const onSubmit = (data: FormTypeStripe) => {
-    mutate(data.stripeId);
+    if (
+      user1?.stripeId !== undefined &&
+      user1?.stripeId !== null &&
+      user1?.stripeId.length > 0
+    ) {
+      updateStripeId(data.stripeId);
+    } else {
+      mutate(data.stripeId);
+    }
   };
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='outline'>Add stripe Account</Button>
+        <Button variant='outline'>Connect Stripe Account</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle>Share link</DialogTitle>
+          <DialogTitle>Connect Stripe Account </DialogTitle>
           <DialogDescription>
-            Anyone who has this link will be able to view this.
+            {user1?.stripeId !== undefined &&
+            user1?.stripeId !== null &&
+            user1?.stripeId.length > 0 ? (
+              <div className='mt-6'>
+                <p className='flex gap-2 items-center mb-2'>
+                  <span>
+                    <CheckCircle2 className=' text-emerald-400 h-6 w-6 ' />
+                  </span>
+                  Your connected Stripe ID :{' '}
+                </p>
+                <span className='text-lg font-semibold px-4'>
+                  {user1?.stripeId}
+                </span>
+              </div>
+            ) : (
+              <div>
+                <p>Please provide here your Stripe account ID. </p>
+              </div>
+            )}
           </DialogDescription>
         </DialogHeader>
         <div className='flex items-center space-x-2'>
           <div className='grid flex-1 gap-2'>
             <form onSubmit={handleSubmit(onSubmit)} className='grid gap-6'>
+              {user1?.stripeId !== undefined &&
+                user1?.stripeId !== null &&
+                user1?.stripeId.length > 0 && (
+                  <>
+                    <Separator />
+                    <p className='-mb-2 text-sm text-stone-700'>
+                      To change your Stripe ID, enter a new one below and click
+                      submit.
+                    </p>
+                    <Link
+                      href='/stripe-id-description'
+                      className='text-blue-500 text-xs'>
+                      Where can I find this ID
+                    </Link>
+                  </>
+                )}
               <input
                 type='text'
-                placeholder='Stripe ID'
+                placeholder='New Stripe ID'
                 {...register('stripeId')}
                 className='w-full px-4 py-2 border rounded-md focus:outline-none focus:border-stone-500'
               />
@@ -156,9 +217,7 @@ const AddStripeAccountButton = () => {
             </form>
           </div>
         </div>
-        <DialogFooter className='sm:justify-start'>
-          Add Stripe Account
-        </DialogFooter>
+        <DialogFooter className='sm:justify-start'></DialogFooter>
       </DialogContent>
     </Dialog>
   );
