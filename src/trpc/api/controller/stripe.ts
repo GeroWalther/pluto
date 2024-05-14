@@ -41,9 +41,80 @@ export const createStripeController = async (input: string, user: User) => {
     });
   }
 
+  if (account.email !== user.email) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: `Please enter a valid email.`,
+    });
+  }
+
   const createStripe = await prisma.sellerPayment.create({
     data: {
-      stripeId: input,
+      stripeId: account.id,
+      paymentMethod: 'stripe',
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+  });
+
+  if (!createStripe) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: `Something went wrong while creating the stripe account`,
+    });
+  }
+
+  return input;
+};
+export const updateStripeController = async (input: string, user: User) => {
+  if (!input) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Please fill in all fields`,
+    });
+  }
+
+  const checkStripe = await prisma.sellerPayment.findFirst({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  if (!checkStripe) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `You don't have a stripe account`,
+    });
+  }
+
+  // check if stripe account exists
+  const account = await stripe.accounts.retrieve({
+    stripeAccount: input,
+  });
+
+  if (!account.id) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Invalid stripe account`,
+    });
+  }
+
+  if (account.email !== user.email) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: `Please enter a valid email.`,
+    });
+  }
+
+  const createStripe = await prisma.sellerPayment.update({
+    where: {
+      id: checkStripe.id,
+    },
+    data: {
+      stripeId: account.id,
       paymentMethod: 'stripe',
       user: {
         connect: {

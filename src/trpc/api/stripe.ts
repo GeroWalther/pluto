@@ -3,6 +3,7 @@ import { privateProcedure, router } from '../trpc';
 import {
   createStripeController,
   transferMoneyController,
+  updateStripeController,
 } from './controller/stripe';
 import { updateUser } from '@/db/prisma.user';
 
@@ -25,7 +26,7 @@ export const stripeRoute = router({
   updateStripeId: privateProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
-      const response = await updateUser(ctx.user.email, { stripeId: input });
+      const response = await updateStripeController(input, ctx.user);
 
       return response;
     }),
