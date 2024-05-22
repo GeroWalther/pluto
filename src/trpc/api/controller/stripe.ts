@@ -29,46 +29,53 @@ export const createStripeController = async (input: string, user: User) => {
     });
   }
 
-  // check if stripe account exists
-  const account = await stripe.accounts.retrieve({
-    stripeAccount: input,
-  });
+  try {
+    // Check if stripe account exists
+    const account = await stripe.accounts.retrieve(input);
 
-  if (!account.id) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: `Invalid stripe account`,
-    });
-  }
+    if (!account.id) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Invalid stripe account`,
+      });
+    }
 
-  if (account.email !== user.email) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: `Please enter a valid email.`,
-    });
-  }
+    if (!account.email) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: `Please enter a valid email.`,
+      });
+    }
 
-  const createStripe = await prisma.sellerPayment.create({
-    data: {
-      stripeId: account.id,
-      paymentMethod: "stripe",
-      user: {
-        connect: {
-          id: user.id,
+    const createStripe = await prisma.sellerPayment.create({
+      data: {
+        stripeId: account.id,
+        paymentMethod: "stripe",
+        user: {
+          connect: {
+            id: user.id,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!createStripe) {
+    if (!createStripe) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Something went wrong while creating the stripe account`,
+      });
+    }
+
+    return input;
+  } catch (error) {
+    // Handle any errors that occur during account retrieval
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: `Something went wrong while creating the stripe account`,
+      message: JSON.stringify(error), // Provide detailed error message
     });
   }
-
-  return input;
 };
+
 export const updateStripeController = async (input: string, user: User) => {
   if (!input) {
     throw new TRPCError({
