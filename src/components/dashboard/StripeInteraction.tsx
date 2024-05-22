@@ -8,20 +8,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryISOData } from "@/config/countrylist";
 import { trpc } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { on } from "events";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-
 export const schemaStripe = z.object({
   stripeId: z.string(),
 });
-//
 
 export type FormType = z.infer<typeof schemaStripe>;
 
@@ -79,31 +95,42 @@ const TransferMoneyButton = () => {
 };
 
 const AddStripeAccountButton = () => {
-  const {
-    data,
-    mutate,
-    isSuccess,
-    isError,
-    error: errorMessage,
-  } = trpc.stripe.createStripe.useMutation({
+  const router = useRouter();
+  const { data, mutate } = trpc.stripe.createStripe.useMutation({
     onSuccess: () => {
-      toast.success("Stripe account added");
+      toast.success("Redirecting to stripe account creation page");
     },
     onError: (error) => {
       toast.error(error.message);
     },
   });
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormType>({
-    resolver: zodResolver(schemaStripe),
+
+  useEffect(() => {
+    if (data) {
+      router.push(data.url);
+    }
+  }, [data]);
+
+  const FormSchema = z.object({
+    stripeId: z.string({
+      required_error: "Please enter a valid stripe ID",
+    }),
+    country: z.string({
+      required_error: "Please select a country",
+    }),
   });
 
-  const onSubmit = (data: FormType) => {
-    mutate(data.stripeId);
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    mutate({
+      stripeId: data.stripeId,
+      country: data.country,
+    });
   };
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -117,25 +144,51 @@ const AddStripeAccountButton = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="link" className="sr-only">
-              Link
-            </Label>
-            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
-              <input
-                type="text"
-                placeholder="Stripe ID"
-                {...register("stripeId")}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <>
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your country" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="US">USA</SelectItem>
+                          <SelectItem value="CAN">Canada</SelectItem>
+                          <SelectItem value="DEU">Germany</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  </>
+                )}
               />
-              <button
-                type="submit"
-                className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-              >
-                Submit
-              </button>
+              <FormField
+                control={form.control}
+                name="stripeId"
+                render={({ field }) => (
+                  <>
+                    <FormItem>
+                      <FormLabel>Stripe ID</FormLabel>
+                      <Input {...field} />
+                      <FormMessage />
+                    </FormItem>
+                  </>
+                )}
+              />
+              <Button type="submit">Submit</Button>
             </form>
-          </div>
+          </Form>
         </div>
         <DialogFooter className="sm:justify-start">
           Add Stripe Account

@@ -1,11 +1,18 @@
-import { FormType } from "@/app/create-stripe/page";
 import prisma from "@/db/db";
 import { TRPCError } from "@trpc/server";
 import { User } from "next-auth";
 import Stripe from "stripe";
 
-export const createStripeController = async (input: string, user: User) => {
-  if (!input) {
+export const createStripeController = async ({
+  stripeId,
+  country,
+  user,
+}: {
+  stripeId: string;
+  country: string;
+  user: User;
+}) => {
+  if (!stripeId || !country || !user) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: `Please fill in all fields`,
@@ -30,38 +37,34 @@ export const createStripeController = async (input: string, user: User) => {
     apiVersion: "2024-04-10",
   });
 
-  // check if stripe account exists
-  const account = await stripe.accounts.retrieve({
-    stripeAccount: input,
+  const account = await stripe.accounts.create({
+    country: country,
+    type: "express",
+    email: user.email!,
   });
 
   if (!account.id) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: `Invalid stripe account`,
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Something went wrong while creating stripe account`,
     });
   }
 
-  const createStripe = await prisma.sellerPayment.create({
-    data: {
-      stripeId: input,
-      paymentMethod: "stripe",
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
-    },
+  const link = await stripe.accountLinks.create({
+    account: account.id,
+    refresh_url: `${process.env.NEXTAUTH_URL}/dashboard?board=sellerdash&tabs=sales`,
+    return_url: `${process.env.NEXTAUTH_URL}/confirm-stripe?account=${account.id}`,
+    type: "account_onboarding",
   });
 
-  if (!createStripe) {
+  if (!link.url) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: `Something went wrong while creating the stripe account`,
+      message: `Something went wrong while creating stripe account`,
     });
   }
 
-  return input;
+  return { url: link.url, stripeId: account.id };
 };
 
 export const transferMoneyController = async (input: number, user: User) => {

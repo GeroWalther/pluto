@@ -109,11 +109,11 @@ export default function AdminTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Product Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Image</TableHead>
-              <TableHead className="w-20"></TableHead>
+              <TableCell className="text-right font-bold">Name</TableCell>
+              <TableCell className="text-right font-bold">Status</TableCell>
+              <TableCell className="text-right font-bold">Price</TableCell>
+              <TableCell className="text-right font-bold">Image</TableCell>
+              <TableCell className="text-right font-bold">Action</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>

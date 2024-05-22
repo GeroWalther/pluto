@@ -7,9 +7,18 @@ import {
 
 export const stripeRoute = router({
   createStripe: privateProcedure
-    .input(z.string())
+    .input(
+      z.object({
+        stripeId: z.string(),
+        country: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      const response = createStripeController(input, ctx.user);
+      const response = createStripeController({
+        stripeId: input.stripeId,
+        country: input.country,
+        user: ctx.user,
+      });
       return response;
     }),
 

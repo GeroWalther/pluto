@@ -63,6 +63,8 @@ model Product {
     user      User     @relation(fields: [userId], references: [id])
     userId    String   @db.ObjectId
 
+    soldCount Int @default(0)
+
     category String @default("Image")
 }
 

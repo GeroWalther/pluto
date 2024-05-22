@@ -47,7 +47,7 @@ export default function SellerProd() {
           </div>
         </div>
       ) : products !== null && products !== undefined ? (
-        <MasterTable data={products} seller={true} />
+        <MasterTable data={products} />
       ) : (
         isLoading && (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">

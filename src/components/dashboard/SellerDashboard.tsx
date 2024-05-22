@@ -1,40 +1,48 @@
 "use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { BadgeDollarSign, Menu, Package, Package2 } from "lucide-react";
 import { User } from "next-auth";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useReducer } from "react";
 import IsProAd from "../comp/IsProAd";
 import SellerProd from "./CompSellerDash/SellerProd";
 import SellerSales from "./CompSellerDash/SellerSales";
 
-const reducer = (state: any, action: any) => {
-  switch (action.type) {
-    case "SHOW_PRODUCTS":
-      return {
-        ...state,
-        showProducts: true,
-        showSales: false,
-      };
-    case "SHOW_SALES":
-      return {
-        ...state,
-        showProducts: false,
-        showSales: true,
-      };
-    default:
-      return state;
-  }
-};
+export default function SellerDashboard({
+  user,
+  activeTab,
+  setActiveTab,
+}: {
+  user: User;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}) {
+  const reducer = (state: any, action: any) => {
+    switch (action.type) {
+      case "SHOW_PRODUCTS":
+        return { ...state, showProducts: true, showSales: false };
+      case "SHOW_SALES":
+        return { ...state, showProducts: false, showSales: true };
+      default:
+        return state;
+    }
+  };
 
-export default function SellerDashboard({ user }: { user: User }) {
   const [state, dispatch] = useReducer(reducer, {
-    showProducts: true,
-    showSales: false,
+    showProducts: activeTab === "products",
+    showSales: activeTab === "sales",
   });
+
+  useEffect(() => {
+    if (state.showProducts) {
+      setActiveTab("products");
+    } else {
+      setActiveTab("sales");
+    }
+  }, [state.showProducts, state.showSales, setActiveTab]);
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -56,7 +64,8 @@ export default function SellerDashboard({ user }: { user: User }) {
                   state.showProducts && "text-primary bg-muted"
                 )}
               >
-                <Package className="h-4 w-4" /> <span>Products</span>
+                <Package className="h-4 w-4" />
+                <span>Products</span>
               </button>
               <button
                 onClick={() => dispatch({ type: "SHOW_SALES" })}
@@ -65,7 +74,8 @@ export default function SellerDashboard({ user }: { user: User }) {
                   state.showSales && "text-primary bg-muted"
                 )}
               >
-                <BadgeDollarSign className="h-4 w-4" /> <span>Sales</span>
+                <BadgeDollarSign className="h-4 w-4" />
+                <span>Sales</span>
               </button>
             </nav>
           </div>
@@ -107,7 +117,8 @@ export default function SellerDashboard({ user }: { user: User }) {
                     state.showProducts && "text-primary bg-muted"
                   )}
                 >
-                  <Package className="h-5 w-5" /> <span>Products</span>
+                  <Package className="h-5 w-5" />
+                  <span>Products</span>
                 </button>
                 <button
                   onClick={() => dispatch({ type: "SHOW_SALES" })}
@@ -116,18 +127,14 @@ export default function SellerDashboard({ user }: { user: User }) {
                     state.showSales && "text-primary bg-muted"
                   )}
                 >
-                  <BadgeDollarSign className="h-5 w-5" /> <span>Sales</span>
-                  {/* <Badge className='ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full'>
-                    {' '}
-                    6{' '}
-                  </Badge> */}
+                  <BadgeDollarSign className="h-5 w-5" />
+                  <span>Sales</span>
                 </button>
               </nav>
               <IsProAd />
             </SheetContent>
           </Sheet>
         </header>
-
         {/* Right Side Main content */}
         {state.showProducts && (
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">

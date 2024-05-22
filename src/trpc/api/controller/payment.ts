@@ -248,6 +248,26 @@ export const confirmPurchaseController = async (
     });
   }
 
+  const updateSoldProducts = await prisma.product.updateMany({
+    where: {
+      id: {
+        in: getProductIds,
+      },
+    },
+    data: {
+      soldCount: {
+        increment: 1,
+      },
+    },
+  });
+
+  if (!updateSoldProducts) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Could not update sold products`,
+    });
+  }
+
   return {
     isPaid: true,
     name: user.name,
