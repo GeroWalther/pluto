@@ -1,4 +1,5 @@
 import prisma from "@/db/db";
+import { sendEmail } from "@/lib/sendEmail";
 import { TRPCError } from "@trpc/server";
 import { User } from "next-auth";
 import Stripe from "stripe";
@@ -53,6 +54,26 @@ export const createStripeController = async (user: User, country: string) => {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Something went wrong while creating stripe account`,
+    });
+  }
+
+  const sendEmailToBuyer = await sendEmail({
+    userEmail: user.email!,
+    subject: "Stripe Account Link",
+    html: `
+      <h1>Click on the link below to create your stripe account</h1>
+      <a href="${link.url}">Create Stripe Account</a>
+      <P>
+      or copy and paste the link below in your browser
+      </P>
+      <p>${link.url}</p>
+    `,
+  });
+
+  if (!sendEmailToBuyer) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Could not send email to seller`,
     });
   }
 
@@ -169,4 +190,41 @@ export const updateStripeController = async (input: string, user: User) => {
   }
 
   return input;
+};
+
+export const confirmStripeController = async (input: string, user: User) => {
+  const account = await stripe.accounts.retrieve(input);
+  if (!account.id) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Invalid stripe account`,
+    });
+  }
+
+  const check = await prisma.sellerPayment.findFirst({
+    where: {
+      stripeId: account.id,
+    },
+  });
+
+  const createStripe = await prisma.sellerPayment.create({
+    data: {
+      stripeId: account.id,
+      paymentMethod: "stripe",
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+  });
+
+  if (!createStripe) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Something went wrong while creating the stripe account`,
+    });
+  }
+
+  return account;
 };
