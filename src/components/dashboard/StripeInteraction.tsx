@@ -155,7 +155,10 @@ const AddStripeAccountButton = ({ user }: { user: User }) => {
     ) {
       updateStripeId(data.stripeId);
     } else {
-      mutate(data.stripeId);
+      mutate({
+        country: "US",
+        stripeId: data.stripeId,
+      });
     }
   };
   return (
