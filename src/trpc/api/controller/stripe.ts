@@ -38,7 +38,6 @@ export const createStripeController = async ({
   }
 
   const account = await stripe.accounts.create({
-    country: country,
     type: "express",
     email: user.email!,
   });
