@@ -3,6 +3,11 @@ import { TRPCError } from "@trpc/server";
 import { User } from "next-auth";
 import Stripe from "stripe";
 
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
+  typescript: true,
+  apiVersion: "2024-04-10",
+});
+
 export const createStripeController = async ({
   stripeId,
   country,
@@ -31,11 +36,6 @@ export const createStripeController = async ({
       message: `You already have a stripe account`,
     });
   }
-
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-    typescript: true,
-    apiVersion: "2024-04-10",
-  });
 
   const account = await stripe.accounts.create({
     country: country,
@@ -108,7 +108,6 @@ export const transferMoneyController = async (input: number, user: User) => {
 
   return `Transferred $${input} to your stripe account`;
 };
-
 
 export const updateStripeController = async (input: string, user: User) => {
   if (!input) {

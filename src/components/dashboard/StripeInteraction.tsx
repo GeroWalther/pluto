@@ -26,10 +26,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { countryISOData } from "@/config/countrylist";
+import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -173,7 +174,7 @@ const AddStripeAccountButton = () => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Connect Stripe Account </DialogTitle>
-          <DialogDescription>
+          {/* <DialogDescription>
             {user1?.stripeId !== undefined &&
             user1?.stripeId !== null &&
             user1?.stripeId.length > 0 ? (
@@ -193,7 +194,7 @@ const AddStripeAccountButton = () => {
                 <p>Please provide here your Stripe account ID. </p>
               </div>
             )}
-          </DialogDescription>
+          </DialogDescription> */}
         </DialogHeader>
         <div className="flex items-center space-x-2">
           <Form {...form}>
@@ -249,4 +250,3 @@ const AddStripeAccountButton = () => {
 };
 
 export { AddStripeAccountButton, TransferMoneyButton };
-
