@@ -8,16 +8,8 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
   apiVersion: "2024-04-10",
 });
 
-export const createStripeController = async ({
-  stripeId,
-  country,
-  user,
-}: {
-  stripeId: string;
-  country: string;
-  user: User;
-}) => {
-  if (!stripeId || !country || !user) {
+export const createStripeController = async (user: User, country: string) => {
+  if (!user) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: `Please fill in all fields`,
@@ -40,6 +32,7 @@ export const createStripeController = async ({
   const account = await stripe.accounts.create({
     type: "express",
     email: user.email!,
+    country: country,
   });
 
   if (!account.id) {

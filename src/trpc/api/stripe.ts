@@ -1,25 +1,16 @@
-import { z } from 'zod';
-import { privateProcedure, router } from '../trpc';
+import { z } from "zod";
+import { privateProcedure, router } from "../trpc";
 import {
   createStripeController,
   transferMoneyController,
   updateStripeController,
-} from './controller/stripe';
+} from "./controller/stripe";
 
 export const stripeRoute = router({
   createStripe: privateProcedure
-    .input(
-      z.object({
-        stripeId: z.string(),
-        country: z.string(),
-      })
-    )
+    .input(z.string())
     .mutation(async ({ input, ctx }) => {
-      const response = createStripeController({
-        stripeId: input.stripeId,
-        country: input.country,
-        user: ctx.user,
-      });
+      const response = createStripeController(ctx.user, input);
       return response;
     }),
 
