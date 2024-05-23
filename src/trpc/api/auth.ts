@@ -1,16 +1,17 @@
-import { findUserbyEmail } from '../../db/prisma.user';
+import { z } from "zod";
+import { findUserbyEmail } from "../../db/prisma.user";
 import {
   adminProcedure,
   privateProcedure,
   publicProcedure,
   router,
-} from '../trpc';
-import { z } from 'zod';
+} from "../trpc";
 
 import {
+  sellerPaymentInfoController,
   signUpUserController,
   updateUserNameController,
-} from './controller/auth';
+} from "./controller/auth";
 
 //auth related routes and their precedures.
 export const authRouter = router({
@@ -53,4 +54,9 @@ export const authRouter = router({
       };
     }
   ),
+
+  getSellerPaymentInfo: privateProcedure.query(async ({ ctx }) => {
+    const sellerPaymentInfo = await sellerPaymentInfoController(ctx.user);
+    return sellerPaymentInfo;
+  }),
 });

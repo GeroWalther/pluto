@@ -69,6 +69,7 @@ export type TupdateUser = {
   isAdmin?: boolean;
   token?: string;
   isEmailVerified?: boolean;
+  stripeId?: string;
 };
 // UPDATE
 export const updateUser = async (email: string, updateData: TupdateUser) => {

@@ -33,6 +33,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import Loader from "../Loader/Loader";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 export const schemaStripe = z.object({
@@ -41,13 +42,10 @@ export const schemaStripe = z.object({
 
 export type FormType = z.infer<typeof schemaStripe>;
 
-const TransferMoneyButton = () => {
-  const {
-    data,
-    mutate,
-    isError,
-    error: errorMessage,
-  } = trpc.stripe.transferMoney.useMutation({
+const TransferMoneyButton = ({ balance }: { balance: number }) => {
+  const [amount, setAmount] = useState(() => Number(balance));
+  const [open, setOpen] = useState(false);
+  const { data, mutate, isPending } = trpc.stripe.transferMoney.useMutation({
     onSuccess: () => {
       toast.success(data);
     },
@@ -57,35 +55,71 @@ const TransferMoneyButton = () => {
   });
 
   const handleTransfer = () => {
-    mutate(100);
+    mutate(amount);
+    setTimeout(() => {
+      setOpen(false);
+    }, 1000);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-md">
+        <Button
+          onClick={() => setOpen(true)}
+          className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-md"
+        >
           Transfer money
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent setOpen={setOpen} className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Share link</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            Transfer Money to Stripe
+          </DialogTitle>
           <DialogDescription>
-            Anyone who has this link will be able to view this.
+            If you would like to transfer money to your Stripe account, select
+            an amount and then click transfer.
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">
           <div className="grid flex-1 gap-2">
             <div>
-              <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis
-                soluta dolorum enim quasi excepturi consequuntur accusantium
-                odio exercitationem pariatur voluptas? Eligendi impedit cum,
-                sunt ipsa quidem dolores omnis quos. Dolorum.
+              <p className="font-semibold">
+                Total currently available balance:{" "}
+                <span className="font-bold text-lg p-4">${balance}</span>
               </p>
             </div>
-            <Button variant="default" onClick={handleTransfer}>
-              Transfer Money
+            <form className="mb-2 grid grid-cols-5">
+              <p className="text-sm py-3 col-span-3">
+                Select how much of your balance you would like to transfer:
+              </p>
+              <div className="text-sm py-3 col-span-2">
+                <Input
+                  type="number"
+                  placeholder="Amount"
+                  max={Number(balance)}
+                  min={1}
+                  value={Number(amount)}
+                  defaultValue={Number(balance)}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  className={cn(
+                    "w-full px-4 py-2 border rounded-md focus:outline-none focus:border-stone-500"
+                  )}
+                />
+                {amount > balance && (
+                  <p className="text-red-500 text-sm py-2">
+                    This amount cannot exceed your balance.
+                  </p>
+                )}
+              </div>
+            </form>
+            <Button
+              onClick={handleTransfer}
+              variant="default"
+              className="font-bold w-full"
+              disabled={isPending || amount > balance}
+            >
+              {!isPending ? <span>Transfer ${amount} </span> : <Loader />}
             </Button>
           </div>
         </div>
@@ -134,13 +168,31 @@ const AddStripeAccountButton = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Add stripe Account</Button>
+        <Button variant="outline">Connect Stripe Account</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Share link</DialogTitle>
+          <DialogTitle>Connect Stripe Account </DialogTitle>
           <DialogDescription>
-            Anyone who has this link will be able to view this.
+            {user1?.stripeId !== undefined &&
+            user1?.stripeId !== null &&
+            user1?.stripeId.length > 0 ? (
+              <div className="mt-6">
+                <p className="flex gap-2 items-center mb-2">
+                  <span>
+                    <CheckCircle2 className=" text-emerald-400 h-6 w-6 " />
+                  </span>
+                  Your connected Stripe ID :{" "}
+                </p>
+                <span className="text-lg font-semibold px-4">
+                  {user1?.stripeId}
+                </span>
+              </div>
+            ) : (
+              <div>
+                <p>Please provide here your Stripe account ID. </p>
+              </div>
+            )}
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">
@@ -190,12 +242,11 @@ const AddStripeAccountButton = () => {
             </form>
           </Form>
         </div>
-        <DialogFooter className="sm:justify-start">
-          Add Stripe Account
-        </DialogFooter>
+        <DialogFooter className="sm:justify-start"></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
 export { AddStripeAccountButton, TransferMoneyButton };
+
