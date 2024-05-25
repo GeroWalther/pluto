@@ -34,6 +34,9 @@ export const createStripeController = async (user: User, country: string) => {
     type: "express",
     email: user.email!,
     country: country,
+    capabilities: {
+      transfers: { requested: true },
+    },
   });
 
   if (!account.id) {
@@ -106,13 +109,26 @@ export const transferMoneyController = async (input: number, user: User) => {
     apiVersion: "2024-04-10",
   });
 
-  const transfer = await stripe.transfers.create({
-    amount: input,
-    currency: "usd",
-    destination: checkStripe.stripeId,
-  });
+  const retriveAccount = await stripe.accounts.retrieve(checkStripe.stripeId);
 
-  if (!transfer) {
+  if (!retriveAccount.id) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Invalid stripe account`,
+    });
+  }
+
+  const payout = await stripe.payouts.create(
+    {
+      amount: 10,
+      currency: "usd",
+    },
+    {
+      stripeAccount: retriveAccount.id,
+    }
+  );
+
+  if (!payout) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Something went wrong while transferring money`,
@@ -207,6 +223,22 @@ export const confirmStripeController = async (input: string, user: User) => {
     },
   });
 
+  if (check) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `You already have a stripe account`,
+    });
+  }
+
+  const createdAccount = await stripe.accounts.retrieve(account.id);
+
+  if (!createdAccount.id) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Invalid stripe account`,
+    });
+  }
+
   const createStripe = await prisma.sellerPayment.create({
     data: {
       stripeId: account.id,
@@ -226,5 +258,48 @@ export const confirmStripeController = async (input: string, user: User) => {
     });
   }
 
-  return account;
+  return createdAccount;
+};
+
+export const checkStripeController = async (user: User) => {
+  const checkStripe = await prisma.sellerPayment.findFirst({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  if (!checkStripe) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `You do not have a stripe account`,
+    });
+  }
+
+  return checkStripe;
+};
+
+export const loginStripeController = async (user: User) => {
+  const checkStripe = await prisma.sellerPayment.findFirst({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  if (!checkStripe) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `You do not have a stripe account`,
+    });
+  }
+
+  const account = await stripe.accounts.createLoginLink(checkStripe.stripeId);
+
+  if (!account.created) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `You do not have a stripe account`,
+    });
+  }
+
+  return account.url;
 };

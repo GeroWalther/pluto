@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { privateProcedure, router } from "../trpc";
 import {
+  checkStripeController,
   confirmStripeController,
   createStripeController,
+  loginStripeController,
   transferMoneyController,
   updateStripeController,
 } from "./controller/stripe";
@@ -37,4 +39,14 @@ export const stripeRoute = router({
       const response = await confirmStripeController(input, ctx.user);
       return response;
     }),
+
+  checkStripe: privateProcedure.query(async ({ ctx }) => {
+    const response = await checkStripeController(ctx.user);
+    return response;
+  }),
+
+  loginStripe: privateProcedure.query(async ({ ctx }) => {
+    const response = await loginStripeController(ctx.user);
+    return response;
+  }),
 });

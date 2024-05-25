@@ -1,3 +1,4 @@
+"uae client";
 import {
   Dialog,
   DialogContent,

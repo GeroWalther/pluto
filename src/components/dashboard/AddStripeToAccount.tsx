@@ -45,6 +45,25 @@ const FormSchema = z.object({
 });
 
 const AddStripeAccountButton = () => {
+  const { data, isSuccess } = trpc.stripe.checkStripe.useQuery();
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Connect Stripe Account</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-center mb-7">
+            {isSuccess ? "Stripe Account Connected" : "Connect Stripe Account"}
+          </DialogTitle>
+        </DialogHeader>
+        {isSuccess ? <LoginStripeAccountButton /> : <AddStripeForm />}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const AddStripeForm = () => {
   const router = useRouter();
   const { data, mutate } = trpc.stripe.createStripe.useMutation({
     onSuccess: () => {
@@ -70,89 +89,105 @@ const AddStripeAccountButton = () => {
   }, [data]);
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Connect Stripe Account</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Connect Stripe Account</DialogTitle>
-          <DialogDescription>xxxxxxxxx</DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Country</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value
-                            ? countryISOData.find(
-                                (country) => country.code === field.value
-                              )?.name
-                            : "Select country"}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search country..."
-                          className="h-9"
-                        />
-                        <CommandEmpty>No Country selected.</CommandEmpty>
-                        <CommandGroup>
-                          <CommandList>
-                            {countryISOData.map((country) => (
-                              <CommandItem
-                                value={country.code}
-                                key={country.number}
-                                onSelect={() => {
-                                  form.setValue("country", country.code);
-                                }}
-                              >
-                                {country.name}
-                                <span
-                                  className={cn(
-                                    "ml-auto h-4 w-4",
-                                    country.name === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                >
-                                  ✔
-                                </span>
-                              </CommandItem>
-                            ))}
-                          </CommandList>
-                        </CommandGroup>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>
-                    This is the country that will be used in the dashboard.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Submit</Button>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="country"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Country</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value
+                        ? countryISOData.find(
+                            (country) => country.code === field.value
+                          )?.name
+                        : "Select country"}
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search country..."
+                      className="h-9"
+                    />
+                    <CommandEmpty>No Country selected.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandList>
+                        {countryISOData.map((country) => (
+                          <CommandItem
+                            value={country.code}
+                            key={country.number}
+                            onSelect={() => {
+                              form.setValue("country", country.code);
+                            }}
+                          >
+                            {country.name}
+                            <span
+                              className={cn(
+                                "ml-auto h-4 w-4",
+                                country.name === field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            >
+                              ✔
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandList>
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <FormDescription>
+                This is the country that will be used in the dashboard.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+};
+
+const LoginStripeAccountButton = () => {
+  const router = useRouter();
+  const { data, refetch, isSuccess } = trpc.stripe.loginStripe.useQuery(
+    undefined,
+    {
+      enabled: false,
+    }
+  );
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push(data);
+    }
+  }, [data]);
+
+  const createLogin = () => {
+    refetch();
+  };
+  return (
+    <>
+      <Button onClick={createLogin} variant="outline">
+        Login to Stripe
+      </Button>
+    </>
   );
 };
 
