@@ -118,20 +118,20 @@ export const transferMoneyController = async (input: number, user: User) => {
     });
   }
 
-  const payout = await stripe.payouts.create(
-    {
-      amount: 10,
-      currency: "usd",
+  const charge = await stripe.charges.create({
+    amount: input * 100, // amount in cents
+    currency: "usd",
+    source: "tok_visa",
+    on_behalf_of: checkStripe.stripeId,
+    transfer_data: {
+      destination: checkStripe.stripeId,
     },
-    {
-      stripeAccount: retriveAccount.id,
-    }
-  );
+  });
 
-  if (!payout) {
+  if (!charge.id) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: `Something went wrong while transferring money`,
+      message: `Could not transfer money to stripe account`,
     });
   }
 
