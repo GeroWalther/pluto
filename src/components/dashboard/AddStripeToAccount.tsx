@@ -45,7 +45,7 @@ const FormSchema = z.object({
 });
 
 const AddStripeAccountButton = () => {
-  const { data, isSuccess } = trpc.stripe.checkStripe.useQuery();
+  const { isSuccess } = trpc.stripe.checkStripe.useQuery();
   return (
     <Dialog>
       <DialogTrigger asChild>

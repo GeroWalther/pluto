@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { privateProcedure, router } from "../trpc";
+import { adminProcedure, privateProcedure, router } from "../trpc";
+import {
+  getAdminStripeData,
+  getAllStripeAccountData,
+  updateBalance,
+} from "./controller/adminTransAction";
 import {
   checkStripeController,
   confirmStripeController,
@@ -49,4 +54,20 @@ export const stripeRoute = router({
     const response = await loginStripeController(ctx.user);
     return response;
   }),
+
+  allStripeInfo: adminProcedure.query(async () => {
+    const response = await getAllStripeAccountData();
+    return response;
+  }),
+  adminStripe: adminProcedure.query(async ({ ctx }) => {
+    const response = await getAdminStripeData();
+    return response;
+  }),
+
+  updateBalance: adminProcedure
+    .input(z.number())
+    .mutation(async ({ input }) => {
+      const response = await updateBalance(input);
+      return response;
+    }),
 });

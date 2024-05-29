@@ -31,12 +31,30 @@ export const createStripeController = async (user: User, country: string) => {
   }
 
   const account = await stripe.accounts.create({
-    type: "express",
-    email: user.email!,
-    country: country,
-    capabilities: {
-      transfers: { requested: true },
+    controller: {
+      losses: {
+        payments: "application",
+      },
+      fees: {
+        payer: "application",
+      },
+      stripe_dashboard: {
+        type: "express",
+      },
     },
+    capabilities: {
+      card_payments: {
+        requested: true,
+      },
+      transfers: {
+        requested: true,
+      },
+    },
+    metadata: {
+      userId: user.id,
+    },
+    business_type: "individual",
+    country: country,
   });
 
   if (!account.id) {
@@ -119,7 +137,7 @@ export const transferMoneyController = async (input: number, user: User) => {
   }
 
   const charge = await stripe.charges.create({
-    amount: input * 100, // amount in cents
+    amount: input * 100,
     currency: "usd",
     source: "tok_visa",
     on_behalf_of: checkStripe.stripeId,
@@ -252,6 +270,27 @@ export const confirmStripeController = async (input: string, user: User) => {
   });
 
   if (!createStripe) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Something went wrong while creating the stripe account`,
+    });
+  }
+
+  const updateAccount = await stripe.accounts.update(account.id, {
+    metadata: {
+      userId: user.id,
+    },
+    capabilities: {
+      card_payments: {
+        requested: true,
+      },
+      transfers: {
+        requested: true,
+      },
+    },
+  });
+
+  if (!updateAccount.id) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Something went wrong while creating the stripe account`,

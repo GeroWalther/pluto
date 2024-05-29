@@ -1,5 +1,5 @@
-import React from 'react';
-
-export default function Statistics() {
+const Statistics = () => {
   return <div>Statistics</div>;
-}
+};
+
+export default Statistics;
