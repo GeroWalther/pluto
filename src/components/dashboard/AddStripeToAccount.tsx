@@ -34,8 +34,9 @@ import { countryISOData } from "@/config/countrylist";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -166,6 +167,7 @@ const AddStripeForm = () => {
 
 const LoginStripeAccountButton = () => {
   const router = useRouter();
+  const [link, setLink] = useState();
   const { data, refetch, isSuccess } = trpc.stripe.loginStripe.useQuery(
     undefined,
     {
@@ -173,20 +175,23 @@ const LoginStripeAccountButton = () => {
     }
   );
 
-  useEffect(() => {
-    if (isSuccess) {
-      router.push(data);
-    }
-  }, [data]);
-
   const createLogin = () => {
     refetch();
   };
+
   return (
     <>
-      <Button onClick={createLogin} variant="outline">
-        Login to Stripe
-      </Button>
+      {isSuccess ? (
+        <Link href={data} target="_blank" passHref>
+          <Button onClick={createLogin} variant="default" className="w-full">
+            Click here to login to Stripe
+          </Button>
+        </Link>
+      ) : (
+        <Button onClick={createLogin} variant="outline">
+          Generate login link
+        </Button>
+      )}
     </>
   );
 };

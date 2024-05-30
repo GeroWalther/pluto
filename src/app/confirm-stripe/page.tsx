@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 const Page = () => {
-  // acct_1PJXsoQw6Nw6P8Ht
+  // acct_1PJdsWQuGMERmHeX
   const search = useSearchParams();
   const accountId = search.get("account");
   const { data, mutate } = trpc.stripe.confirmStripe.useMutation({

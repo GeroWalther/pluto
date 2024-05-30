@@ -122,6 +122,24 @@ export const transferMoneyController = async (input: number, user: User) => {
     });
   }
 
+  const getOrderNumbers = await prisma.order.findMany({
+    where: {
+      sellerIds: {
+        has: user.id,
+      },
+    },
+  });
+
+  if (!getOrderNumbers || getOrderNumbers.length === 0) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `You do not have any orders to transfer money`,
+    });
+  }
+
+  //  get latest orderId of the seller
+  const latestOrderId = getOrderNumbers[getOrderNumbers.length - 1].orderId;
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
     typescript: true,
     apiVersion: "2024-04-10",
@@ -140,7 +158,6 @@ export const transferMoneyController = async (input: number, user: User) => {
     amount: input * 100,
     currency: "usd",
     source: "tok_visa",
-    on_behalf_of: checkStripe.stripeId,
     transfer_data: {
       destination: checkStripe.stripeId,
     },
