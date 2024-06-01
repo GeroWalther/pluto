@@ -136,14 +136,10 @@ export const transferMoneyController = async (input: number, user: User) => {
     });
   }
 
-  const charge = await stripe.charges.create({
+  const charge = await stripe.transfers.create({
     amount: input * 100,
     currency: "usd",
-    source: "tok_visa",
-    on_behalf_of: checkStripe.stripeId,
-    transfer_data: {
-      destination: checkStripe.stripeId,
-    },
+    destination: checkStripe.stripeId,
   });
 
   if (!charge.id) {

@@ -17,7 +17,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { toast } from "sonner";
 
 import GithubButton from "@/components/Btn/GithubButton";
-import GoogleButton from "@/components/Btn/GoogleButton";
+import { GoogleButton } from "@/components/Btn/GoogleButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";

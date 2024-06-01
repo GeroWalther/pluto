@@ -1,11 +1,11 @@
-import { ReceiptEmailHtml } from '@/components/emails/ReceiptEmail';
-import prisma from '@/db/db';
-import { sendEmail } from '@/lib/sendEmail';
-import { generateRandomToken } from '@/lib/utils';
+import { ReceiptEmailHtml } from "@/components/emails/ReceiptEmail";
+import prisma from "@/db/db";
+import { sendEmail } from "@/lib/sendEmail";
+import { generateRandomToken } from "@/lib/utils";
 
-import { TRPCError } from '@trpc/server';
-import { User } from 'next-auth';
-import { stripe } from './stripe';
+import { TRPCError } from "@trpc/server";
+import { User } from "next-auth";
+import { stripe } from "./stripe";
 
 export const createSessionController = async (
   productId: string[],
@@ -21,16 +21,34 @@ export const createSessionController = async (
 
   if (!getPrices || getPrices.length === 0 || getPrices === null) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not find products with the given ids`,
+    });
+  }
+
+  // get seller stripe accounts from product ids
+  const sellerIds = getPrices.map((product) => product.userId);
+
+  const getSellerStripeAccount = await prisma.sellerPayment.findMany({
+    where: {
+      userId: {
+        in: sellerIds,
+      },
+    },
+  });
+
+  if (!getSellerStripeAccount || getSellerStripeAccount.length === 0) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Could not find stripe account for seller`,
     });
   }
 
   const lineItem = getPrices.map((product) => ({
     price_data: {
-      currency: 'usd',
+      currency: "usd",
       product_data: {
-        name: product?.name || 'Default Product Name',
+        name: product?.name || "Default Product Name",
       },
       unit_amount: (product?.price || 0) * 100,
     },
@@ -51,21 +69,28 @@ export const createSessionController = async (
 
   // , 'paypal', 'wechat_pay', 'klarna'
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card', 'paypal'],
+    payment_method_types: ["card", "paypal"],
     line_items: lineItem,
-    mode: 'payment',
+    mode: "payment",
 
     success_url: successUrl,
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
     metadata: {
       userId: user.id,
-      productIds: productId.join(','),
+      productIds: productId.join(","),
+    },
+
+    payment_intent_data: {
+      application_fee_amount: 0,
+      transfer_data: {
+        destination: getSellerStripeAccount[0].stripeId,
+      },
     },
   });
 
   if (!session) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not create a session for products`,
     });
   }
@@ -83,7 +108,7 @@ export const createSessionController = async (
 
   if (!createOrder) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not create order for products`,
     });
   }
@@ -97,9 +122,9 @@ export const confirmPurchaseController = async (
   orderId: string,
   user: User
 ) => {
-  if (!orderId || typeof orderId !== 'string') {
+  if (!orderId || typeof orderId !== "string") {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Invalid orderId`,
     });
   }
@@ -112,7 +137,7 @@ export const confirmPurchaseController = async (
 
   if (!orderInfo) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not find order with the given orderId`,
     });
   }
@@ -132,7 +157,7 @@ export const confirmPurchaseController = async (
 
   if (!getProductsofSellerandSellerInfo) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not find products with the given ids`,
     });
   }
@@ -160,7 +185,7 @@ export const confirmPurchaseController = async (
 
     if (!updateSellerBalance) {
       throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
+        code: "INTERNAL_SERVER_ERROR",
         message: `Could not update seller balance`,
       });
     }
@@ -183,7 +208,7 @@ export const confirmPurchaseController = async (
   // send email to buyer
   const sendEmailToBuyer = await sendEmail({
     userEmail: user.email!,
-    subject: 'Thanks for your order! This is your receipt.',
+    subject: "Thanks for your order! This is your receipt.",
     html: ReceiptEmailHtml({
       email: user.email!,
       date: new Date(),
@@ -194,7 +219,7 @@ export const confirmPurchaseController = async (
 
   if (!sendEmailToBuyer) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not send email to seller`,
     });
   }
@@ -204,7 +229,7 @@ export const confirmPurchaseController = async (
     async (seller, index) =>
       await sendEmail({
         userEmail: seller.email,
-        subject: 'You just sold products! Collect your payment.',
+        subject: "You just sold products! Collect your payment.",
         html: ReceiptEmailHtml({
           email: seller.email,
           date: new Date(),
@@ -221,7 +246,7 @@ export const confirmPurchaseController = async (
 
   if (!sendEmailsToSellers) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not send email to sellers`,
     });
   }
@@ -238,28 +263,8 @@ export const confirmPurchaseController = async (
 
   if (!updateProduct) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: `Could not update order`,
-    });
-  }
-
-  const updateSoldProducts = await prisma.product.updateMany({
-    where: {
-      id: {
-        in: getProductIds,
-      },
-    },
-    data: {
-      soldCount: {
-        increment: 1,
-      },
-    },
-  });
-
-  if (!updateSoldProducts) {
-    throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: `Could not update sold products`,
+      message: `Could not update order`,
     });
   }
 
@@ -274,9 +279,9 @@ export const confirmPurchaseController = async (
 };
 
 export const collectPaymentController = async (orderId: string, user: User) => {
-  if (!orderId || typeof orderId !== 'string' || !user) {
+  if (!orderId || typeof orderId !== "string" || !user) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Invalid orderId or user`,
     });
   }
@@ -301,7 +306,7 @@ export const collectPaymentController = async (orderId: string, user: User) => {
 
   if (!getOrderDesc) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not find order with the given orderId`,
     });
   }
@@ -319,12 +324,12 @@ export const collectPaymentController = async (orderId: string, user: User) => {
 
   if (!getProductsofSeller || getProductsofSeller.length === 0) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: "INTERNAL_SERVER_ERROR",
       message: `Could not find products with the given ids`,
     });
   }
 
   return {
-    success: 'Payment collected successfully!',
+    success: "Payment collected successfully!",
   };
 };
