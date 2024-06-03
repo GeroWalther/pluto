@@ -46,6 +46,7 @@ export const createStripeController = async (user: User, country: string) => {
       card_payments: {
         requested: true,
       },
+
       transfers: {
         requested: true,
       },
@@ -54,6 +55,10 @@ export const createStripeController = async (user: User, country: string) => {
       userId: user.id,
     },
     business_type: "individual",
+    business_profile: {
+      mcc: "5734",
+      product_description: "Selling products",
+    },
     country: country,
   });
 
@@ -78,25 +83,25 @@ export const createStripeController = async (user: User, country: string) => {
     });
   }
 
-  const sendEmailToBuyer = await sendEmail({
-    userEmail: user.email!,
-    subject: "Stripe Account Link",
-    html: `
-      <h1>Click on the link below to create your stripe account</h1>
-      <a href="${link.url}">Create Stripe Account</a>
-      <P>
-      or copy and paste the link below in your browser
-      </P>
-      <p>${link.url}</p>
-    `,
-  });
+  // const sendEmailToBuyer = await sendEmail({
+  //   userEmail: user.email!,
+  //   subject: "Stripe Account Link",
+  //   html: `
+  //     <h1>Click on the link below to create your stripe account</h1>
+  //     <a href="${link.url}">Create Stripe Account</a>
+  //     <P>
+  //     or copy and paste the link below in your browser
+  //     </P>
+  //     <p>${link.url}</p>
+  //   `,
+  // });
 
-  if (!sendEmailToBuyer) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Could not send email to seller`,
-    });
-  }
+  // if (!sendEmailToBuyer) {
+  //   throw new TRPCError({
+  //     code: "INTERNAL_SERVER_ERROR",
+  //     message: `Could not send email to seller`,
+  //   });
+  // }
 
   return { url: link.url, stripeId: account.id };
 };
@@ -154,16 +159,14 @@ export const transferMoneyController = async (input: number, user: User) => {
     });
   }
 
-  const charge = await stripe.charges.create({
-    amount: input * 100,
+  const transfer = await stripe.transfers.create({
+    amount: input * 100, // Amount in cents
     currency: "usd",
-    source: "tok_visa",
-    transfer_data: {
-      destination: checkStripe.stripeId,
-    },
+    destination: checkStripe.stripeId,
+    transfer_group: latestOrderId,
   });
 
-  if (!charge.id) {
+  if (!transfer.id) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Could not transfer money to stripe account`,

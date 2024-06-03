@@ -89,6 +89,8 @@ model Order {
     userId    String   @db.ObjectId
 
     sendEmailToSeller Boolean @default(false)
+
+    isSold Boolean @default(false)
 }
 
 model SellerPayment {

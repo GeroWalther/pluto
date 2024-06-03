@@ -10,7 +10,7 @@ interface PageProps {
 }
 
 const Page: React.FC<PageProps> = ({ params }) => {
-  // http://localhost:3000/thank-you/o1pxt96k82
+  // http://localhost:3000/thank-you/bz5eibo3a6
   if (!params.orderId) {
     return <ErrorPageComp />;
   }

@@ -28,7 +28,7 @@ export const createSessionController = async (
 
   const lineItem = getPrices.map((product) => ({
     price_data: {
-      currency: "usd",
+      currency: "eur",
       product_data: {
         name: product?.name || "Default Product Name",
       },
@@ -54,7 +54,7 @@ export const createSessionController = async (
     payment_method_types: ["card", "paypal"],
     line_items: lineItem,
     mode: "payment",
-
+    currency: "eur",
     success_url: successUrl,
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
     metadata: {
@@ -66,7 +66,7 @@ export const createSessionController = async (
     },
   });
 
-  if (!session) {
+  if (!session.success_url) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Could not create a session for products`,
@@ -117,6 +117,15 @@ export const confirmPurchaseController = async (
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Could not find order with the given orderId`,
+    });
+  }
+
+  const mainAcc = await stripe.accounts.retrieve();
+
+  if (!mainAcc) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Could not find main account`,
     });
   }
 
@@ -185,7 +194,7 @@ export const confirmPurchaseController = async (
   // const transferToSeller = sellerInfo.map(async (seller) => {
   //   const transfer = await stripe.transfers.create({
   //     amount: orderInfo.totalAmount * 100,
-  //     currency: "usd",
+  //     currency: "eur",
   //     destination: seller.stripeId!,
   //     transfer_group: orderId,
   //   });
@@ -206,50 +215,50 @@ export const confirmPurchaseController = async (
   // }
 
   // send email to buyer
-  const sendEmailToBuyer = await sendEmail({
-    userEmail: user.email!,
-    subject: "Thanks for your order! This is your receipt.",
-    html: ReceiptEmailHtml({
-      email: user.email!,
-      date: new Date(),
-      orderId,
-      products: productInfo,
-    }),
-  });
+  // const sendEmailToBuyer = await sendEmail({
+  //   userEmail: user.email!,
+  //   subject: "Thanks for your order! This is your receipt.",
+  //   html: ReceiptEmailHtml({
+  //     email: user.email!,
+  //     date: new Date(),
+  //     orderId,
+  //     products: productInfo,
+  //   }),
+  // });
 
-  if (!sendEmailToBuyer) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Could not send email to seller`,
-    });
-  }
+  // if (!sendEmailToBuyer) {
+  //   throw new TRPCError({
+  //     code: "INTERNAL_SERVER_ERROR",
+  //     message: `Could not send email to seller`,
+  //   });
+  // }
 
-  // send email to seller
-  const sendEmailsToSellers = sellerInfo.map(
-    async (seller, index) =>
-      await sendEmail({
-        userEmail: seller.email,
-        subject: "You just sold products! Collect your payment.",
-        html: ReceiptEmailHtml({
-          email: seller.email,
-          date: new Date(),
-          orderId,
-          products: productInfo.filter(
-            (product) => product.userId === seller.id
-          ),
-          collectPaymentLink: `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation/${orderId}`,
-          stripeAccount: seller.stripeId ? true : false,
-          mainUrl: process.env.NEXT_PUBLIC_SERVER_URL,
-        }),
-      })
-  );
+  // // send email to seller
+  // const sendEmailsToSellers = sellerInfo.map(
+  //   async (seller, index) =>
+  //     await sendEmail({
+  //       userEmail: seller.email,
+  //       subject: "You just sold products! Collect your payment.",
+  //       html: ReceiptEmailHtml({
+  //         email: seller.email,
+  //         date: new Date(),
+  //         orderId,
+  //         products: productInfo.filter(
+  //           (product) => product.userId === seller.id
+  //         ),
+  //         collectPaymentLink: `${process.env.NEXT_PUBLIC_SERVER_URL}/seller-confirmation/${orderId}`,
+  //         stripeAccount: seller.stripeId ? true : false,
+  //         mainUrl: process.env.NEXT_PUBLIC_SERVER_URL,
+  //       }),
+  //     })
+  // );
 
-  if (!sendEmailsToSellers) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: `Could not send email to sellers`,
-    });
-  }
+  // if (!sendEmailsToSellers) {
+  //   throw new TRPCError({
+  //     code: "INTERNAL_SERVER_ERROR",
+  //     message: `Could not send email to sellers`,
+  //   });
+  // }
 
   // update order with email sent to seller
   const updateProduct = await prisma.order.update({

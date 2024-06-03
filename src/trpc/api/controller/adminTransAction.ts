@@ -52,13 +52,14 @@ export const updateBalance = async (amount: number) => {
       message: "No stripe account found",
     });
   }
+  const currency = adminData.default_currency;
 
-  const topup = await stripe.topups.create({
-    amount: amount,
-    currency: "usd",
-    description: "Topup for testing",
-    statement_descriptor: "Topup",
+  const charge = await stripe.charges.create({
+    amount: 200000,
+    currency: "eur",
+    source: "tok_bypassPending",
+    description: "My First Test Charge (created for API docs at ",
   });
 
-  return topup;
+  return charge;
 };
