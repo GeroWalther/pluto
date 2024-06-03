@@ -137,8 +137,8 @@ export const transferMoneyController = async (input: number, user: User) => {
   }
 
   const charge = await stripe.transfers.create({
-    amount: input * 100,
-    currency: "usd",
+    amount: 100,
+    currency: "eur",
     destination: checkStripe.stripeId,
   });
 
