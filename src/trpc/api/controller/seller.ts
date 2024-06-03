@@ -171,3 +171,21 @@ export const getAllProductsController = async (userId: string) => {
 
   return response;
 };
+
+export const getAllSoldProducts = async (userId: string) => {
+  const transactions = [
+    { date: "2022-01-01", type: "Stripe transfer", amount: 100 },
+    { date: "2022-01-02", type: "Product Sold", amount: 50 },
+    { date: "2022-01-03", type: "Stripe transfer", amount: 200 },
+    { date: "2022-01-04", type: "Product Sold", amount: 75 },
+    { date: "2022-01-05", type: "Stripe transfer", amount: 150 },
+    { date: "2022-01-06", type: "Product Sold", amount: 100 },
+  ];
+
+  const balance = transactions.reduce((acc, curr) => acc + curr.amount, 0);
+
+  return {
+    transactions,
+    balance,
+  };
+};

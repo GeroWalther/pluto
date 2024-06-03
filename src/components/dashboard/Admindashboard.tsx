@@ -5,8 +5,10 @@ import { cn } from "@/lib/utils";
 import { BadgeDollarSign, Menu, Package } from "lucide-react";
 import { useReducer } from "react";
 
+import MainStripeAccount from "./CompAdminDash/MainStripeAccount";
 import ProductsTables from "./CompAdminDash/ProductsTables";
 import Statistics from "./CompAdminDash/Statistics";
+import StripeAccountHandling from "./CompAdminDash/StripeAccountHandling";
 
 const reducer = (state: any, action: any) => {
   switch (action.type) {
@@ -15,13 +17,34 @@ const reducer = (state: any, action: any) => {
         ...state,
         showProducts: true,
         showSales: false,
+        showStripe: false,
+        showMainTransaction_stripe: false,
       };
     case "SHOW_SALES":
       return {
         ...state,
         showProducts: false,
         showSales: true,
+        showStripe: false,
+        showMainTransaction_stripe: false,
       };
+    case "SHOW_STRIPE":
+      return {
+        ...state,
+        showProducts: false,
+        showSales: false,
+        showStripe: true,
+        showMainTransaction_stripe: false,
+      };
+    case "SHOW_MAIN_TRANSACTION_STRIPE":
+      return {
+        ...state,
+        showProducts: false,
+        showSales: false,
+        showStripe: false,
+        showMainTransaction_stripe: true,
+      };
+
     default:
       return state;
   }
@@ -31,6 +54,8 @@ export default function SellerDashboard() {
   const [state, dispatch] = useReducer(reducer, {
     showProducts: true,
     showSales: false,
+    showStripe: false,
+    showMainTransaction_stripe: false,
   });
 
   return (
@@ -61,6 +86,28 @@ export default function SellerDashboard() {
               >
                 <BadgeDollarSign className="h-4 w-4" />{" "}
                 <span>Sales & Analytics</span>
+              </button>
+              <button
+                onClick={() => dispatch({ type: "SHOW_STRIPE" })}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                  state.showStripe && "text-primary bg-muted"
+                )}
+              >
+                <BadgeDollarSign className="h-4 w-4" />{" "}
+                <span>Stripe Account Handling</span>
+              </button>
+              <button
+                onClick={() =>
+                  dispatch({ type: "SHOW_MAIN_TRANSACTION_STRIPE" })
+                }
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                  state.showMainTransaction_stripe && "text-primary bg-muted"
+                )}
+              >
+                <BadgeDollarSign className="h-4 w-4" />{" "}
+                <span>Main Transaction Stripe</span>
               </button>
             </nav>
           </div>
@@ -115,6 +162,17 @@ export default function SellerDashboard() {
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
             {/*Right side in sales tab */}
             <Statistics />
+          </main>
+        )}
+        {state.showStripe && (
+          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+            <StripeAccountHandling />
+          </main>
+        )}
+        {state.showMainTransaction_stripe && (
+          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+            {/*Right side in sales tab */}
+            <MainStripeAccount />
           </main>
         )}
       </div>

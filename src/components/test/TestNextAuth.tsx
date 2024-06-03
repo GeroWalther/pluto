@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
+import { useSession } from "next-auth/react";
 
 const TestNextAuth = () => {
   const { data: session, update, status } = useSession();
-  if (status === 'loading') return <p>Loading...</p>;
-  if (status === 'unauthenticated') return <p>Unauthenticated</p>;
+  if (status === "loading") return <p>Loading...</p>;
+  if (status === "unauthenticated") return <p>Unauthenticated</p>;
   console.log(session?.user);
   const handleRole = () => {
     update({
@@ -17,7 +17,7 @@ const TestNextAuth = () => {
       },
     });
 
-    alert('Role updated');
+    alert("Role updated");
   };
 
   return (
@@ -27,12 +27,7 @@ const TestNextAuth = () => {
       <h2>Email: {session?.user.email}</h2>
       <h2>Role: {session?.user.role}</h2>
       <h2>Image: {session?.user.image}</h2>
-      <img
-        src={session?.user.image!}
-        alt='user image'
-        width={100}
-        height={100}
-      />
+
       {session?.user.role ? <h2>Admin</h2> : <h2>User</h2>}
       <button onClick={handleRole}>handleRole</button>
     </section>

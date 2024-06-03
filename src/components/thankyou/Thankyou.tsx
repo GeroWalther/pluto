@@ -18,6 +18,7 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
     data: response,
     isLoading,
     isError,
+    error,
   } = trpc.payment.confirmPurchase.useQuery({
     orderId,
   });
@@ -62,7 +63,10 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                 </div>
               </div>
             ) : isError ? (
-              <ErrorPageComp paramsMissing={false} />
+              <>
+                <p className="text-red-700">{error.message}</p>
+                <ErrorPageComp paramsMissing={false} />
+              </>
             ) : (
               <>
                 <p className="text-sm font-medium text-green-500">
