@@ -11,7 +11,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -129,16 +128,19 @@ const AddStripeForm = () => {
                         {countryISOData.map((country) => (
                           <CommandItem
                             value={country.code}
-                            key={country.number}
+                            key={`${country.number}-${country.code}`}
                             onSelect={() => {
                               form.setValue("country", country.code);
+                              field.onChange(country.code);
                             }}
+                            data-disabled="false"
+                            aria-disabled="false"
                           >
                             {country.name}
                             <span
                               className={cn(
                                 "ml-auto h-4 w-4",
-                                country.name === field.value
+                                country.code === field.value
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}
