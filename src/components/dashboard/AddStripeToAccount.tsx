@@ -7,7 +7,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from "@/components/ui/customCommand";
 import {
   Dialog,
   DialogContent,
@@ -133,8 +133,6 @@ const AddStripeForm = () => {
                               form.setValue("country", country.code);
                               field.onChange(country.code);
                             }}
-                            data-disabled="false"
-                            aria-disabled="false"
                           >
                             {country.name}
                             <span

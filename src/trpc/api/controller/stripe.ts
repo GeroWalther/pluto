@@ -30,7 +30,7 @@ export const createStripeController = async (user: User, country: string) => {
     });
   }
 
-  const account = await stripe.accounts.create({
+  const stripe_account = await stripe.accounts.create({
     controller: {
       losses: {
         payments: "application",
@@ -57,17 +57,22 @@ export const createStripeController = async (user: User, country: string) => {
     country: country,
   });
 
-  if (!account.id) {
+  if (!stripe_account.id) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: `Something went wrong while creating stripe account`,
     });
   }
 
+  // do a query to update the database with column stripe_account_id in user table
+  //stripe_account_id= stripe_account.id 
+
+
+// end
   const link = await stripe.accountLinks.create({
-    account: account.id,
+    account: stripe_account.id,
     refresh_url: `${process.env.NEXTAUTH_URL}/dashboard?board=sellerdash&tabs=sales`,
-    return_url: `${process.env.NEXTAUTH_URL}/confirm-stripe?account=${account.id}`,
+    return_url: `${process.env.NEXTAUTH_URL}/confirm-stripe?account=${stripe_account.id}`,
     type: "account_onboarding",
   });
 
@@ -98,7 +103,7 @@ export const createStripeController = async (user: User, country: string) => {
     });
   }
 
-  return { url: link.url, stripeId: account.id };
+  return { url: link.url, stripeId: stripe_account.id };
 };
 
 export const transferMoneyController = async (input: number, user: User) => {
@@ -114,6 +119,8 @@ export const transferMoneyController = async (input: number, user: User) => {
       userId: user.id,
     },
   });
+
+
 
   if (!checkStripe) {
     throw new TRPCError({

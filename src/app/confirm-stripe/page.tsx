@@ -14,6 +14,10 @@ const Page = () => {
   const accountId = search.get("account");
   const { data, mutate } = trpc.stripe.confirmStripe.useMutation({
     onSuccess: () => {
+      /// 
+      // do a query to update the database with column stripe_account_id in user table
+      //payout_status= "enabled" 
+
       toast.success("Stripe account confirmed");
     },
     onError: (error) => {
