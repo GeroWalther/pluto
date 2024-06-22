@@ -1,18 +1,18 @@
-import prisma from "@/db/db";
-import { sendEmail } from "@/lib/sendEmail";
-import { TRPCError } from "@trpc/server";
-import { User } from "next-auth";
-import Stripe from "stripe";
+import prisma from '@/db/db';
+import { sendEmail } from '@/lib/sendEmail';
+import { TRPCError } from '@trpc/server';
+import { User } from 'next-auth';
+import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   typescript: true,
-  apiVersion: "2024-04-10",
+  apiVersion: '2024-04-10',
 });
 
 export const createStripeController = async (user: User, country: string) => {
   if (!user) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `Please fill in all fields`,
     });
   }
@@ -25,7 +25,7 @@ export const createStripeController = async (user: User, country: string) => {
 
   if (checkStripe) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `You already have a stripe account`,
     });
   }
@@ -33,13 +33,13 @@ export const createStripeController = async (user: User, country: string) => {
   const stripe_account = await stripe.accounts.create({
     controller: {
       losses: {
-        payments: "application",
+        payments: 'application',
       },
       fees: {
-        payer: "application",
+        payer: 'application',
       },
       stripe_dashboard: {
-        type: "express",
+        type: 'express',
       },
     },
     capabilities: {
@@ -53,39 +53,44 @@ export const createStripeController = async (user: User, country: string) => {
     metadata: {
       userId: user.id,
     },
-    business_type: "individual",
+    business_type: 'individual',
     country: country,
   });
 
   if (!stripe_account.id) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Something went wrong while creating stripe account`,
     });
   }
 
-  // do a query to update the database with column stripe_account_id in user table
-  //stripe_account_id= stripe_account.id 
+  // query to update the database with column stripe_account_Id in user table
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      stripe_account_Id: stripe_account.id,
+    },
+  });
 
-
-// end
   const link = await stripe.accountLinks.create({
     account: stripe_account.id,
     refresh_url: `${process.env.NEXTAUTH_URL}/dashboard?board=sellerdash&tabs=sales`,
     return_url: `${process.env.NEXTAUTH_URL}/confirm-stripe?account=${stripe_account.id}`,
-    type: "account_onboarding",
+    type: 'account_onboarding',
   });
 
   if (!link.url) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Something went wrong while creating stripe account`,
     });
   }
 
   const sendEmailToBuyer = await sendEmail({
     userEmail: user.email!,
-    subject: "Stripe Account Link",
+    subject: 'Stripe Account Link',
     html: `
       <h1>Click on the link below to create your stripe account</h1>
       <a href="${link.url}">Create Stripe Account</a>
@@ -98,7 +103,7 @@ export const createStripeController = async (user: User, country: string) => {
 
   if (!sendEmailToBuyer) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Could not send email to seller`,
     });
   }
@@ -109,7 +114,7 @@ export const createStripeController = async (user: User, country: string) => {
 export const transferMoneyController = async (input: number, user: User) => {
   if (!input) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `Please fill in all fields`,
     });
   }
@@ -120,38 +125,36 @@ export const transferMoneyController = async (input: number, user: User) => {
     },
   });
 
-
-
   if (!checkStripe) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `You do not have a stripe account`,
     });
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
     typescript: true,
-    apiVersion: "2024-04-10",
+    apiVersion: '2024-04-10',
   });
 
   const retriveAccount = await stripe.accounts.retrieve(checkStripe.stripeId);
 
   if (!retriveAccount.id) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `Invalid stripe account`,
     });
   }
 
   const charge = await stripe.transfers.create({
     amount: 100,
-    currency: "eur",
+    currency: 'eur',
     destination: checkStripe.stripeId,
   });
 
   if (!charge.id) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Could not transfer money to stripe account`,
     });
   }
@@ -162,7 +165,7 @@ export const transferMoneyController = async (input: number, user: User) => {
 export const updateStripeController = async (input: string, user: User) => {
   if (!input) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `Please fill in all fields`,
     });
   }
@@ -175,14 +178,14 @@ export const updateStripeController = async (input: string, user: User) => {
 
   if (!checkStripe) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `You don't have a stripe account`,
     });
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
     typescript: true,
-    apiVersion: "2024-04-10",
+    apiVersion: '2024-04-10',
   });
 
   // check if stripe account exists
@@ -192,14 +195,14 @@ export const updateStripeController = async (input: string, user: User) => {
 
   if (!account.id) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `Invalid stripe account`,
     });
   }
 
   if (account.email !== user.email) {
     throw new TRPCError({
-      code: "UNAUTHORIZED",
+      code: 'UNAUTHORIZED',
       message: `Please enter a valid email.`,
     });
   }
@@ -210,7 +213,7 @@ export const updateStripeController = async (input: string, user: User) => {
     },
     data: {
       stripeId: account.id,
-      paymentMethod: "stripe",
+      paymentMethod: 'stripe',
       user: {
         connect: {
           id: user.id,
@@ -221,7 +224,7 @@ export const updateStripeController = async (input: string, user: User) => {
 
   if (!createStripe) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Something went wrong while creating the stripe account`,
     });
   }
@@ -233,7 +236,7 @@ export const confirmStripeController = async (input: string, user: User) => {
   const account = await stripe.accounts.retrieve(input);
   if (!account.id) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `Invalid stripe account`,
     });
   }
@@ -246,7 +249,7 @@ export const confirmStripeController = async (input: string, user: User) => {
 
   if (check) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `You already have a stripe account`,
     });
   }
@@ -255,7 +258,7 @@ export const confirmStripeController = async (input: string, user: User) => {
 
   if (!createdAccount.id) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `Invalid stripe account`,
     });
   }
@@ -263,7 +266,7 @@ export const confirmStripeController = async (input: string, user: User) => {
   const createStripe = await prisma.sellerPayment.create({
     data: {
       stripeId: account.id,
-      paymentMethod: "stripe",
+      paymentMethod: 'stripe',
       user: {
         connect: {
           id: user.id,
@@ -274,7 +277,7 @@ export const confirmStripeController = async (input: string, user: User) => {
 
   if (!createStripe) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Something went wrong while creating the stripe account`,
     });
   }
@@ -295,7 +298,7 @@ export const confirmStripeController = async (input: string, user: User) => {
 
   if (!updateAccount.id) {
     throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
+      code: 'INTERNAL_SERVER_ERROR',
       message: `Something went wrong while creating the stripe account`,
     });
   }
@@ -312,7 +315,7 @@ export const checkStripeController = async (user: User) => {
 
   if (!checkStripe) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `You do not have a stripe account`,
     });
   }
@@ -329,7 +332,7 @@ export const loginStripeController = async (user: User) => {
 
   if (!checkStripe) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `You do not have a stripe account`,
     });
   }
@@ -338,7 +341,7 @@ export const loginStripeController = async (user: User) => {
 
   if (!account.created) {
     throw new TRPCError({
-      code: "BAD_REQUEST",
+      code: 'BAD_REQUEST',
       message: `You do not have a stripe account`,
     });
   }
