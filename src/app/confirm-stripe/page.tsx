@@ -39,7 +39,7 @@ const Page = () => {
     if (stripeaccountId) {
       mutate(stripeaccountId);
     }
-  }, [stripeaccountId]);
+  }, [stripeaccountId, mutate]);
 
   return (
     <article className='py-10'>
