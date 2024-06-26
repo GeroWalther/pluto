@@ -9,6 +9,26 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2024-04-10',
 });
 
+
+export const createUserController = async (user: User) => {
+  if (!user) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Please fill in all fields`,
+    });
+  }
+
+  const checkUser = await prisma.user.findFirst({
+    where: {
+      id: user.id,
+    },
+  });
+  
+
+  return checkUser;
+};
+
+
 export const createStripeController = async (user: User, country: string) => {
   if (!user) {
     throw new TRPCError({

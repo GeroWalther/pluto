@@ -8,10 +8,8 @@ import {
 } from "@/components/ui/table";
 import { trpc } from "@/trpc/client";
 import { TransferMoneyButton } from "../StripeInteraction";
-
 import AddStripeAccountButton from "../AddStripeToAccount";
 import UpdateStripeAccountButton from "../UpdateStripeAccount";
-import { User } from "next-auth";
 
 type SingleTransaction = {
   date: string;
@@ -58,10 +56,26 @@ const HistoryComponent = ({ transactions, balance }: HistoryComponentProps) => {
 export default function SellerSales() {
   const {
     data: transActions,
-    isLoading,
-    isError,
-    isSuccess,
+    isLoading: isTransactionsLoading,
+    isError: isTransactionsError,
+    isSuccess: isTransactionsSuccess,
   } = trpc.seller.soldProducts.useQuery();
+
+  const {
+    data: userStripeInfo,
+    isLoading: isUserLoading,
+    isError: isUserError,
+  } = trpc.stripe.sellerStripeAccount.useQuery();
+
+  if (isTransactionsLoading || isUserLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isTransactionsError || isUserError) {
+    return <div>Error</div>;
+  }
+
+  const { stripe_account_id, payout_enabled } = userStripeInfo;
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
@@ -79,20 +93,20 @@ export default function SellerSales() {
         <h4 className="text-2xl font-bold mb-8 text-stone-200">$1000</h4>
         <div className="flex justify-between">
           <TransferMoneyButton balance={transActions?.balance as number} />
-          <AddStripeAccountButton />
-          <UpdateStripeAccountButton />
+          {payout_enabled && stripe_account_id ? null : (
+            <AddStripeAccountButton />
+          )}
+          {!payout_enabled && stripe_account_id ? (
+            <UpdateStripeAccountButton />
+          ) : null}
         </div>
       </div>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : isError ? (
-        <div>Error</div>
-      ) : isSuccess ? (
+      {isTransactionsSuccess && (
         <HistoryComponent
           transactions={transActions.transactions}
           balance={transActions.balance}
         />
-      ) : null}
+      )}
       <div className="mt-6">
         <h3 className="mb-4 text-xl font-semibold">Total Sales</h3>
       </div>

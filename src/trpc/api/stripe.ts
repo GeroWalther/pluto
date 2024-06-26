@@ -6,6 +6,7 @@ import {
   updateBalance,
 } from "./controller/adminTransAction";
 import {
+  createUserController,
   checkStripeController,
   confirmStripeController,
   createStripeController,
@@ -27,6 +28,12 @@ export const stripeRoute = router({
     .mutation(async ({ input, ctx }) => {
       const response = await transferMoneyController(input, ctx.user);
 
+      return response;
+    }),
+
+
+  sellerStripeAccount: privateProcedure.query(async ({ ctx }) => {
+      const response = await createUserController(ctx.user);
       return response;
     }),
 

@@ -24,7 +24,7 @@ model User {
     token           String    @unique
     provider        Provider?
 
-    stripe_account_Id String?
+    stripe_account_id String?
     payout_status String?
 
     createdAt DateTime @default(now())
