@@ -10,6 +10,8 @@ import { trpc } from "@/trpc/client";
 import { TransferMoneyButton } from "../StripeInteraction";
 
 import AddStripeAccountButton from "../AddStripeToAccount";
+import UpdateStripeAccountButton from "../UpdateStripeAccount";
+import { User } from "next-auth";
 
 type SingleTransaction = {
   date: string;
@@ -78,6 +80,7 @@ export default function SellerSales() {
         <div className="flex justify-between">
           <TransferMoneyButton balance={transActions?.balance as number} />
           <AddStripeAccountButton />
+          <UpdateStripeAccountButton />
         </div>
       </div>
       {isLoading ? (
