@@ -75,7 +75,7 @@ export default function SellerSales() {
     return <div>Error</div>;
   }
 
-  const { stripe_account_id, payout_enabled } = userStripeInfo;
+  const { stripe_account_id, payout_status } = userStripeInfo;
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
@@ -93,10 +93,10 @@ export default function SellerSales() {
         <h4 className="text-2xl font-bold mb-8 text-stone-200">$1000</h4>
         <div className="flex justify-between">
           <TransferMoneyButton balance={transActions?.balance as number} />
-          {payout_enabled && stripe_account_id ? null : (
+          {payout_status && stripe_account_id ? null : (
             <AddStripeAccountButton />
           )}
-          {!payout_enabled && stripe_account_id ? (
+          {!payout_status && stripe_account_id ? (
             <UpdateStripeAccountButton />
           ) : null}
         </div>
