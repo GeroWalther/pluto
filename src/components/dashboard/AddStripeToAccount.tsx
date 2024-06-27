@@ -1,5 +1,5 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -7,14 +7,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/customCommand";
+} from '@/components/ui/customCommand';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -23,25 +23,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { countryISOData } from "@/config/countrylist";
-import { cn } from "@/lib/utils";
-import { trpc } from "@/trpc/client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
+} from '@/components/ui/popover';
+import { countryISOData } from '@/config/countrylist';
+import { cn } from '@/lib/utils';
+import { trpc } from '@/trpc/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 const FormSchema = z.object({
-  country: z.string({ required_error: "Please select a country." }),
+  country: z.string({ required_error: 'Please select a country.' }),
 });
 
 const AddStripeAccountButton = () => {
@@ -49,12 +49,12 @@ const AddStripeAccountButton = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Connect Stripe Account</Button>
+        <Button variant='outline'>Connect Stripe Account</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle className="text-center mb-7">
-            {isSuccess ? "Stripe Account Connected" : "Connect Stripe Account"}
+          <DialogTitle className='text-center mb-7'>
+            {isSuccess ? 'Stripe Account Connected' : 'Connect Stripe Account'}
           </DialogTitle>
         </DialogHeader>
         {isSuccess ? <LoginStripeAccountButton /> : <AddStripeForm />}
@@ -67,7 +67,7 @@ const AddStripeForm = () => {
   const router = useRouter();
   const { data, mutate } = trpc.stripe.createStripe.useMutation({
     onSuccess: () => {
-      toast.success("Redirecting to Stripe...");
+      toast.success('Redirecting to Stripe...');
     },
     onError: (error) => {
       toast.error(error.message);
@@ -86,41 +86,40 @@ const AddStripeForm = () => {
     if (data) {
       router.push(data.url);
     }
-  }, [data]);
+  }, [data, router]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
         <FormField
           control={form.control}
-          name="country"
+          name='country'
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem className='flex flex-col'>
               <FormLabel>Country</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
-                      variant="outline"
-                      role="combobox"
+                      variant='outline'
+                      role='combobox'
                       className={cn(
-                        "w-full justify-between",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
+                        'w-full justify-between',
+                        !field.value && 'text-muted-foreground'
+                      )}>
                       {field.value
                         ? countryISOData.find(
                             (country) => country.code === field.value
                           )?.name
-                        : "Select country"}
+                        : 'Select country'}
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
+                <PopoverContent className='w-full p-0'>
                   <Command>
                     <CommandInput
-                      placeholder="Search country..."
-                      className="h-9"
+                      placeholder='Search country...'
+                      className='h-9'
                     />
                     <CommandEmpty>No Country selected.</CommandEmpty>
                     <CommandGroup>
@@ -130,19 +129,17 @@ const AddStripeForm = () => {
                             value={country.code}
                             key={`${country.number}-${country.code}`}
                             onSelect={() => {
-                              form.setValue("country", country.code);
+                              form.setValue('country', country.code);
                               field.onChange(country.code);
-                            }}
-                          >
+                            }}>
                             {country.name}
                             <span
                               className={cn(
-                                "ml-auto h-4 w-4",
+                                'ml-auto h-4 w-4',
                                 country.code === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            >
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}>
                               ✔
                             </span>
                           </CommandItem>
@@ -159,7 +156,7 @@ const AddStripeForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type='submit'>Submit</Button>
       </form>
     </Form>
   );
@@ -182,13 +179,13 @@ const LoginStripeAccountButton = () => {
   return (
     <>
       {isSuccess ? (
-        <Link href={data} target="_blank" passHref>
-          <Button onClick={createLogin} variant="default" className="w-full">
+        <Link href={data} target='_blank' passHref>
+          <Button onClick={createLogin} variant='default' className='w-full'>
             Click here to login to Stripe
           </Button>
         </Link>
       ) : (
-        <Button onClick={createLogin} variant="outline">
+        <Button onClick={createLogin} variant='outline'>
           Generate login link
         </Button>
       )}

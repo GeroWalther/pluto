@@ -9,7 +9,7 @@ import {
 import { trpc } from '@/trpc/client';
 import { TransferMoneyButton } from '../StripeInteraction';
 import AddStripeAccountButton from '../AddStripeToAccount';
-import UpdateStripeAccountButton from '../UpdateStripeAccount';
+import { UpdateStripeAccountButton } from '../UpdateStripeAccount';
 
 type SingleTransaction = {
   date: string;
@@ -76,7 +76,7 @@ export default function SellerSales() {
   }
 
   const userStripeAccountId = userStripeInfo?.stripe_account_Id;
-  const userStripePayoutStatut = userStripeInfo?.payout_status;
+  const userStripePayoutStatus = userStripeInfo?.payout_status;
 
   return (
     <main className='flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6'>
@@ -93,12 +93,13 @@ export default function SellerSales() {
         <h4 className='text-2xl font-bold mb-8 text-stone-200'>$1000</h4>
         <div className='flex justify-between'>
           <TransferMoneyButton balance={transActions?.balance as number} />
-          {userStripePayoutStatut && userStripeAccountId ? null : (
-            <AddStripeAccountButton />
-          )}
-          {!userStripePayoutStatut && userStripeAccountId ? (
+          {userStripeAccountId ? null : <AddStripeAccountButton />}
+          {userStripePayoutStatus == 'pending' && userStripeAccountId ? (
             <UpdateStripeAccountButton />
           ) : null}
+          {userStripeAccountId && userStripePayoutStatus == 'enabled' && (
+            <span>Your Stripe account is connected.</span>
+          )}
         </div>
       </div>
       {isTransactionsSuccess && (

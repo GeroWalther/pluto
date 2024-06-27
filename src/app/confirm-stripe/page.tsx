@@ -18,6 +18,7 @@ const Page = () => {
   const stripeaccountId = search.get('account');
   const { data, mutate } = trpc.stripe.confirmStripe.useMutation({
     onSuccess: async () => {
+      toast.success('Stripe account confirmed');
       // update user table with payout_status = 'enabled'
       await prisma.user.update({
         where: {
@@ -27,10 +28,16 @@ const Page = () => {
           payout_status: 'enabled',
         },
       });
-
-      toast.success('Stripe account confirmed');
     },
-    onError: (error) => {
+    onError: async (error) => {
+      await prisma.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          payout_status: 'disabled',
+        },
+      });
       toast.error(error.message);
     },
   });

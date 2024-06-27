@@ -88,6 +88,7 @@ export const createStripeController = async (user: User, country: string) => {
     },
     data: {
       stripe_account_Id: stripe_account.id,
+      payout_status: 'pending',
     },
   });
 
@@ -364,4 +365,34 @@ export const loginStripeController = async (user: User) => {
   }
 
   return account.url;
+};
+
+export const finishOnboardingController = async (user: User) => {
+  const userId = await prisma.user.findFirst({
+    where: {
+      id: user.id,
+    },
+  });
+  if (!userId) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `Something went wrong while searching for the user.`,
+    });
+  }
+
+  const link = await stripe.accountLinks.create({
+    account: userId?.stripe_account_Id!,
+    refresh_url: `${process.env.NEXTAUTH_URL}/dashboard?board=sellerdash&tabs=sales`,
+    return_url: `${process.env.NEXTAUTH_URL}/confirm-stripe?account=${userId.stripe_account_Id}`,
+    type: 'account_onboarding',
+  });
+
+  if (!link.url) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: `Something went wrong while creating stripe account`,
+    });
+  }
+
+  return { url: link.url };
 };

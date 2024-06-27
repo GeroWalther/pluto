@@ -1,10 +1,10 @@
-import { z } from "zod";
-import { adminProcedure, privateProcedure, router } from "../trpc";
+import { z } from 'zod';
+import { adminProcedure, privateProcedure, router } from '../trpc';
 import {
   getAdminStripeData,
   getAllStripeAccountData,
   updateBalance,
-} from "./controller/adminTransAction";
+} from './controller/adminTransAction';
 import {
   createUserController,
   checkStripeController,
@@ -13,7 +13,8 @@ import {
   loginStripeController,
   transferMoneyController,
   updateStripeController,
-} from "./controller/stripe";
+  finishOnboardingController,
+} from './controller/stripe';
 
 export const stripeRoute = router({
   createStripe: privateProcedure
@@ -31,11 +32,10 @@ export const stripeRoute = router({
       return response;
     }),
 
-
   sellerStripeAccount: privateProcedure.query(async ({ ctx }) => {
-      const response = await createUserController(ctx.user);
-      return response;
-    }),
+    const response = await createUserController(ctx.user);
+    return response;
+  }),
 
   updateStripeId: privateProcedure
     .input(z.string())
@@ -77,4 +77,8 @@ export const stripeRoute = router({
       const response = await updateBalance(input);
       return response;
     }),
+  finishOnboarding: privateProcedure.mutation(async ({ ctx }) => {
+    const response = await finishOnboardingController(ctx.user);
+    return response;
+  }),
 });
