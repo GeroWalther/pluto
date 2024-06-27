@@ -9,7 +9,6 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2024-04-10',
 });
 
-
 export const createUserController = async (user: User) => {
   if (!user) {
     throw new TRPCError({
@@ -23,11 +22,9 @@ export const createUserController = async (user: User) => {
       id: user.id,
     },
   });
-  
 
   return checkUser;
 };
-
 
 export const createStripeController = async (user: User, country: string) => {
   if (!user) {
