@@ -10,34 +10,18 @@ import prisma from '@/db/db';
 import { useSession } from 'next-auth/react';
 
 const Page = () => {
-  const { data: session } = useSession();
-  const user = session?.user;
+  //const { data: session } = useSession();
+  // const user = session?.user;
 
-  // acct_1PJdsWQuGMERmHeX
   const search = useSearchParams();
   const stripeaccountId = search.get('account');
-  const { data, mutate } = trpc.stripe.confirmStripe.useMutation({
-    onSuccess: async () => {
+  const { data, mutate, isSuccess } = trpc.stripe.confirmStripe.useMutation({
+    onSuccess: async (data) => {
+      console.log(data);
       toast.success('Stripe account confirmed');
-      // update user table with payout_status = 'enabled'
-      await prisma.user.update({
-        where: {
-          id: user?.id,
-        },
-        data: {
-          payout_status: 'enabled',
-        },
-      });
     },
     onError: async (error) => {
-      await prisma.user.update({
-        where: {
-          id: user?.id,
-        },
-        data: {
-          payout_status: 'disabled',
-        },
-      });
+      console.log(error);
       toast.error(error.message);
     },
   });
@@ -56,7 +40,8 @@ const Page = () => {
         </h2>
         <section className='mb-8'>
           <h3 className='text-xl font-bold mb-2'>Introduction</h3>
-          <p className='text-stone-700'>Account id : {data?.id}</p>
+          <p className='text-stone-700'>Account id : {stripeaccountId}</p>
+          {!data && isSuccess && <p>Your account is not finished</p>}
         </section>
       </MaxWidthWrapper>
     </article>

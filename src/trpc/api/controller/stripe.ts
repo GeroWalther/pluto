@@ -251,77 +251,75 @@ export const updateStripeController = async (input: string, user: User) => {
 };
 
 export const confirmStripeController = async (input: string, user: User) => {
-  const account = await stripe.accounts.retrieve(input);
-  if (!account.id) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: `Invalid stripe account`,
-    });
-  }
+  console.log('INPUT CONFIRMSTRIPECONTR: ', input);
+  const { payouts_enabled } = await stripe.accounts.retrieve(input);
 
-  const check = await prisma.sellerPayment.findFirst({
-    where: {
-      stripeId: account.id,
-    },
-  });
+  console.log(payouts_enabled);
 
-  if (check) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: `You already have a stripe account`,
-    });
-  }
-
-  const createdAccount = await stripe.accounts.retrieve(account.id);
-
-  if (!createdAccount.id) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: `Invalid stripe account`,
-    });
-  }
-
-  const createStripe = await prisma.sellerPayment.create({
-    data: {
-      stripeId: account.id,
-      paymentMethod: 'stripe',
-      user: {
-        connect: {
-          id: user.id,
-        },
+  // if (!payouts_enabled) {
+  //   throw new TRPCError({
+  //     code: 'BAD_REQUEST',
+  //     message: `Invalid stripe account`,
+  //   });
+  // }
+  if (payouts_enabled) {
+    const up = await prisma.user.update({
+      where: {
+        id: user?.id,
       },
-    },
-  });
-
-  if (!createStripe) {
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: `Something went wrong while creating the stripe account`,
+      data: {
+        payout_status: 'enabled',
+      },
     });
+
+    if (!up) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: `Failed to update the DB.`,
+      });
+    }
   }
 
-  const updateAccount = await stripe.accounts.update(account.id, {
-    metadata: {
-      userId: user.id,
-    },
-    capabilities: {
-      card_payments: {
-        requested: true,
+  if (!payouts_enabled) {
+    const up = await prisma.user.update({
+      where: {
+        id: user?.id,
       },
-      transfers: {
-        requested: true,
+      data: {
+        payout_status: 'disabled',
       },
-    },
-  });
-
-  if (!updateAccount.id) {
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: `Something went wrong while creating the stripe account`,
     });
+
+    if (!up) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: `Failed to update the DB.`,
+      });
+    }
   }
 
-  return createdAccount;
+  return payouts_enabled;
+
+  // const createdStripeAccount = await prisma.sellerPayment.create({
+  //   data: {
+  //     stripeId: input,
+  //     paymentMethod: 'stripe',
+  //     user: {
+  //       connect: {
+  //         id: user.id,
+  //       },
+  //     },
+  //   },
+  // });
+
+  // if (!createdStripeAccount) {
+  //   throw new TRPCError({
+  //     code: 'INTERNAL_SERVER_ERROR',
+  //     message: `Something went wrong while creating the stripe account`,
+  //   });
+  // }
+
+  // return createdStripeAccount;
 };
 
 export const checkStripeController = async (user: User) => {
