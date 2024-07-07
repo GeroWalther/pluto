@@ -11,18 +11,6 @@ export const createSessionController = async (
   productId: string[],
   user: User
 ) => {
-  // const user1 = await prisma.user.findFirst({
-  //   where: {
-  //     id: user.id,
-  //   },
-  // });
-  // if (!user1) {
-  //   throw new TRPCError({
-  //     code: 'INTERNAL_SERVER_ERROR',
-  //     message: `Could not find products with the given ids`,
-  //   });
-  // }
-  // const userStripeAccount = user1.stripe_account_Id;
 
   const cartItems = await prisma.product.findMany({
     where: {
@@ -39,7 +27,7 @@ export const createSessionController = async (
     });
   }
 
-  // get sellers product ids
+  // Get sellers product ids
   const sellerIds = cartItems.map((product) => product.userId);
   const sellers = await prisma.user.findMany({
     where: {
@@ -56,68 +44,84 @@ export const createSessionController = async (
     });
   }
 
-  const lineItem = cartItems.map((product) => ({
-    price_data: {
-      currency: 'eur',
-      product_data: {
-        name: product?.name || 'Default Product Name',
-      },
-      unit_amount: (product?.price || 0) * 100,
-    },
-    quantity: 1,
-  }));
+  // Define the type for the accumulator object
+  type SellerStripeAccounts = { [key: string]: string };
 
-  const sellerStripeAccounts = sellers.map(
-    (seller) => seller.stripe_account_Id
-  );
-
-  const sellerTotals: { [key: string]: number } = {};
-  cartItems.forEach((product) => {
-    const sellerId = product.userId;
-    const price = product.price;
-    if (sellerTotals[sellerId]) {
-      sellerTotals[sellerId] += price;
-    } else {
-      sellerTotals[sellerId] = price;
+  const sellerStripeAccounts = sellers.reduce<SellerStripeAccounts>((acc, seller) => {
+    if (seller.stripe_account_Id) {
+      acc[seller.id] = seller.stripe_account_Id;
     }
+    return acc;
+  }, {});
+
+
+  const lineItems = cartItems.map((product, index) => {
+    const price = product?.price || 0;
+    const priceAfterFee = price * 0.95; // Deduct 5%
+    const userId = product?.userId || 'default_user_id';
+    const destination = sellerStripeAccounts[userId] || 'default_destination';
+    return {
+      price_data: {
+        currency: 'eur',
+        product_data: {
+          name: product?.name || 'Default Product Name',
+          metadata: {
+           productId: product.id,
+           userId:userId,
+           destination: destination,
+           amount: priceAfterFee
+          }
+          
+        },
+         unit_amount: (product?.price || 0) * 100,
+      },
+      quantity: 1,
+    };
   });
 
+  const productNames = cartItems.map((product) => product.name);
+  const productFiles = cartItems.map((product) => product.imageUrls).flat();
+  
   const productIds = cartItems.map((product) => product.id);
   const totalAmount = cartItems.reduce(
     (acc, product) => acc + product.price,
     0
   );
 
-  const productNames = cartItems.map((product) => product.name);
-  const productFiles = cartItems.map((product) => product.imageUrls).flat();
+const serviceCharge = totalAmount* 0.05; // Deduct 5%
+  // Add delivery charge as an additional line item
+  lineItems.push({
+  price_data: {
+    currency: 'eur',
+    product_data: {
+      name: 'Total Transaction Fee',
+      metadata: {
+        productId: "",
+        userId: "",
+        destination: "",
+        amount: serviceCharge*100
+      }
+    },
+    unit_amount: serviceCharge*100,
+  },
+  quantity: 1,
+});
+
+
 
   const orderId = `${generateRandomToken()}`;
+  const successUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}?session_id={CHECKOUT_SESSION_ID}`;
 
-  const successUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}`;
 
-  const application_fee_amount = totalAmount * 0.05 * 100;
-
-  // , 'paypal', 'wechat_pay', 'klarna'
+  // return true;
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card', 'paypal'],
-    line_items: lineItem,
+    line_items: lineItems,
     mode: 'payment',
     success_url: successUrl,
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
-    metadata: {
-      userId: user.id,
-      productIds: productId.join(','),
-    },
-    payment_intent_data: {
-      application_fee_amount: application_fee_amount,
-      transfer_data: {
-        destination: sellerStripeAccounts.map((accountId) => ({
-          amount: sellerTotals[accountId!] * 100,
-          destination: accountId,
-        })),
-      },
-    },
   });
+  
 
   if (!session) {
     throw new TRPCError({
