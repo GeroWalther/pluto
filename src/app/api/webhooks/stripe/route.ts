@@ -1,4 +1,4 @@
-// src/pages/api/webhooks/stripe.ts
+// src/api/webhooks/stripe.ts
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
