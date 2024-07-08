@@ -54,8 +54,7 @@ export const createSessionController = async (
     return acc;
   }, {});
 
-
-  const lineItems = cartItems.map((product, index) => {
+  const lineItems = cartItems.map((product) => {
     const price = product?.price || 0;
     const priceAfterFee = price * 0.95; // Deduct 5%
     const userId = product?.userId || 'default_user_id';
@@ -65,20 +64,25 @@ export const createSessionController = async (
         currency: 'eur',
         product_data: {
           name: product?.name || 'Default Product Name',
-          metadata: {
-           productId: product.id,
-           userId:userId,
-           destination: destination,
-           amount: priceAfterFee
-          }
-          
         },
-         unit_amount: (product?.price || 0) * 100,
+        unit_amount: price * 100,
       },
       quantity: 1,
     };
   });
-
+  
+  type Metadata = {
+    [key: string]: string | number;
+  };
+  
+  const metadata = cartItems.reduce<Metadata>((acc, product, index) => {
+    acc[`productId_${index}`] = product.id;
+    acc[`userId_${index}`] = product.userId || 'default_user_id';
+    acc[`destination_${index}`] = sellerStripeAccounts[product.userId] || 'default_destination';
+    acc[`amount_${index}`] = (product.price || 0) * 0.95;
+    return acc;
+  }, {});
+  
   const productNames = cartItems.map((product) => product.name);
   const productFiles = cartItems.map((product) => product.imageUrls).flat();
   
@@ -94,13 +98,7 @@ const serviceCharge = totalAmount* 0.05; // Deduct 5%
   price_data: {
     currency: 'eur',
     product_data: {
-      name: 'Total Transaction Fee',
-      metadata: {
-        productId: "",
-        userId: "",
-        destination: "",
-        amount: serviceCharge*100
-      }
+      name: 'Total Transaction Fee'
     },
     unit_amount: serviceCharge*100,
   },
@@ -120,6 +118,7 @@ const serviceCharge = totalAmount* 0.05; // Deduct 5%
     mode: 'payment',
     success_url: successUrl,
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
+    metadata: metadata,
   });
   
 
