@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { NextRequest, NextResponse } from 'next/server';
-
+import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { buffer } from 'micro';
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2024-04-10',
@@ -15,60 +14,37 @@ export const config = {
 };
 
 // Handle POST request
-async function POST(req: NextApiRequest, res: NextApiResponse) {
+async function POST(req: Request,  res: NextApiResponse) {
   if (req.method === 'POST') {
-    return new NextResponse(
-      JSON.stringify({ message: 'POST request received' }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+
+    const body = await req.text();
+    const sig = headers().get('Stripe-Signature') as string;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+    console.log(body);
+    console.log(sig);
+
+    let event: Stripe.Event;
+    try {
+      if (!sig || !webhookSecret) return;
+      event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
+    } catch (err: any) {
+      console.log(`❌ Error message: ${err.message}`);
+      return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    }
+  
+    if (event.type === 'checkout.session.completed') {
+      try {
+        const session = event.data.object;
+        // Fulfill the purchase...
+        console.log('SESSION: ', session);
+      } catch (error) {
+        console.log(error);
+        return new Response('Webhook handler failed. View logs.', {
+          status: 400
+        });
       }
-    );
-    // const buf = await buffer(req);
-    // const sig = req.headers['stripe-signature'];
-
-    // if (!sig || Array.isArray(sig)) {
-    //   return res.status(400).send('Webhook Error: Invalid Stripe signature');
-    // }
-
-    // let event: Stripe.Event;
-
-    // try {
-    //   event = stripe.webhooks.constructEvent(
-    //     buf,
-    //     sig,
-    //     process.env.STRIPE_WEBHOOK_SECRET as string
-    //   );
-    // } catch (err: any) {
-    //   console.error(`⚠️  Webhook signature verification failed.`, err.message);
-    //   return res.status(400).send(`Webhook Error: ${err.message}`);
-    // }
-
-    // // Handle the event
-    // switch (event.type) {
-    //   case 'checkout.session.completed': {
-    //     const session = event.data.object as Stripe.Checkout.Session;
-    //     // Handle successful checkout session
-    //     console.log('Checkout session completed:', session);
-    //     break;
-    //   }
-    //   case 'checkout.session.async_payment_succeeded': {
-    //     const session = event.data.object as Stripe.Checkout.Session;
-    //     // Handle asynchronous payment success
-    //     console.log('Asynchronous payment succeeded:', session);
-    //     break;
-    //   }
-    //   case 'checkout.session.async_payment_failed': {
-    //     const session = event.data.object as Stripe.Checkout.Session;
-    //     // Handle asynchronous payment failure
-    //     console.log('Asynchronous payment failed:', session);
-    //     break;
-    //   }
-    //   default:
-    //     console.log(`Unhandled event type ${event.type}`);
-    // }
+    }
+    return new Response(JSON.stringify({ received: true }));
 
     // res.json({ received: true });
   } else {
