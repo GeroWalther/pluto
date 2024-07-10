@@ -12,8 +12,26 @@ export const config = {
   },
 };
 
+// Utility function to sleep for a given number of milliseconds
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Function to retry charge retrieval until it succeeds or reaches a maximum number of attempts
+async function retrieveChargeWithRetry(chargeId: string, maxRetries: number = 5, delayMs: number = 3000) {
+  let charge: Stripe.Charge | null = null;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    charge = await stripe.charges.retrieve(chargeId);
+    if (charge.status === 'succeeded' && charge.balance_transaction) {
+      break;
+    }
+    await sleep(delayMs);
+  }
+  return charge;
+}
+
 // Handle POST request
-async function POST(req: Request,  res: NextApiResponse) {
+async function POST(req: Request, res: NextApiResponse) {
   if (req.method === 'POST') {
 
     const body = await req.text();
@@ -28,47 +46,52 @@ async function POST(req: Request,  res: NextApiResponse) {
       console.log(`❌ Error message: ${err.message}`);
       return new Response(`Webhook Error: ${err.message}`, { status: 400 });
     }
-  
+
     if (event.type === 'checkout.session.completed') {
       try {
         const session = event.data.object as Stripe.Checkout.Session;
-        
-          // Retrieve metadata from session
+
+        // Retrieve metadata from session
         const metadata = session.metadata as Record<string, string>;
+
+        // Assert the type of paymentIntent to include charges
+        const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
+        const chargeId = paymentIntent.latest_charge;
+
+        if (!chargeId) {
+          throw new Error('No charges found for this PaymentIntent');
+        }
+
+        // Retrieve the charge with retry mechanism
+        const charge = await retrieveChargeWithRetry(chargeId);
+
+        if (!charge || charge.status !== 'succeeded' || !charge.balance_transaction) {
+          throw new Error(`Charge ${chargeId} did not succeed or has no balance_transaction.`);
+        }
 
         // Extract keys for 'amount' and 'destination'
         const amountKeys = Object.keys(metadata).filter(key => key.startsWith('amount'));
         const destinationKeys = Object.keys(metadata).filter(key => key.startsWith('destination'));
-      //  const transferPromises: Promise<Stripe.Transfer>[] = [];
+        const transferPromises: Promise<Stripe.Transfer>[] = [];
 
         for (let i = 0; i < amountKeys.length; i++) {
-
           const amountStr = metadata[amountKeys[i]];
-          const amount = Math.round(parseFloat(amountStr) * 100); 
+          const amount = Math.round(parseFloat(amountStr) * 100);
           const destination = metadata[destinationKeys[i]];
 
+          transferPromises.push(
             stripe.transfers.create({
               amount: amount,
               currency: session.currency ?? 'eur',
               destination: destination,
-              source_transaction: session.id,
+              source_transaction: charge.id,
             })
-       
+          );
         }
 
-        // Promise.all(transferPromises)
-        //   .then((transfers) => {
+        const transfers = await Promise.all(transferPromises);
+        return new Response(JSON.stringify({ transfers }));
 
-        //     console.log('Transfers completed:', transfers);
-        //     return new Response(JSON.stringify({ transfers }));
-        //   })
-        //   .catch((error) => {
-
-        //     console.error('Error completing transfers:', error);
-        //   });
-
-          return new Response(JSON.stringify({ destinationKeys }));
-       
       } catch (error) {
         console.log(error);
         return new Response('Webhook handler failed. View logs.', {
