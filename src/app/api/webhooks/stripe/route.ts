@@ -92,12 +92,16 @@ async function POST(req: Request, res: NextApiResponse) {
         const transfers = await Promise.all(transferPromises);
         return new Response(JSON.stringify({ transfers }));
 
-      } catch (error) {
-        console.log(error);
-        return new Response('Webhook handler failed. View logs.', {
-          status: 400
-        });
+      }  catch (error) {
+          console.log(error);
+          return new Response(JSON.stringify({ message: 'Webhook handler failed.', error: error.message }), {
+              status: 400
+          });
       }
+    }else{
+      return new Response('Other webhook trigger', {
+        status: 200
+      });
     }
   } else {
     console.log(`Method not allowed: ${req.method}`);

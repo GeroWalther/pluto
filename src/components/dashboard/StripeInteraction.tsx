@@ -23,7 +23,12 @@ export const schemaStripe = z.object({
 
 export type FormType = z.infer<typeof schemaStripe>;
 
-const TransferMoneyButton = ({ balance }: { balance: number }) => {
+interface TransferMoneyButtonProps {
+  balance: number;
+  currency: string;
+}
+
+const TransferMoneyButton: React.FC<TransferMoneyButtonProps> = ({ balance, currency }) => {
   const [amount, setAmount] = useState(() => Number(balance));
   const [open, setOpen] = useState(false);
   const { data, mutate, isPending } = trpc.stripe.transferMoney.useMutation({
@@ -49,7 +54,7 @@ const TransferMoneyButton = ({ balance }: { balance: number }) => {
           onClick={() => setOpen(true)}
           className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-md"
         >
-          Transfer money
+          Payout
         </Button>
       </DialogTrigger>
       <DialogContent setOpen={setOpen} className="sm:max-w-lg">
@@ -67,7 +72,7 @@ const TransferMoneyButton = ({ balance }: { balance: number }) => {
             <div>
               <p className="font-semibold">
                 Total currently available balance:{" "}
-                <span className="font-bold text-lg p-4">${balance}</span>
+                <span className="font-bold text-lg p-4">{currency} {balance}</span>
               </p>
             </div>
             <form className="mb-2 grid grid-cols-5">

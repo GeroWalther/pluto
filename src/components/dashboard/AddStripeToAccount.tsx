@@ -1,4 +1,3 @@
-'use client';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -77,6 +76,12 @@ const AddStripeForm = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
+
+  useEffect(() => {
+    if (countryISOData.length > 0) {
+      form.setValue('country', countryISOData[40].code);
+    }
+  }, [form]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     mutate(data.country);

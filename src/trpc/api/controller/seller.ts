@@ -156,6 +156,10 @@ export async function createProductController(
 
 // Get all Products
 export const getAllProductsController = async (userId: string) => {
+  
+
+  
+
   const response = await prisma.product.findMany({
     where: {
       userId: userId,

@@ -87,14 +87,14 @@ export default function UploadForm({
   });
 
   const onSubmit = (data: FormFields) => {
-    if (imageUrls.length <= 0) {
-      toast.error('Image required. Please upload an image.');
-      return;
-    }
-    if (prodFile.length <= 0) {
-      toast.error('File required. Please upload a file.');
-      return;
-    }
+    // if (imageUrls.length <= 0) {
+    //   toast.error('Image required. Please upload an image.');
+    //   return;
+    // }
+    // if (prodFile.length <= 0) {
+    //   toast.error('File required. Please upload a file.');
+    //   return;
+    // }
     uploadProduct({
       name: data.name,
       price: parseFloat(data.price),

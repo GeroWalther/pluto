@@ -26,6 +26,34 @@ export const createUserController = async (user: User) => {
   return checkUser;
 };
 
+
+export const getStripeAccountBalance = async (user: User) => {
+  if (!user) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Please fill in all fields`,
+    });
+  }
+
+  const checkUser = await prisma.user.findFirst({
+    where: {
+      id: user.id,
+    },
+  });
+
+  if(checkUser?.stripe_account_Id){
+    const totalBalance = await stripe.balance.retrieve({
+      stripeAccount: checkUser?.stripe_account_Id,
+    });
+    return totalBalance;
+  }else{
+    return 0;
+  }
+
+
+};
+
+
 export const createStripeController = async (user: User, country: string) => {
   if (!user) {
     throw new TRPCError({
@@ -67,6 +95,24 @@ export const createStripeController = async (user: User, country: string) => {
         requested: true,
       },
     },
+    // manual payout
+    settings: {
+      payouts: {
+        schedule: {
+          interval: 'manual',
+        },
+      },
+    },
+    // automatic payout
+
+    // settings: {
+    //   payouts: {
+    //     schedule: {
+    //       interval: 'daily', // Can be 'daily', 'weekly', or 'monthly'
+    //     },
+    //   },
+    // },
+
     metadata: {
       userId: user.id,
     },
@@ -137,11 +183,12 @@ export const transferMoneyController = async (input: number, user: User) => {
     });
   }
 
-  const checkStripe = await prisma.sellerPayment.findFirst({
+  const checkStripe = await prisma.user.findFirst({
     where: {
-      userId: user.id,
+      id: user.id,
     },
   });
+
 
   if (!checkStripe) {
     throw new TRPCError({
@@ -155,7 +202,8 @@ export const transferMoneyController = async (input: number, user: User) => {
     apiVersion: '2024-04-10',
   });
 
-  const retriveAccount = await stripe.accounts.retrieve(checkStripe.stripeId);
+
+  const retriveAccount = await stripe.accounts.retrieve(checkStripe.stripe_account_Id);
 
   if (!retriveAccount.id) {
     throw new TRPCError({
@@ -164,13 +212,24 @@ export const transferMoneyController = async (input: number, user: User) => {
     });
   }
 
-  const charge = await stripe.transfers.create({
-    amount: 100,
-    currency: 'eur',
-    destination: checkStripe.stripeId,
+  const amountInCents = Math.round(input * 100);
+
+  const balances = await stripe.balance.retrieve({
+    stripeAccount: checkStripe?.stripe_account_Id,
   });
 
-  if (!charge.id) {
+
+  const currencyAvailable = balances?.available?.[0]?.currency ?? "eur";
+
+
+  const payout = await stripe.payouts.create({
+    amount: amountInCents, // Amount in the smallest currency unit (e.g., cents for USD)
+    currency: currencyAvailable,
+  }, {
+    stripeAccount: checkStripe.stripe_account_Id, // Specify the connected account
+  });
+
+  if (!payout.id) {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
       message: `Could not transfer money to stripe account`,

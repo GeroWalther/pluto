@@ -14,6 +14,7 @@ import {
   transferMoneyController,
   updateStripeController,
   finishOnboardingController,
+  getStripeAccountBalance
 } from './controller/stripe';
 
 export const stripeRoute = router({
@@ -34,6 +35,11 @@ export const stripeRoute = router({
 
   sellerStripeAccount: privateProcedure.query(async ({ ctx }) => {
     const response = await createUserController(ctx.user);
+    return response;
+  }),
+
+  sellerStripeAccountBalance: privateProcedure.query(async ({ ctx }) => {
+    const response = await getStripeAccountBalance(ctx.user);
     return response;
   }),
 
