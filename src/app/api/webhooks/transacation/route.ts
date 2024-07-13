@@ -16,7 +16,7 @@ export const config = {
 export async function POST(request) {
   const { searchParams } = new URL(request.url);
   const connectId = searchParams.get("connectId");
-  
+
   try {
     // Verifies the Firebase ID token from the request to authenticate the user.
 
@@ -49,4 +49,4 @@ async function GET(req: NextApiRequest, res: NextApiResponse) {
 }
 
 // Export named functions for each HTTP method - needed !!
-export { POST, GET };
+// export { POST, GET };

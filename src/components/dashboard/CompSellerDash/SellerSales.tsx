@@ -12,49 +12,7 @@ import AddStripeAccountButton from '../AddStripeToAccount';
 import { UpdateStripeAccountButton } from '../UpdateStripeAccount';
 import Transacation from "./Transacation";
 
-type SingleTransaction = {
-  date: string;
-  type: string;
-  amount: number;
-};
-
-type HistoryComponentProps = {
-  transactions: SingleTransaction[];
-  balance: number;
-};
-
-const HistoryComponent = ({ transactions, balance }: HistoryComponentProps) => {
-  const tableHeaders = ['Date', 'Transaction', 'Amount'];
-  return (
-    <Table className='text-right'>
-      <TableHeader>
-        <TableRow>
-          {tableHeaders.map((header, index) => (
-            <TableCell key={index} className='text-right font-bold'>
-              {header}
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {transactions.map((transaction, index) => (
-          <TableRow key={index}>
-            <TableCell>{transaction.date}</TableCell>
-            <TableCell>{transaction.type}</TableCell>
-            <TableCell>{transaction.amount}</TableCell>
-          </TableRow>
-        ))}
-        <TableRow className='font-bold'>
-          <TableCell></TableCell>
-          <TableCell>Total</TableCell>
-          <TableCell>{balance}</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  );
-};
-
-export default function SellerSales() {
+const SellerSales = () => {
   const {
     data: transActions,
     isLoading: isTransactionsLoading,
@@ -73,7 +31,6 @@ export default function SellerSales() {
     isLoading: isbalanceLoading,
     isError: isBalanceError,
   } = trpc.stripe.sellerStripeAccountBalance.useQuery();
-
 
   if (isTransactionsLoading || isUserLoading) {
     return <div>Loading...</div>;
@@ -98,7 +55,6 @@ export default function SellerSales() {
   // Check if pendingBalance is greater than 100 and divide by 100 if true
   const adjustedPendingBalance = pendingBalance > 100 ? pendingBalance / 100 : pendingBalance;
 
-  
   return (
     <main className='flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6'>
       <h2 className='text-lg font-semibold md:text-2xl'>Sales</h2>
@@ -119,28 +75,25 @@ export default function SellerSales() {
         <div className='flex justify-between'>
           { adjustedPendingBalance > 0 ? (
             <TransferMoneyButton balance={adjustedPendingBalance} currency={currencyAvailable} />
-
-            // <TransferMoneyButton balance={adjustedPendingBalance as number, currencyAvailable as string} />
           ) : "." } 
          
           {userStripeAccountId ? null : <AddStripeAccountButton />}
-          {userStripePayoutStatus == 'pending' && userStripeAccountId ? (
+          {userStripePayoutStatus === 'pending' && userStripeAccountId ? (
             <UpdateStripeAccountButton />
           ) : null}
-          {userStripeAccountId && userStripePayoutStatus == 'enabled' && (
+          {userStripeAccountId && userStripePayoutStatus === 'enabled' && (
             <span>Your Stripe account is connected.</span>
           )}
         </div>
       </div>
       {isTransactionsSuccess && (
-        <HistoryComponent
-          transactions={transActions.transactions}
-          balance={transActions.balance}
-        />
+        <Transacation conncetId={userStripeAccountId} />
       )}
       <div className='mt-6'>
         <h3 className='mb-4 text-xl font-semibold'>Total Sales</h3>
       </div>
     </main>
   );
-}
+};
+
+export default SellerSales;

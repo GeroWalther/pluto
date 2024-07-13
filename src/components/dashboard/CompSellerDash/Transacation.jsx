@@ -20,7 +20,7 @@ export default function Transacation({ conncetId }) {
 
         return loadConnectAndInitialize({
             // This is your test publishable API key.
-            publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY,
+            publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
             fetchClientSecret: fetchClientSecret,
             fonts: [
                 {
