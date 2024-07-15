@@ -51,7 +51,7 @@ async function POST(req: Request, res: NextApiResponse) {
       try {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        // Retrieve metadata from session
+            // Retrieve metadata from session
         const metadata = session.metadata as Record<string, string>;
 
         // Assert the type of paymentIntent to include charges
@@ -74,10 +74,12 @@ async function POST(req: Request, res: NextApiResponse) {
         const destinationKeys = Object.keys(metadata).filter(key => key.startsWith('destination'));
         const transferPromises: Promise<Stripe.Transfer>[] = [];
 
-        for (let i = 0; i < amountKeys.length; i++) {
-          const amountStr = metadata[amountKeys[i]];
+        for (const amountKey of amountKeys) {
+          const amountIndex = amountKey.split('_')[1];
+          const amountStr = metadata[amountKey];
           const amount = Math.round(parseFloat(amountStr) * 100);
-          const destination = metadata[destinationKeys[i]];
+          const destinationKey = `destination_${amountIndex}`;
+          const destination = metadata[destinationKey];
 
           transferPromises.push(
             stripe.transfers.create({
