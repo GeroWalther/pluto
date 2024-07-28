@@ -1,21 +1,19 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2024-04-10',
 });
 
-export async function POST(req: Request, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const connectId = searchParams.get("connectId");
 
   if (!connectId) {
-    return res.status(400).json({ error: 'connectId is required' });
+    return NextResponse.json({ error: 'connectId is required' }, { status: 400 });
   }
 
   try {
-    // Verifies the Firebase ID token from the request to authenticate the user.
-
     const financialAccounts = await stripe.accountSessions.create({
       account: connectId,
       components: {
@@ -30,10 +28,8 @@ export async function POST(req: Request, res: NextApiResponse) {
       }
     });
 
-    // Returns a JSON response containing data for the authenticated user and the user specified by the username.
-    return res.status(200).json({client_secret: financialAccounts.client_secret});
+    return NextResponse.json({ client_secret: financialAccounts.client_secret }, { status: 200 });
   } catch (error) {
-    // If an error occurs during the process, returns an error response.
-    return res.status(500).json({ error: "Error occoured" });
+    return NextResponse.json({ error: "Error occurred" }, { status: 500 });
   }
 }
