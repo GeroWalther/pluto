@@ -6,11 +6,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2024-04-10',
 });
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 // Utility function to sleep for a given number of milliseconds
 function sleep(ms: number) {
@@ -56,12 +51,12 @@ async function POST(req: Request, res: NextApiResponse) {
 
         // Assert the type of paymentIntent to include charges
         const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
-        const chargeId = paymentIntent.latest_charge;
+        const chargeId = paymentIntent.latest_charge as string;
 
         if (!chargeId) {
           throw new Error('No charges found for this PaymentIntent');
         }
-
+        
         // Retrieve the charge with retry mechanism
         const charge = await retrieveChargeWithRetry(chargeId);
 
@@ -96,7 +91,7 @@ async function POST(req: Request, res: NextApiResponse) {
 
       }  catch (error) {
           console.log(error);
-          return new Response(JSON.stringify({ message: 'Webhook handler failed.', error: error.message }), {
+          return new Response(JSON.stringify({ message: 'Webhook handler failed.', error: "Failed!" }), {
               status: 400
           });
       }
@@ -112,11 +107,7 @@ async function POST(req: Request, res: NextApiResponse) {
   }
 }
 
-// Handle GET request (if needed)
-async function GET(req: NextApiRequest, res: NextApiResponse) {
-  res.setHeader('Allow', 'POST');
-  res.status(405).end('Method Not Allowed');
-}
+
 
 // Export named functions for each HTTP method - needed !!
-export { POST, GET };
+export { POST };

@@ -28,26 +28,25 @@ const SellerSales = () => {
 
   const {
     data: balances,
-    isLoading: isbalanceLoading,
+    isLoading: isBalanceLoading,
     isError: isBalanceError,
   } = trpc.stripe.sellerStripeAccountBalance.useQuery();
 
-  if (isTransactionsLoading || isUserLoading) {
+  if (isTransactionsLoading || isUserLoading || isBalanceLoading) {
     return <div>Loading...</div>;
   }
 
-  if (isTransactionsError || isUserError) {
+  if (isTransactionsError || isUserError || isBalanceError) {
     return <div>Error</div>;
   }
 
   const userStripeAccountId = userStripeInfo?.stripe_account_Id;
   const userStripePayoutStatus = userStripeInfo?.payout_status;
 
-  const availableBalance = balances?.available?.[0]?.amount ?? 0;
-  const currencyAvailable = balances?.available?.[0]?.currency ?? "EUR";
-  const pendingBalance = balances?.pending?.[0]?.amount ?? 0;
-  
-  const currencyPending = balances?.pending?.[0]?.currency ?? "EUR";
+  const availableBalance = (balances && 'available' in balances) ? balances.available[0]?.amount ?? balances.available[0]?.amount : 0;
+  const currencyAvailable = (balances && 'available' in balances) ? balances.available[0]?.currency ?? balances.available[0]?.currency : "EUR";
+  const pendingBalance = (balances && 'pending' in balances) ? balances.pending[0]?.amount ?? balances.pending[0]?.amount : 0;
+  const currencyPending = (balances && 'pending' in balances) ? balances.pending[0]?.currency ?? balances.pending[0]?.currency : "EUR";
 
   // Check if availableBalance is greater than 100 and divide by 100 if true
   const adjustedAvailableBalance = availableBalance > 100 ? availableBalance / 100 : availableBalance;

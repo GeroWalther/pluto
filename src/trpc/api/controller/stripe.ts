@@ -189,7 +189,6 @@ export const transferMoneyController = async (input: number, user: User) => {
     },
   });
 
-
   if (!checkStripe) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
@@ -197,11 +196,12 @@ export const transferMoneyController = async (input: number, user: User) => {
     });
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
-    typescript: true,
-    apiVersion: '2024-04-10',
-  });
-
+  if (!checkStripe.stripe_account_Id) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `No Stripe account ID found`,
+    });
+  }
 
   const retriveAccount = await stripe.accounts.retrieve(checkStripe.stripe_account_Id);
 
@@ -218,9 +218,7 @@ export const transferMoneyController = async (input: number, user: User) => {
     stripeAccount: checkStripe?.stripe_account_Id,
   });
 
-
   const currencyAvailable = balances?.available?.[0]?.currency ?? "eur";
-
 
   const payout = await stripe.payouts.create({
     amount: amountInCents, // Amount in the smallest currency unit (e.g., cents for USD)
@@ -238,6 +236,7 @@ export const transferMoneyController = async (input: number, user: User) => {
 
   return `Transferred $${input} to your stripe account`;
 };
+
 
 export const updateStripeController = async (input: string, user: User) => {
   if (!input) {
