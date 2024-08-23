@@ -36,7 +36,6 @@ export default function Cart() {
     (acc, { product }) => acc + product.price * FEEINPROCENT,
     0
   );
-
   const cartItemTotal = items.reduce(
     (total: any, { product }: any) => total + product.price,
     0

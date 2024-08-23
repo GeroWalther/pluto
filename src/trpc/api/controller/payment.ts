@@ -11,7 +11,6 @@ export const createSessionController = async (
   productId: string[],
   user: User
 ) => {
-
   const cartItems = await prisma.product.findMany({
     where: {
       id: {
@@ -47,12 +46,15 @@ export const createSessionController = async (
   // Define the type for the accumulator object
   type SellerStripeAccounts = { [key: string]: string };
 
-  const sellerStripeAccounts = sellers.reduce<SellerStripeAccounts>((acc, seller) => {
-    if (seller.stripe_account_Id) {
-      acc[seller.id] = seller.stripe_account_Id;
-    }
-    return acc;
-  }, {});
+  const sellerStripeAccounts = sellers.reduce<SellerStripeAccounts>(
+    (acc, seller) => {
+      if (seller.stripe_account_Id) {
+        acc[seller.id] = seller.stripe_account_Id;
+      }
+      return acc;
+    },
+    {}
+  );
 
   const lineItems = cartItems.map((product) => {
     const price = product?.price || 0;
@@ -70,46 +72,44 @@ export const createSessionController = async (
       quantity: 1,
     };
   });
-  
+
   type Metadata = {
     [key: string]: string | number;
   };
-  
+
   const metadata = cartItems.reduce<Metadata>((acc, product, index) => {
     acc[`productId_${index}`] = product.id;
     acc[`userId_${index}`] = product.userId || 'default_user_id';
-    acc[`destination_${index}`] = sellerStripeAccounts[product.userId] || 'default_destination';
+    acc[`destination_${index}`] =
+      sellerStripeAccounts[product.userId] || 'default_destination';
     acc[`amount_${index}`] = (product.price || 0) * 0.95;
     return acc;
   }, {});
-  
+
   const productNames = cartItems.map((product) => product.name);
   const productFiles = cartItems.map((product) => product.imageUrls).flat();
-  
+
   const productIds = cartItems.map((product) => product.id);
   const totalAmount = cartItems.reduce(
     (acc, product) => acc + product.price,
     0
   );
 
-const serviceCharge = totalAmount* 0.05; // Deduct 5%
+  const serviceCharge = Math.floor(totalAmount * 0.05 * 100); // Deduct 5%
   // Add delivery charge as an additional line item
   lineItems.push({
-  price_data: {
-    currency: 'eur',
-    product_data: {
-      name: 'Total Transaction Fee'
+    price_data: {
+      currency: 'eur',
+      product_data: {
+        name: 'Total Transaction Fee',
+      },
+      unit_amount: serviceCharge,
     },
-    unit_amount: serviceCharge*100,
-  },
-  quantity: 1,
-});
-
-
+    quantity: 1,
+  });
 
   const orderId = `${generateRandomToken()}`;
   const successUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you/${orderId}?session_id={CHECKOUT_SESSION_ID}`;
-
 
   // return true;
   const session = await stripe.checkout.sessions.create({
@@ -120,7 +120,6 @@ const serviceCharge = totalAmount* 0.05; // Deduct 5%
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cart`,
     metadata: metadata,
   });
-  
 
   if (!session) {
     throw new TRPCError({
