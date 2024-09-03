@@ -4,10 +4,11 @@ import { trpc } from '@/trpc/client';
 import { File } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import Loader from '../Loader/Loader';
 import ErrorPageComp from '../comp/ErrorPageComp';
 import PaymentStatus from '../comp/PaymentStatus';
+import { useCart } from '@/hooks/use-cart';
 
 interface ThankyouProps {
   orderId: string;
@@ -22,6 +23,12 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
   } = trpc.payment.confirmPurchase.useQuery({
     orderId,
   });
+
+  const { clearCart } = useCart();
+  useEffect(() => {
+    clearCart();
+  }, []);
+
   //TODO: make this work
   const downloadAllFiles = () => {
     const fileContent = response?.getProducts
