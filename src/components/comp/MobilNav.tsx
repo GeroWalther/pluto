@@ -148,6 +148,7 @@ import { useSignOut } from '@/hooks/use-sign-out';
 import { PlutoLogo } from '../svgs/Icons';
 import IsProAd from './IsProAd';
 import Cart from './Cart';
+import UserAccountNav from './UserAccountNav';
 
 export default function MobilNav() {
   const { data: session } = useSession();
@@ -204,22 +205,30 @@ export default function MobilNav() {
                   </li>
                 ))}
               </ul>
-
               {/* Log out/ Log in */}
               {user && (
-                <Button
-                  onClick={() => {
-                    setOpen(false);
-                    plutoSignOut();
-                  }}
-                  className={buttonVariants({
-                    size: 'sm',
-                    className: 'w-[40%] ',
-                  })}>
-                  Log out
-                </Button>
+                <div className='flex gap-4'>
+                  <Link
+                    href='/dashboard'
+                    className={buttonVariants({
+                      size: 'sm',
+                      className: 'w-[40%] ',
+                    })}>
+                    Dashboard
+                  </Link>
+                  <Button
+                    onClick={() => {
+                      setOpen(false);
+                      plutoSignOut();
+                    }}
+                    className={buttonVariants({
+                      size: 'sm',
+                      className: 'w-[40%] ',
+                    })}>
+                    Log out
+                  </Button>
+                </div>
               )}
-
               {!user && (
                 <div className='space-x-6 '>
                   <Link
@@ -241,7 +250,6 @@ export default function MobilNav() {
                   </Link>
                 </div>
               )}
-
               <IsProAd />
             </nav>
           </ScrollArea>
