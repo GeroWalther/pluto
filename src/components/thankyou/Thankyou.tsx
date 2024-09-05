@@ -1,14 +1,15 @@
 'use client';
 import { formatPrice } from '@/lib/utils';
 import { trpc } from '@/trpc/client';
-import { File } from 'lucide-react';
+import { Download, Eye, File } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Loader from '../Loader/Loader';
 import ErrorPageComp from '../comp/ErrorPageComp';
 import PaymentStatus from '../comp/PaymentStatus';
 import { useCart } from '@/hooks/use-cart';
+import JSZip from 'jszip';
 
 interface ThankyouProps {
   orderId: string;
@@ -24,24 +25,107 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
     orderId,
   });
 
+  const [downloadStatus, setDownloadStatus] = useState<{
+    [key: string]: string;
+  }>({});
+
   const { clearCart } = useCart();
   useEffect(() => {
     clearCart();
   }, []);
 
-  //TODO: make this work
-  const downloadAllFiles = () => {
-    const fileContent = response?.getProducts
-      .map((product) => product.productFileUrls.join('\n'))
-      .join('\n');
-    const fileType = response?.getProducts.map((pType) => pType.category);
+  const getFileExtension = (url: string): string => {
+    return url.split('.').pop()?.toLowerCase() || '';
+  };
 
-    const blob = new Blob([fileContent!], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'pluto_files.txt';
-    link.click();
+  const canViewInBrowser = (url: string): boolean => {
+    const extension = getFileExtension(url);
+    return [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'pdf',
+      'svg',
+      'webp',
+      'txt',
+      'json',
+      'js',
+      'xml',
+    ].includes(extension);
+  };
+
+  const downloadFile = async (url: string, fileName: string) => {
+    setDownloadStatus((prev) => ({ ...prev, [url]: 'downloading' }));
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Not able to load file');
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+      //to release memory
+      setDownloadStatus((prev) => ({ ...prev, [url]: 'success' }));
+    } catch (error) {
+      setDownloadStatus((prev) => ({ ...prev, [url]: 'error' }));
+    }
+  };
+
+  const downloadAllFiles = async () => {
+    if (!response) return;
+
+    setDownloadStatus({ all: 'downloading' });
+    const zip = new JSZip();
+    const fetchPromises = response.getProducts.flatMap((product) =>
+      product.imageUrls.map(async (url, index) => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+          const blob = await response.blob();
+          const fileName = `${product.name}_${index + 1}.${getFileExtension(
+            url
+          )}`;
+          zip.file(fileName, blob);
+          return { success: true, fileName };
+        } catch (error) {
+          console.error(`Error fetching file ${url}:`, error);
+          return { success: false, url };
+        }
+      })
+    );
+
+    const results = await Promise.all(fetchPromises);
+    const failedDownloads = results.filter((result) => !result.success);
+
+    if (failedDownloads.length > 0) {
+      console.warn('Some files failed to download:', failedDownloads);
+      setDownloadStatus((prev) => ({ ...prev, all: 'partial' }));
+    } else {
+      try {
+        const content = await zip.generateAsync({ type: 'blob' });
+        const zipUrl = URL.createObjectURL(content);
+        const link = document.createElement('a');
+        link.href = zipUrl;
+        link.download = 'pluto_files.zip';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(zipUrl);
+        setDownloadStatus((prev) => ({ ...prev, all: 'success' }));
+      } catch (error) {
+        console.error('Error creating zip file:', error);
+        setDownloadStatus((prev) => ({ ...prev, all: 'error' }));
+      }
+    }
+  };
+
+  const viewFile = (url: string) => {
+    window.open(url, '_blank');
   };
 
   return (
@@ -116,25 +200,44 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                               </div>
 
                               <div className='space-y-1'>
-                                {product.imageUrls.map((url, index) => {
-                                  return (
-                                    // TODO this download is not working
-                                    <a
-                                      href={url}
-                                      download={product.name}
-                                      className='text-blue-600 hover:underline underline-offset-2'
-                                      key={index}>
-                                      <div className='flex py-2'>
-                                        <File className='w-5 h-5' /> -{' '}
-                                        <span>
-                                          {product.name}{' '}
-                                          {product.imageUrls.length > 1 &&
-                                            index + 1}
-                                        </span>
-                                      </div>
-                                    </a>
-                                  );
-                                })}
+                                {product.imageUrls.map((url, index) => (
+                                  <div
+                                    key={index}
+                                    className='flex items-center space-x-2 py-2'>
+                                    <button
+                                      onClick={() =>
+                                        downloadFile(
+                                          url,
+                                          `${product.name}_${
+                                            index + 1
+                                          }.${getFileExtension(url)}`
+                                        )
+                                      }
+                                      className='text-blue-600 hover:underline underline-offset-2 flex items-center'
+                                      disabled={
+                                        downloadStatus[url] === 'downloading'
+                                      }>
+                                      <Download className='w-5 h-5 mr-1' />
+                                      <span>
+                                        {downloadStatus[url] === 'downloading'
+                                          ? 'Downloading...'
+                                          : downloadStatus[url] === 'success'
+                                          ? 'Downloaded'
+                                          : downloadStatus[url] === 'error'
+                                          ? 'Retry Download'
+                                          : 'Download'}
+                                      </span>
+                                    </button>
+                                    {canViewInBrowser(url) && (
+                                      <button
+                                        onClick={() => viewFile(url)}
+                                        className='text-blue-600 hover:underline underline-offset-2 flex items-center'>
+                                        <Eye className='w-5 h-5 mr-1' />
+                                        View
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
                               </div>
                             </div>
 
@@ -158,8 +261,15 @@ const Thankyou: FC<ThankyouProps> = ({ orderId }) => {
                   <div className='mt-5'>
                     <button
                       onClick={downloadAllFiles}
-                      className='text-blue-600 hover:underline underline-offset-2 text-lg'>
-                      Download All Files
+                      className='text-blue-600 hover:underline underline-offset-2 text-lg'
+                      disabled={downloadStatus.all === 'downloading'}>
+                      {downloadStatus.all === 'downloading'
+                        ? 'Downloading All...'
+                        : downloadStatus.all === 'partial'
+                        ? 'Some Files Downloaded'
+                        : downloadStatus.all === 'error'
+                        ? 'Retry Download All'
+                        : 'Download All Files'}
                     </button>
                   </div>
 
