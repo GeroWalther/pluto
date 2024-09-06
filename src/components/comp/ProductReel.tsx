@@ -18,6 +18,7 @@ const FALLBACK_LIMIT = 4;
 
 const ProductReel = (props: ProductReelProps) => {
   const { title, subtitle, href, query } = props;
+  const filter = query.category;
 
   //TODO: make this work
   // const { data: queryResults, isLoading } =
@@ -34,20 +35,35 @@ const ProductReel = (props: ProductReelProps) => {
   const { data: queryResults, isLoading } =
     trpc.admin.getApprovedProducts.useQuery();
 
+  let displayedItems;
+  if (filter === 'all' || (queryResults && queryResults.length))
+    displayedItems = queryResults;
+  if (filter === 'Icons')
+    displayedItems = queryResults?.filter((c) => c.category === 'Icons');
+  if (filter === 'Ebook')
+    displayedItems = queryResults?.filter((c) => c.category === 'Ebook');
+  if (filter === 'UiUx')
+    displayedItems = queryResults?.filter((c) => c.category === 'UiUx');
+  if (filter === 'Font')
+    displayedItems = queryResults?.filter((c) => c.category === 'Font');
+  if (filter === 'Image')
+    displayedItems = queryResults?.filter((c) => c.category === 'Image');
+
   // const products = queryResults?.pages.flatMap((page) => page.items);
 
-  let map: (ProductType | null)[] = [];
+  //let map: (ProductType | null)[] = [];
   // if (products && products.length) {
   //   map = products;
   // } else if (isLoading) {
   //   map = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
   // }
 
-  if (queryResults && queryResults.length) {
-    map = queryResults;
-  }
+  // if (queryResults && queryResults.length) {
+  //   displayedItems = queryResults;
+  // }
+
   if (isLoading) {
-    map = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
+    displayedItems = new Array<null>(query.limit ?? FALLBACK_LIMIT).fill(null);
   }
 
   return (
@@ -74,13 +90,15 @@ const ProductReel = (props: ProductReelProps) => {
       <div className='relative'>
         <div className='mt-6 flex items-center w-full'>
           <div className='w-full grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-10 lg:gap-x-8'>
-            {map.map((product: ProductType | null, i: number) => (
-              <ProductListing
-                key={`product-${i}`}
-                product={product}
-                index={i}
-              />
-            ))}
+            {displayedItems
+              ?.slice(0, query.limit)
+              ?.map((product: ProductType | null, i: number) => (
+                <ProductListing
+                  key={`product-${i}`}
+                  product={product}
+                  index={i}
+                />
+              ))}
           </div>
         </div>
       </div>
