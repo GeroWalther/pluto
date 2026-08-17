@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pluto-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pluto
+      POSTGRES_PASSWORD: pluto
+      POSTGRES_DB: pluto
+    ports:
+      - '5432:5432'
+    volumes:
+      - pluto-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U pluto -d pluto']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pluto-pgdata:

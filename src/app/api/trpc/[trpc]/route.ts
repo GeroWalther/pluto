@@ -1,24 +1,18 @@
-import { appRouter } from '@/trpc';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import type { NextRequest } from 'next/server';
+import { appRouter } from '@/trpc';
+import { createContext } from '@/trpc/trpc';
 
-type Context = {
-  req: NextApiRequest;
-  res: NextApiResponse;
-};
-
-const handler = async (req: NextRequest) => {
-  const result = await fetchRequestHandler({
-    endpoint: 'api/trpc',
+const handler = (req: Request) =>
+  fetchRequestHandler({
+    endpoint: '/api/trpc',
     req,
     router: appRouter,
-    createContext: (): Context => {
-      return {} as Context;
+    createContext,
+    onError({ error, path }) {
+      if (error.code === 'INTERNAL_SERVER_ERROR') {
+        console.error(`[trpc] ${path ?? '<no-path>'} failed:`, error.cause ?? error);
+      }
     },
   });
 
-  return result;
-};
-
-export { handler as DELETE, handler as GET, handler as POST, handler as PUT };
+export { handler as GET, handler as POST };

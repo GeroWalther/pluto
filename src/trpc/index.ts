@@ -1,25 +1,20 @@
-import { adminRouter } from "./api/admin";
-import { authRouter } from "./api/auth";
-import { paymentRouter } from "./api/payment";
-import { sellerRouter } from "./api/seller";
-import { stripeRoute } from "./api/stripe";
-import { test } from "./api/test";
-import { createCallerFactory, router } from "./trpc";
-
-// Main root appRouter containing all of the defined api routes on a higher level. Routes are split up the api folder into different nested roters each handling only certain related tasks.
-//In controller folder are the low level data manipulation functions, also split up accordingly.
+import { router } from './trpc';
+import { accountRouter } from './routers/account';
+import { adminRouter } from './routers/admin';
+import { orderRouter } from './routers/order';
+import { payoutsRouter } from './routers/payouts';
+import { productRouter } from './routers/product';
+import { reviewRouter } from './routers/review';
+import { sellerRouter } from './routers/seller';
 
 export const appRouter = router({
-  auth: authRouter,
+  account: accountRouter,
+  product: productRouter,
   seller: sellerRouter,
+  order: orderRouter,
+  review: reviewRouter,
+  payouts: payoutsRouter,
   admin: adminRouter,
-  payment: paymentRouter,
-  stripe: stripeRoute,
-  test: test,
 });
 
-export type TAppRouter = typeof appRouter;
-
-// Server Caller
-const createCaller = createCallerFactory(appRouter);
-export const serverCaller = createCaller({});
+export type AppRouter = typeof appRouter;

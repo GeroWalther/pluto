@@ -1,166 +1,34 @@
-"use client";
-import GithubButton from "@/components/Btn/GithubButton";
-import { GoogleButton } from "@/components/Btn/GoogleButton";
-import { PlutoLogo } from "@/components/svgs/Icons";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import {
-  AuthCredentialsValidatorSignIn,
-  TAuthCredentialsValidatorSignIn,
-} from "@/lib/validators/account-credentials-validator";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { Suspense } from 'react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { hasGithubAuth, hasGoogleAuth } from '@/lib/env';
+import { constructMetadata } from '@/lib/utils';
+import { AuthShell } from '@/components/layout/AuthShell';
+import { PageSpinner } from '@/components/shared/states';
+import SignInForm from './SignInForm';
 
-const Page = () => {
-  // const searchParams = useSearchParams();
-  const router = useRouter();
-  // const isSeller = searchParams.get('as') === 'seller';
-  // const origin = searchParams.get('origin');
-  // const continueAsSeller = () => {
-  //   router.push('?as=seller');
-  // };
-  // const continueAsBuyer = () => {
-  //   router.replace('/sign-in', undefined);
-  // };
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TAuthCredentialsValidatorSignIn>({
-    resolver: zodResolver(AuthCredentialsValidatorSignIn),
-  });
+export const metadata = constructMetadata({ title: 'Sign in — Pluto Market' });
 
-  const onSubmit = async (data: TAuthCredentialsValidatorSignIn) => {
-    const response = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false, //todo change callbackUrl
-    });
-
-    if (!response || response == (null || undefined)) {
-      toast.error("We couldn't sign you in. Please try again.");
-    }
-    if (response?.error) {
-      toast.error(response?.error);
-    }
-    if (response?.ok) {
-      toast.success("You have been signed in!");
-      router.push("/"); //todo change callbackUrl
-    }
-  };
-
-  async function githubLogin() {
-    await signIn("github", { callbackUrl: "/dashboard" }); //todo change callbackUrl
-  }
-  async function googleLogin() {
-    await signIn("google", { callbackUrl: "/dashboard" }); //todo change callbackUrl
-  }
+export default async function SignInPage() {
+  const session = await auth();
+  if (session?.user) redirect('/');
 
   return (
-    <>
-      <div className="container relative flex pt-20 flex-col items-center justify-center lg:px-0">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <div className="flex flex-col items-center space-y-2 text-center">
-            <PlutoLogo className="h-32 w-32" />
-            {/* <h1 className='text-2xl font-bold'>
-              Sign in to your {isSeller ? 'seller' : ''} account
-            </h1> */}
-
-            <Link
-              className={buttonVariants({
-                variant: "link",
-                className: "text-blue-600",
-              })}
-              href="/sign-up"
-            >
-              Don&apos;t have an account? &rarr;
-            </Link>
-          </div>
-          {/* TODO: Add forgot password functionality */}
-          <div className="grid gap-6 pb-16">
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="grid gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    {...register("email")}
-                    className={cn({
-                      "focus-visible:ring-red-500": errors.email,
-                    })}
-                    placeholder="you@example.com"
-                  />
-                  {errors?.email && (
-                    <p className="text-sm text-red-500">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    {...register("password")}
-                    type="password"
-                    className={cn({
-                      "focus-visible:ring-red-500": errors.password,
-                    })}
-                    placeholder="Password"
-                  />
-                  {errors?.password && (
-                    <p className="text-sm text-red-500">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-                <Button>Sign in</Button>
-
-                <Separator />
-              </div>
-            </form>
-            <GoogleButton onClick={googleLogin} />
-            <GithubButton onClick={githubLogin} />
-
-            <div className="relative">
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 flex items-center"
-              >
-                <span className="w-full border-t" />
-              </div>
-              {/* <div className='relative flex justify-center text-xs uppercase'>
-                <span className='bg-background px-2 text-muted-foreground  text-bold'>
-                  or
-                </span>
-              </div> */}
-            </div>
-
-            {/* {isSeller ? (
-              <Button
-                onClick={continueAsBuyer}
-                variant='secondary'
-                disabled={false}>
-                Continue as customer
-              </Button>
-            ) : (
-              <Button
-                onClick={continueAsSeller}
-                variant='secondary'
-                //TODO this is isLoading from trpc tanstack query
-                disabled={false}>
-                Continue as seller
-              </Button> 
-            )}*/}
-          </div>
-        </div>
-      </div>
-    </>
+    <AuthShell
+      title='Welcome back'
+      subtitle='Sign in to your Pluto Market account'
+      footer={
+        <>
+          Don&apos;t have an account?{' '}
+          <Link href='/sign-up' className='font-medium text-indigo-600 hover:underline'>
+            Sign up
+          </Link>
+        </>
+      }>
+      <Suspense fallback={<PageSpinner />}>
+        <SignInForm google={hasGoogleAuth()} github={hasGithubAuth()} />
+      </Suspense>
+    </AuthShell>
   );
-};
-
-export default Page;
+}

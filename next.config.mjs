@@ -1,26 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["localhost", "utfs.io"],
     remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "3000",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname:
-          process.env.NEXT_PUBLIC_SERVER_URL.split("https://")[1] || "utfs.io",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "utfs.io",
-        pathname: "/**",
-      },
+      // UploadThing serves both hosts depending on account age.
+      { protocol: 'https', hostname: '**.ufs.sh', pathname: '/**' },
+      { protocol: 'https', hostname: 'utfs.io', pathname: '/**' },
+      // Seed data for the demo catalogue.
+      { protocol: 'https', hostname: 'picsum.photos', pathname: '/**' },
+      { protocol: 'https', hostname: 'fastly.picsum.photos', pathname: '/**' },
+      // OAuth avatars.
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com', pathname: '/**' },
     ],
+  },
+
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+    ];
   },
 };
 

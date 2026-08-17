@@ -1,37 +1,22 @@
-import MaxWidthWrapper from '@/components/comp/MaxWidthWrapper';
-import ProductReel from '@/components/comp/ProductReel';
-import { PRODUCT_CATEGORIES } from '@/config';
+import { Suspense } from 'react';
+import { constructMetadata } from '@/lib/utils';
+import MaxWidthWrapper from '@/components/shared/MaxWidthWrapper';
+import { PageSpinner } from '@/components/shared/states';
+import ProductsBrowser from './ProductsBrowser';
 
-type Param = string | string[] | undefined;
+export const metadata = constructMetadata({
+  title: 'Browse digital products — Pluto Market',
+  description:
+    'Search UI kits, icons, fonts, templates, photos, e-books and audio from independent creators.',
+});
 
-interface ProductsPageProps {
-  searchParams: { [key: string]: Param };
-}
-
-const parse = (param: Param) => {
-  return typeof param === 'string' ? param : undefined;
-};
-
-const ProductsPage = ({ searchParams }: ProductsPageProps) => {
-  const sort = parse(searchParams.sort);
-  const category = parse(searchParams.category);
-
-  const label = PRODUCT_CATEGORIES.find(
-    ({ value }) => value === category
-  )?.label;
-
+export default function ProductsPage() {
   return (
-    <MaxWidthWrapper>
-      <ProductReel
-        title={label ?? 'Browse all high-quality assets'}
-        query={{
-          category,
-          limit: 50,
-          sort: sort === 'desc' || sort === 'asc' ? sort : undefined,
-        }}
-      />
+    <MaxWidthWrapper className='py-10'>
+      {/* useSearchParams needs a Suspense boundary to keep the page static. */}
+      <Suspense fallback={<PageSpinner />}>
+        <ProductsBrowser />
+      </Suspense>
     </MaxWidthWrapper>
   );
-};
-
-export default ProductsPage;
+}

@@ -1,115 +1,52 @@
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
-import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadThingError } from "uploadthing/server";
+import { createUploadthing, type FileRouter } from 'uploadthing/next';
+import { UploadThingError } from 'uploadthing/server';
+import { auth } from '@/lib/auth';
 
 const f = createUploadthing();
 
-const middlewareHandle = async () => {
-  const session = await getServerSession(authOptions);
-  if (!session) throw new UploadThingError("Unauthorized");
-
-  // Whatever is returned here is accessible in onUploadComplete as `metadata`
+async function requireUser() {
+  const session = await auth();
+  if (!session?.user) throw new UploadThingError('You must be signed in to upload.');
   return { userId: session.user.id };
-};
-
-const onUploadCompleteHandle = async ({ userId }: { userId: string }) => {
-  // This code RUNS ON YOUR SERVER after upload
-
-  // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-  return {
-    uploadedBy: userId,
-  };
-};
+}
 
 export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
+  /** Public preview images shown on the listing. */
+  productImage: f({
+    image: { maxFileSize: '4MB', maxFileCount: 5 },
+  })
+    .middleware(requireUser)
+    .onUploadComplete(({ metadata, file }) => ({
+      uploadedBy: metadata.userId,
+      key: file.key,
+      url: file.ufsUrl,
+      name: file.name,
+    })),
 
-  pdfUploader: f({ pdf: { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
+  /**
+   * The deliverable. These blobs are never linked publicly — the URL is stored
+   * server-side and only reachable through /api/download after purchase.
+   */
+  productFile: f({
+    blob: { maxFileSize: '64MB', maxFileCount: 10 },
+  })
+    .middleware(requireUser)
+    .onUploadComplete(({ metadata, file }) => ({
+      uploadedBy: metadata.userId,
+      key: file.key,
+      url: file.ufsUrl,
+      name: file.name,
+    })),
 
-  ttfFontUploader: f({ "font/ttf": { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  otfFontUploader: f({ "font/otf": { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  markdownUploader: f({ "text/markdown": { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  jsonUploader: f({ "application/json": { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  javascriptUploader: f({ "application/javascript": { maxFileSize: "16MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  svgUploader: f({ "image/svg+xml": { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  epubUploader: f({ "application/epub+zip": { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  mobiUploader: f({ "application/x-mobipocket-ebook": { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
-
-  txtUploader: f({ text: { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      return await middlewareHandle();
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return await onUploadCompleteHandle({ userId: metadata.userId });
-    }),
+  /** Profile picture. */
+  avatar: f({ image: { maxFileSize: '2MB', maxFileCount: 1 } })
+    .middleware(requireUser)
+    .onUploadComplete(({ metadata, file }) => ({
+      uploadedBy: metadata.userId,
+      key: file.key,
+      url: file.ufsUrl,
+      name: file.name,
+    })),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

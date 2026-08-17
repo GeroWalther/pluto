@@ -1,199 +1,160 @@
-import { compare, hash } from 'bcryptjs';
-import { AuthOptions } from 'next-auth';
+import { compare } from 'bcryptjs';
+import type { AuthOptions, Session } from 'next-auth';
+import { getServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
-import { createUser, findUserbyEmail } from '@/db/prisma.user';
+import { AuthProvider, Role } from '@prisma/client';
+import prisma from '@/db/db';
+import { hasGithubAuth, hasGoogleAuth } from './env';
 
-export const authOptions: AuthOptions = {
-  // Providers array will be configured in the next steps
-  providers: [
+const providers: AuthOptions['providers'] = [];
+
+if (hasGoogleAuth()) {
+  providers.push(
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+      allowDangerousEmailAccountLinking: true,
+    })
+  );
+}
+
+if (hasGithubAuth()) {
+  providers.push(
     GitHubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
-    }),
-    CredentialsProvider({
-      name: 'Sign in',
-      credentials: {
-        email: {
-          label: 'Email',
-          type: 'email',
-          placeholder: 'example@example.com',
-        },
-        password: {
-          label: 'Password',
-          type: 'password',
-        },
-      },
+      allowDangerousEmailAccountLinking: true,
+    })
+  );
+}
 
-      // When someone tries to sign in, the authorize method is called with the credentials they provide.
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          throw new Error('No credentials provided.');
-        }
-        const user = await findUserbyEmail(credentials.email);
+providers.push(
+  CredentialsProvider({
+    name: 'Email and password',
+    credentials: {
+      email: { label: 'Email', type: 'email' },
+      password: { label: 'Password', type: 'password' },
+    },
+    async authorize(credentials) {
+      if (!credentials?.email || !credentials.password) {
+        throw new Error('Please enter your email and password.');
+      }
 
-        if (!user) {
-          throw new Error('Please enter an existing email.');
-        }
+      const user = await prisma.user.findUnique({
+        where: { email: credentials.email.toLowerCase().trim() },
+      });
 
-        if (user.provider !== 'credentials' && user.provider === 'google') {
-          throw new Error('Please sign in using Google sign in.');
-        }
+      // Same message for "no such user" and "wrong password" so the form
+      // cannot be used to enumerate which emails have accounts.
+      const invalid = new Error('That email and password combination is incorrect.');
+      if (!user) throw invalid;
 
-        if (user.provider !== 'credentials' && user.provider === 'github') {
-          throw new Error('Please sign in using Github sign in.');
-        }
+      if (!user.passwordHash) {
+        throw new Error(
+          `This account was created with ${user.provider === AuthProvider.GOOGLE ? 'Google' : 'GitHub'}. Please use that sign-in button.`
+        );
+      }
 
-        if (!user.isEmailVerified) {
-          throw new Error('Please verify your email.');
-        }
+      if (!(await compare(credentials.password, user.passwordHash))) throw invalid;
 
-        if (!(await compare(credentials.password, user.password))) {
-          throw new Error('The password you entered is incorrect');
-        }
+      if (!user.emailVerifiedAt) {
+        throw new Error('Please verify your email address first — check your inbox.');
+      }
 
-        // this is our token for the callback function
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.isAdmin,
-          image: user.image,
-        };
-      },
-    }),
-  ],
-
-  pages: {
-    signIn: '/sign-in',
-    newUser: '/sign-up',
-  },
-
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days expiration
-  },
-
-  jwt: {
-    secret: process.env.JWT_SECRET!,
-    maxAge: 30 * 24 * 60 * 60, // 30 days expiration
-  },
-
-  secret: process.env.SECRET!,
-
-  //runs after authorize function
-  callbacks: {
-    session: ({ session, token }) => {
-      //token is returned from authorize function above or O-Auth providers
       return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.id,
-          name: token.name,
-          email: token.email,
-          image: token.image as string | null | undefined,
-          role: token.role,
-        },
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
       };
     },
+  })
+);
 
-    jwt: async ({ token, user, trigger, session, account }) => {
-      // we get these from either our authorize function returned or from the github/google O-Auth
+export const authOptions: AuthOptions = {
+  providers,
 
-      if (account?.provider === 'github') {
-        const user = await findUserbyEmail(token.email!);
+  pages: { signIn: '/sign-in', newUser: '/sign-up', error: '/sign-in' },
 
-        // Now the sign Up part for github
-        if (!user) {
-          const newUser = await createUser({
-            name: token?.name,
-            email: token.email!,
-            isEmailVerified: true,
-            password: await hash(token.name!, 10),
-            image: token.picture,
-            token: await hash(token.email!, 10),
-            provider: 'github',
-          });
+  session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 },
 
-          return {
-            ...token,
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-            image: token.picture,
-          };
-        }
+  secret: process.env.NEXTAUTH_SECRET,
 
-        //Or Github sign in if user exists
-        return {
-          ...token,
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: token.picture,
-        };
-      } else if (account?.provider === 'google') {
-        const user = await findUserbyEmail(token.email!);
-        // Google sign in if user exists
-        if (user) {
-          return {
-            ...token,
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: token.picture,
-          };
-        }
-        // Now the sign Up part for google
-        if (!user) {
-          const newUser = await createUser({
-            name: token.name,
-            email: token.email!,
-            isEmailVerified: true,
-            password: await hash(token.name!, 10),
-            image: token.picture,
-            token: await hash(token.email!, 10),
-            provider: 'google',
-          });
+  callbacks: {
+    /**
+     * OAuth sign-ins create the local user row on first login. Credentials
+     * sign-ins already have one by the time we get here.
+     */
+    async signIn({ user, account }) {
+      if (!account || account.provider === 'credentials') return true;
+      if (!user.email) return false;
 
-          return {
-            ...token,
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-            image: token.picture,
-          };
+      const provider =
+        account.provider === 'google' ? AuthProvider.GOOGLE : AuthProvider.GITHUB;
+
+      await prisma.user.upsert({
+        where: { email: user.email.toLowerCase() },
+        // Never overwrite a name/avatar the user has customised locally.
+        update: { emailVerifiedAt: new Date() },
+        create: {
+          email: user.email.toLowerCase(),
+          name: user.name ?? user.email.split('@')[0],
+          image: user.image,
+          provider,
+          emailVerifiedAt: new Date(),
+        },
+      });
+
+      return true;
+    },
+
+    async jwt({ token, trigger }) {
+      if (!token.email) return token;
+
+      // Re-read on sign-in and on an explicit session.update() so role and
+      // seller status stay accurate without a database hit on every request.
+      if (!token.id || trigger === 'signIn' || trigger === 'update') {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            role: true,
+            stripeAccountId: true,
+            stripePayoutsEnabled: true,
+          },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.name = dbUser.name;
+          token.picture = dbUser.image;
+          token.role = dbUser.role;
+          token.isSeller = Boolean(dbUser.stripeAccountId);
+          token.payoutsEnabled = dbUser.stripePayoutsEnabled;
         }
       }
-      if (trigger === 'update') {
-        return {
-          ...token,
-          ...session.user,
-        };
+
+      return token;
+    },
+
+    session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = (token.role as Role) ?? Role.USER;
+        session.user.isSeller = Boolean(token.isSeller);
+        session.user.payoutsEnabled = Boolean(token.payoutsEnabled);
       }
-
-      // Add additional token info
-      const dbUser = await findUserbyEmail(token.email as string);
-
-      if (!dbUser) {
-        return token;
-      }
-
-      // this will be available in the useSession hook under data
-      return {
-        ...token,
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        image: dbUser.image!,
-        role: dbUser.isAdmin,
-      };
+      return session;
     },
   },
 };
+
+export function auth(): Promise<Session | null> {
+  return getServerSession(authOptions);
+}
+
+export const isAdmin = (session: Session | null) => session?.user?.role === Role.ADMIN;

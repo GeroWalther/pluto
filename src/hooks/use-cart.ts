@@ -1,69 +1,59 @@
-import { ProductType } from '@/components/Table/MasterTable';
+'use client';
+
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-export type CartItem = {
-  product: ProductType;
-};
-
+/**
+ * The cart only ever holds product ids. Names and prices are re-read from the
+ * server on the cart page, so a stale localStorage entry can never influence
+ * what anyone is charged.
+ */
 type CartState = {
-  items: CartItem[];
-  addItem: (product: ProductType) => void;
-  removeItem: (productId: string) => void;
-  clearCart: () => void;
+  productIds: string[];
+  hydrated: boolean;
+  add: (productId: string) => void;
+  remove: (productId: string) => void;
+  toggle: (productId: string) => void;
+  clear: () => void;
+  has: (productId: string) => boolean;
 };
 
-// add items
-// remove items
-// clear the cart
-// (keep track of cart items)
 export const useCart = create<CartState>()(
   persist(
-    (set) => ({
-      items: [],
-      addItem: (product) =>
-        set((state) => {
-          // this logic prevents adding items with the same id
-          const existingItem = state.items.find(
-            (item) => item.product.id === product.id
-          );
-          if (existingItem) {
-            return state;
-          }
-          return { items: [...state.items, { product }] };
+    (set, get) => ({
+      productIds: [],
+      hydrated: false,
 
-          // if we want to allow for multiple items with the same id in the cart use this code:
-          // set((state) => {
-          //   return { items: [...state.items, { product }] };
-          // }),
-        }),
-      removeItem: (id) =>
-        set((state) => {
-          // if we can have multiple items with the same id this logic removes the one of them
-          //   const itemIndex = state.items.findIndex(
-          //     (item) => item.product.id === id
-          //   );
+      add: (productId) =>
+        set((state) =>
+          state.productIds.includes(productId)
+            ? state
+            : { productIds: [...state.productIds, productId] }
+        ),
 
-          //   if (itemIndex !== -1) {
-          //     const updatedItems = [...state.items];
-          //     updatedItems.splice(itemIndex, 1);
+      remove: (productId) =>
+        set((state) => ({
+          productIds: state.productIds.filter((id) => id !== productId),
+        })),
 
-          //     return { items: updatedItems };
-          //   }
+      toggle: (productId) =>
+        get().productIds.includes(productId)
+          ? get().remove(productId)
+          : get().add(productId),
 
-          //   return state;
-          // in addItem we have a logic that prevents multiple items of the same id to be added so we go with below logic
-          const updatedItems = state.items.filter(
-            (item) => item.product.id !== id
-          );
+      clear: () => set({ productIds: [] }),
 
-          return { items: updatedItems };
-        }),
-      clearCart: () => set({ items: [] }),
+      has: (productId) => get().productIds.includes(productId),
     }),
     {
-      name: 'cart-storage',
+      name: 'pluto-cart',
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ productIds: state.productIds }),
+      // Server and first client render must agree, so components read
+      // `hydrated` before showing counts.
+      onRehydrateStorage: () => (state) => {
+        if (state) state.hydrated = true;
+      },
     }
   )
 );

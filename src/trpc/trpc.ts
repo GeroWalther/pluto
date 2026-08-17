@@ -1,56 +1,49 @@
-import { authOptions } from '@/lib/auth';
-import { TRPCError, initTRPC } from '@trpc/server';
-import { getServerSession } from 'next-auth';
+import { initTRPC, TRPCError } from '@trpc/server';
+import superjson from 'superjson';
+import { Role } from '@prisma/client';
+import { auth } from '@/lib/auth';
+import prisma from '@/db/db';
 
-const t = initTRPC.context<{}>().create();
+/**
+ * Built once per request. Resolving the session here means a request with ten
+ * procedure calls verifies the JWT once instead of ten times.
+ */
+export async function createContext() {
+  const session = await auth();
+  return { session, user: session?.user ?? null, prisma };
+}
 
-//add middleware to check if user is logged in and added extra info for private procedures
-const middleware = t.middleware;
+export type Context = Awaited<ReturnType<typeof createContext>>;
 
-const isAuthorized = middleware(async (opts) => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'User unauthorized. Please login or create a new account.',
-    });
-  }
-  return opts.next({
-    //this ctx object is available from within our
-    ctx: {
-      user: session.user,
-      greeting: 'Hello World from the middleware',
-    },
-  });
+const t = initTRPC.context<Context>().create({
+  // Dates come back as Dates on the client rather than strings that TypeScript
+  // has been told are Dates.
+  transformer: superjson,
 });
 
-// middleware to check if user has a session and isAdmin
-const isAdmin = middleware(async (opts) => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+const enforceAuth = t.middleware(({ ctx, next }) => {
+  if (!ctx.user) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
-      message: 'This user is unauthorized.',
+      message: 'Please sign in to continue.',
     });
   }
-  //role ??
-  if (!session.user.role) {
+  // Narrows `user` to non-null for every downstream procedure.
+  return next({ ctx: { ...ctx, user: ctx.user } });
+});
+
+const enforceAdmin = enforceAuth.unstable_pipe(({ ctx, next }) => {
+  if (ctx.user.role !== Role.ADMIN) {
     throw new TRPCError({
       code: 'FORBIDDEN',
-      message: 'This user is no admin',
+      message: 'This area is restricted to administrators.',
     });
   }
-  return opts.next({
-    ctx: {
-      userId: session.user.id,
-      email: session.user.email,
-      role: 'Admin',
-    },
-  });
+  return next({ ctx });
 });
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
-export const privateProcedure = t.procedure.use(isAuthorized);
-export const adminProcedure = t.procedure.use(isAdmin);
+export const privateProcedure = t.procedure.use(enforceAuth);
+export const adminProcedure = t.procedure.use(enforceAdmin);
 export const createCallerFactory = t.createCallerFactory;

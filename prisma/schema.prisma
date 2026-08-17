@@ -3,106 +3,235 @@ generator client {
 }
 
 datasource db {
-    provider = "mongodb"
+    provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
-enum Provider {
-    google
-    github
-    credentials
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+    USER
+    ADMIN
 }
 
-model User {
-    id              String    @id @default(auto()) @map("_id") @db.ObjectId
-    name            String?
-    email           String    @unique
-    password        String
-    isEmailVerified Boolean   @default(false)
-    image           String?
-    isAdmin         Boolean   @default(false)
-    token           String    @unique
-    provider        Provider?
-
-    stripe_account_Id String?
-    payout_status String?
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    sellerPaymentMethod SellerPayment[]
-
-    // Product list
-    listedProducts Product[]
-    order          Order[]
+enum AuthProvider {
+    CREDENTIALS
+    GOOGLE
+    GITHUB
 }
 
-enum Status {
+enum ProductStatus {
     PENDING
     APPROVED
     REJECTED
 }
 
-// Product Model
-model Product {
-    id              String   @id @default(auto()) @map("_id") @db.ObjectId
-    // Product details
-    name            String
-    description     String
-    price           Float
-    imageKeys       String[]
-    imageUrls       String[]
-    productFileUrls String[]
-    productFileKeys String[]
+enum ProductCategory {
+    EBOOKS
+    ICONS
+    UI_KITS
+    FONTS
+    PHOTOS
+    TEMPLATES
+    AUDIO
+}
 
-    // product status
-    status    Status   @default(PENDING)
-    // Other info
+enum OrderStatus {
+    PENDING
+    PAID
+    FAILED
+    REFUNDED
+}
+
+enum PayoutStatus {
+    PENDING
+    PAID
+    FAILED
+    UNAVAILABLE
+}
+
+// ---------------------------------------------------------------------------
+// Users
+// ---------------------------------------------------------------------------
+
+model User {
+    id           String  @id @default(cuid())
+    name         String?
+    email        String  @unique
+    // Null for OAuth-only accounts — they never set a password.
+    passwordHash String?
+    image        String?
+    bio          String?
+
+    role     Role         @default(USER)
+    provider AuthProvider @default(CREDENTIALS)
+
+    emailVerifiedAt        DateTime?
+    verificationToken      String?   @unique
+    verificationExpiresAt  DateTime?
+
+    // Stripe Connect (express account used to pay this user out as a seller)
+    stripeAccountId      String?  @unique
+    stripeChargesEnabled Boolean  @default(false)
+    stripePayoutsEnabled Boolean  @default(false)
+    stripeOnboardedAt    DateTime?
+
+    products Product[]
+    orders   Order[]
+    sales    OrderItem[] @relation("SellerSales")
+    reviews  Review[]
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    // User who listed the product
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String   @db.ObjectId
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue
+// ---------------------------------------------------------------------------
+
+model Product {
+    id          String @id @default(cuid())
+    slug        String @unique
+    name        String
+    description String
+
+    // All money is stored as integer minor units (cents) to avoid float drift.
+    priceCents Int
+
+    category ProductCategory
+
+    imageUrls String[]
+    imageKeys String[]
+
+    // The deliverable itself. Never exposed to the client — downloads go
+    // through /api/download, which checks for a paid order first.
+    fileUrls  String[]
+    fileKeys  String[]
+    fileNames String[]
+
+    status          ProductStatus @default(PENDING)
+    rejectionReason String?
+    reviewedAt      DateTime?
 
     soldCount Int @default(0)
 
-    category String @default("Image")
+    seller   User   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+    sellerId String
+
+    orderItems OrderItem[]
+    reviews    Review[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([status, category])
+    @@index([sellerId])
+    @@index([createdAt])
 }
 
-// Order Model
+model Review {
+    id       String  @id @default(cuid())
+    rating   Int
+    comment  String?
+
+    product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+    productId String
+
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    authorId String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // One review per buyer per product.
+    @@unique([productId, authorId])
+    @@index([productId])
+}
+
+// ---------------------------------------------------------------------------
+// Orders
+// ---------------------------------------------------------------------------
+
 model Order {
-    id           String   @id @default(auto()) @map("_id") @db.ObjectId
-    // Order details
-    productNames String[]
-    totalAmount  Float
-    // Other info
-    // product ID array
-    productIds   String[]
-    productFiles String[]
-    orderId      String   @unique
+    id          String @id @default(cuid())
+    orderNumber String @unique
 
-    sellerIds String[]
+    buyer   User   @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+    buyerId String
+
+    status   OrderStatus @default(PENDING)
+    currency String      @default("eur")
+
+    subtotalCents    Int
+    platformFeeCents Int
+    totalCents       Int
+
+    stripeCheckoutSessionId String? @unique
+    stripePaymentIntentId   String? @unique
+    // Needed as the `source_transaction` of seller transfers, so payouts draw
+    // on this specific charge rather than the platform's floating balance.
+    stripeChargeId          String? @unique
+
+    paidAt             DateTime?
+    receiptSentAt      DateTime?
+    refundedAt         DateTime?
+
+    items OrderItem[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    // User who placed the order
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String   @db.ObjectId
 
-    sendEmailToSeller Boolean @default(false)
-
-    isSold Boolean @default(false)
+    @@index([buyerId, status])
+    @@index([createdAt])
 }
 
-model SellerPayment {
-    id            String @id @default(auto()) @map("_id") @db.ObjectId
-    paymentMethod String
-    user          User   @relation(fields: [userId], references: [id])
-    userId        String @db.ObjectId
+model OrderItem {
+    id String @id @default(cuid())
 
-    stripeId     String
-    storedAmount Float  @default(0)
+    order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    orderId String
+
+    // Kept even if the product is later deleted, so order history stays intact.
+    product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+    productId String?
+
+    seller   User   @relation("SellerSales", fields: [sellerId], references: [id], onDelete: Cascade)
+    sellerId String
+
+    // Snapshots taken at purchase time — price and files must not change
+    // retroactively for someone who already bought.
+    productName String
+    priceCents  Int
+    fileUrls    String[]
+    fileKeys    String[]
+    fileNames   String[]
+
+    platformFeeCents    Int
+    sellerEarningsCents Int
+
+    payoutStatus     PayoutStatus @default(PENDING)
+    stripeTransferId String?
+    paidOutAt        DateTime?
+    payoutError      String?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@index([orderId])
+    @@index([sellerId, payoutStatus])
+    @@index([productId])
+}
+
+// ---------------------------------------------------------------------------
+// Infrastructure
+// ---------------------------------------------------------------------------
+
+// Stripe delivers webhooks at least once. We record every event id we have
+// finished processing so retries become no-ops.
+model ProcessedWebhookEvent {
+    id          String   @id
+    type        String
+    processedAt DateTime @default(now())
 }
